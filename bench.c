@@ -20,18 +20,31 @@ void *xcalloc(size_t n, size_t s)
 /* bench interface */
 
 struct benchtestdata {
-        int *data;
+        struct benchpayload *data;
         size_t n;
+};
+
+struct benchpayload {
+        /* can be changed. Be sure to adapt compare_benchpayload() as well */
+        float a;
+        float b;
 };
 
 struct treebenchfuncs {
         const char *benchname;
         void *(*init)(void);
         void (*exit)(void *self);
-        void (*insertbench)(void *self, int *data, size_t n);
-        void (*retrievebench)(void *self, int *data, size_t n);
-        void (*removebench)(void *self, int *data, size_t n);
+        void (*insertbench)(void *self, struct benchpayload *data, size_t n);
+        void (*retrievebench)(void *self, struct benchpayload *data, size_t n);
+        void (*removebench)(void *self, struct benchpayload *data, size_t n);
 };
+
+int compare_benchpayload(struct benchpayload *x, struct benchpayload *y)
+{
+        if (x->a != y->a)
+                return y->a - x->a;
+        return y->b - x->b;
+}
 
 
 /************************************
@@ -48,14 +61,12 @@ struct treebenchfuncs {
 
 struct sil_node {
         struct SIL_AVLhead __attribute((aligned(sizeof (void *)))) head;
-        int x;
+        struct benchpayload payload;
 };
 
 int compare_sil_node(struct sil_node *a, struct sil_node *b)
 {
-        /*printf("comparing %p (%d) and %p (%d)\n", a, a->x, b, b->x);
-         */
-        return b->x - a->x;
+        return compare_benchpayload(&a->payload, &b->payload);
 }
 
 /* include a second time to generate */
@@ -71,7 +82,7 @@ void *sil_init(void)
 {
         struct sil_state *state;
         printf("sizeof SIL_AVLhead struct: %zd\n", sizeof state->nodes[0].head);
-        printf("position of payload in node: %zd\n", ((char *)&state->nodes[0].x) - ((char*)&state->nodes[0]));
+        printf("position of payload in node: %zd\n", ((char *)&state->nodes[0].payload) - ((char*)&state->nodes[0]));
         printf("sizeof struct sil_node: %zd\n", sizeof state->nodes[0]);
         /*
          */
@@ -88,7 +99,7 @@ void sil_exit(void *self)
         free(state);
 }
 
-void sil_insertbench(void *self, int *data, size_t n)
+void sil_insertbench(void *self, struct benchpayload *data, size_t n)
 {
         struct sil_state *state;
         size_t i;
@@ -99,7 +110,7 @@ void sil_insertbench(void *self, int *data, size_t n)
         state->nnodes = n;
 
         for (i = 0; i < n; i++)
-                state->nodes[i].x = data[i];
+                state->nodes[i].payload = data[i];
 
         for (i = 0; i < n; i++)
                 SIL_AVLtree_insert(&state->tree, &state->nodes[i]);
@@ -109,7 +120,7 @@ void sil_insertbench(void *self, int *data, size_t n)
         */
 }
 
-void sil_retrievebench(void *self, int *data, size_t n)
+void sil_retrievebench(void *self, struct benchpayload *data, size_t n)
 {
         struct sil_state *state;
         struct sil_node *node;
@@ -123,7 +134,7 @@ void sil_retrievebench(void *self, int *data, size_t n)
         }
 }
 
-void sil_removebench(void *self, int *data, size_t n)
+void sil_removebench(void *self, struct benchpayload *data, size_t n)
 {
         struct sil_state *state;
         struct sil_node *node;
@@ -173,14 +184,12 @@ struct treebenchfuncs sil_funcs = {
 
 struct rbtree_node {
         RB_ENTRY(rbtree_node) entry_;
-        int x;
+        struct benchpayload payload;
 };
 
 int compare_rbtree_node(struct rbtree_node *a, struct rbtree_node *b)
 {
-        /*printf("comparing %p (%d) and %p (%d)\n", a, a->x, b, b->x);
-         */
-        return b->x - a->x;
+        return compare_benchpayload(&a->payload, &b->payload);
 }
 
 /* declare structure of head */
@@ -209,7 +218,7 @@ void rbtree_exit(void *self)
         free(state);
 }
 
-void rbtree_insertbench(void *self, int *data, size_t n)
+void rbtree_insertbench(void *self, struct benchpayload *data, size_t n)
 {
         struct rbtree_state *state;
         size_t i;
@@ -220,13 +229,13 @@ void rbtree_insertbench(void *self, int *data, size_t n)
         state->nnodes = n;
 
         for (i = 0; i < n; i++)
-                state->nodes[i].x = data[i];
+                state->nodes[i].payload = data[i];
 
         for (i = 0; i < n; i++)
                 RB_INSERT(RBtree, &state->tree, &state->nodes[i]);
 }
 
-void rbtree_retrievebench(void *self, int *data, size_t n)
+void rbtree_retrievebench(void *self, struct benchpayload *data, size_t n)
 {
         struct rbtree_state *state;
         size_t i;
@@ -237,7 +246,7 @@ void rbtree_retrievebench(void *self, int *data, size_t n)
                 RB_FIND(RBtree, &state->tree, &state->nodes[i]);
 }
 
-void rbtree_removebench(void *self, int *data, size_t n)
+void rbtree_removebench(void *self, struct benchpayload *data, size_t n)
 {
         struct rbtree_state *state;
         size_t i;
@@ -278,7 +287,7 @@ static void permute_benchdata(struct benchtestdata *bench)
         printf("Randomly permuting elements\n");
         for (i = 0; i < bench->n; i++) {
                 size_t j = rand() % (i+1);
-                int tmp = bench->data[i];
+                struct benchpayload tmp = bench->data[i];
                 bench->data[i] = bench->data[j];
                 bench->data[j] = tmp;
         }
@@ -288,7 +297,7 @@ static void benchtestdata_init(struct benchtestdata *bench)
 {
         size_t i;
         size_t n;
-        int *data;
+        struct benchpayload *data;
         /*
          * Generate random permutations of the numbers 0..n
          *
@@ -299,8 +308,10 @@ static void benchtestdata_init(struct benchtestdata *bench)
         n = 1024*1024;
         printf("Generating %zd elements\n", n);
         data = xcalloc(n, sizeof *data);
-        for (i = 0; i < n; i++)
-                data[i] = i;
+        for (i = 0; i < n; i++) {
+                data[i].a = i;
+                data[i].b = i;
+        }
         bench->n = n;
         bench->data = data;
 }
@@ -354,8 +365,7 @@ int main(void)
 
         printf("\n");
         runbench(&sil_funcs, &bench);
-        /*runbench(&rbtree_funcs, &bench);
-         */
+        runbench(&rbtree_funcs, &bench);
         benchtestdata_exit(&bench);
 
         return 0;
