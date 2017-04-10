@@ -171,10 +171,6 @@ static void assert_valid_parentlink(struct SIL_AVLhead *head)
                 return;
 
         struct SIL_AVLhead *parent = head->parent;
-
-        if (!(parent->right == head || parent->left == head))
-                printf("AAAAH!\n");
-
         assert(parent->right == head || parent->left == head);
 }
 
