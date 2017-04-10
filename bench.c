@@ -24,10 +24,17 @@ struct benchtestdata {
         size_t n;
 };
 
+#define PAYLOAD_TYPE 0
+
 struct benchpayload {
         /* can be changed. Be sure to adapt compare_benchpayload() as well */
+
+#if PAYLOAAD_TYPE == 0
+        int a;
+#else
         float a;
         float b;
+#endif
 };
 
 struct treebenchfuncs {
@@ -41,9 +48,13 @@ struct treebenchfuncs {
 
 int compare_benchpayload(struct benchpayload *x, struct benchpayload *y)
 {
+#if PAYLOAD_TYPE == 0
+        return y->a - x->a;
+#else
         if (x->a != y->a)
                 return y->a - x->a;
         return y->b - x->b;
+#endif
 }
 
 
@@ -309,8 +320,12 @@ static void benchtestdata_init(struct benchtestdata *bench)
         printf("Generating %zd elements\n", n);
         data = xcalloc(n, sizeof *data);
         for (i = 0; i < n; i++) {
+#if PAYLOAD_TYPE == 0
+                data[i].a = i;
+#else
                 data[i].a = i;
                 data[i].b = i;
+#endif
         }
         bench->n = n;
         bench->data = data;
