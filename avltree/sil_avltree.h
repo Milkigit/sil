@@ -56,6 +56,7 @@
 
 #define SIL_AVL_REALPASTE(a,b) a##b
 #define SIL_AVL_PASTE(a,b) SIL_AVL_REALPASTE(a,b)
+#define SIL_AVL_UNUSED __attribute__((unused))
 
 #define SIL_AVL_INIT SIL_AVL_PASTE(SIL_AVL_NAME,_init)
 #define SIL_AVL_EXIT SIL_AVL_PASTE(SIL_AVL_NAME,_exit)
@@ -108,7 +109,7 @@ static int SIL_AVL_is_base(struct SIL_AVLhead *head)
         return !head->parent;
 }
 
-static int SIL_AVL_is_leaf(struct SIL_AVLhead *head)
+static int SIL_AVL_UNUSED SIL_AVL_is_leaf(struct SIL_AVLhead *head)
 {
         return !head->left && !head->right;
 }
@@ -170,11 +171,11 @@ static void assert_valid_parentlink(struct SIL_AVLhead *head)
         if (!head)
                 return;
 
-        struct SIL_AVLhead *parent = head->parent;
+        struct SIL_AVLhead *SIL_AVL_UNUSED parent = head->parent;
         assert(parent->right == head || parent->left == head);
 }
 
-static void assert_valid_parentlinks_in_tree(struct SIL_AVLhead *head)
+static void SIL_AVL_UNUSED assert_valid_parentlinks_in_tree(struct SIL_AVLhead *head)
 {
         assert_valid_parentlink(head);
         if (head->left)
