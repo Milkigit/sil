@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "bench.h"
-#include "sil_avl_bench.h"
+#include "bench_sil_avltree.h"
 
 /************************************
  * SIL AVLTREE bench implementation *

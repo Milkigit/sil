@@ -5,8 +5,8 @@
 #include "timer/sil_timer.h"
 
 #include "bench.h"
-#include "sil_avl_bench.h"
-#include "rbtree_bench.h"
+#include "bench_sil_avltree.h"
+#include "bench_np_rbtree.h"
 
 /*****************************************************************/
 /*****************************************************************/
