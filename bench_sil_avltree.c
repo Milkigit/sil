@@ -61,7 +61,6 @@ void sil_insertbench(void *self, struct benchpayload *data, size_t n)
         size_t i;
 
         state = self;
-        xfree(state->nodes);
         state->nodes = xcalloc(n, sizeof *state->nodes);
         state->nnodes = n;
 
@@ -119,6 +118,12 @@ void sil_removebench(void *self, struct benchpayload *data, size_t n)
                 */
         }
 }
+void sil_addelems(void *self, size_t *out_count, unsigned *out_sumofhashes)
+{
+        /* TODO */
+        *out_count = 42;
+        *out_sumofhashes = 42;
+}
 
 struct treebenchfuncs sil_funcs = {
         "SIL AVLtree",
@@ -127,6 +132,7 @@ struct treebenchfuncs sil_funcs = {
         sil_insertbench,
         sil_retrievebench,
         sil_removebench,
+        sil_addelems,
 };
 
 #undef NAME

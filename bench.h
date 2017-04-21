@@ -7,6 +7,7 @@
 #include <stddef.h>
 
 #define BENCH_UNUSED __attribute__((unused))
+#define BENCH_PAYLOAD_TYPE 0
 
 /* Helper functions */
 
@@ -15,12 +16,10 @@ void xfree(void *);
 
 /* bench interface */
 
-#define PAYLOAD_TYPE 0
-
 struct benchpayload {
         /* can be changed. Be sure to adapt compare_benchpayload() as well */
 
-#if PAYLOAAD_TYPE == 0
+#if BENCH_PAYLOAAD_TYPE == 0
         int a;
 #else
         float a;
@@ -35,15 +34,26 @@ struct treebenchfuncs {
         void (*insertbench)(void *self, struct benchpayload *data, size_t n);
         void (*retrievebench)(void *self, struct benchpayload *data, size_t n);
         void (*removebench)(void *self, struct benchpayload *data, size_t n);
+        void (*addelems)(void *self, size_t *out_count, unsigned *out_sumofhashes);
 };
 
 static int BENCH_UNUSED compare_benchpayload(struct benchpayload *x, struct benchpayload *y)
 {
-#if PAYLOAD_TYPE == 0
+#if BENCH_PAYLOAD_TYPE == 0
         return y->a - x->a;
 #else
         if (x->a != y->a)
                 return y->a - x->a;
         return y->b - x->b;
+#endif
+}
+
+/* only used for asserting correctness of the implementations */
+static unsigned int BENCH_UNUSED hash_benchdata(struct benchpayload *x)
+{
+#if BENCH_PAYLOAD_TYPE == 0
+        return x->a;
+#else
+        return x->a * 33 + x->b;
 #endif
 }

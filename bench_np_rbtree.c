@@ -2,45 +2,45 @@
 #include "bench.h"
 
 
-struct rbtree_node {
-        RB_ENTRY(rbtree_node) entry_;
+struct np_rbtree_node {
+        RB_ENTRY(np_rbtree_node) entry_;
         struct benchpayload payload;
 };
 
-int compare_rbtree_node(struct rbtree_node *a, struct rbtree_node *b)
+int compare_rbtree_node(struct np_rbtree_node *a, struct np_rbtree_node *b)
 {
         return compare_benchpayload(&a->payload, &b->payload);
 }
 
 /* declare structure of head */
-RB_HEAD(RBtree, rbtree_node);
-RB_GENERATE(RBtree, rbtree_node, entry_, compare_rbtree_node);
+RB_HEAD(RBtree, np_rbtree_node);
+RB_GENERATE(RBtree, np_rbtree_node, entry_, compare_rbtree_node);
 
-struct rbtree_state {
+struct np_rbtree_state {
         struct RBtree tree;
-        struct rbtree_node *nodes;
+        struct np_rbtree_node *nodes;
         size_t nnodes;
 };
 
-void *rbtree_init(void)
+void *np_rbtree_init(void)
 {
-        struct rbtree_state *state;
+        struct np_rbtree_state *state;
         state = xcalloc(1, sizeof *state);
         state->tree = (struct RBtree) RB_INITIALIZER(&state->tree);
         return state;
 }
 
-void rbtree_exit(void *self)
+void np_rbtree_exit(void *self)
 {
-        struct rbtree_state *state = self;
+        struct np_rbtree_state *state = self;
         /* TODO: how to release resources? */
         xfree(state->nodes);
         xfree(state);
 }
 
-void rbtree_insertbench(void *self, struct benchpayload *data, size_t n)
+void np_rbtree_insertbench(void *self, struct benchpayload *data, size_t n)
 {
-        struct rbtree_state *state;
+        struct np_rbtree_state *state;
         size_t i;
 
         state = self;
@@ -55,9 +55,9 @@ void rbtree_insertbench(void *self, struct benchpayload *data, size_t n)
                 RB_INSERT(RBtree, &state->tree, &state->nodes[i]);
 }
 
-void rbtree_retrievebench(void *self, struct benchpayload *data, size_t n)
+void np_rbtree_retrievebench(void *self, struct benchpayload *data, size_t n)
 {
-        struct rbtree_state *state;
+        struct np_rbtree_state *state;
         size_t i;
 
         state = self;
@@ -66,9 +66,9 @@ void rbtree_retrievebench(void *self, struct benchpayload *data, size_t n)
                 RB_FIND(RBtree, &state->tree, &state->nodes[i]);
 }
 
-void rbtree_removebench(void *self, struct benchpayload *data, size_t n)
+void np_rbtree_removebench(void *self, struct benchpayload *data, size_t n)
 {
-        struct rbtree_state *state;
+        struct np_rbtree_state *state;
         size_t i;
 
         state = self;
@@ -86,11 +86,19 @@ void rbtree_removebench(void *self, struct benchpayload *data, size_t n)
 
 }
 
-struct treebenchfuncs rbtree_funcs = {
+void np_rbtree_addelems(void *self, size_t *out_count, unsigned *out_sumofhashes)
+{
+        /* TODO */
+        *out_count = 42;
+        *out_sumofhashes = 42;
+}
+
+struct treebenchfuncs np_rbtree_funcs = {
         "BSD RB tree",
-        rbtree_init,
-        rbtree_exit,
-        rbtree_insertbench,
-        rbtree_retrievebench,
-        rbtree_removebench,
+        np_rbtree_init,
+        np_rbtree_exit,
+        np_rbtree_insertbench,
+        np_rbtree_retrievebench,
+        np_rbtree_removebench,
+        np_rbtree_addelems,
 };

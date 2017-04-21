@@ -6,4 +6,10 @@
 #error bench.h must be included first
 #endif
 
-struct treebenchfuncs rbtree_funcs;
+#ifdef BENCH_NP_RBTREE_H_INCLUDED
+#error Header bench_np_rbtree.h included twice!
+#endif
+
+#define BENCH_NP_RBTREE_H_INCLUDED
+
+struct treebenchfuncs np_rbtree_funcs;

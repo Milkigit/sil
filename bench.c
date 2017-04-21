@@ -5,8 +5,9 @@
 #include "timer/sil_timer.h"
 
 #include "bench.h"
-#include "bench_sil_avltree.h"
 #include "bench_np_rbtree.h"
+#include "bench_sil_avltree.h"
+#include "bench_sil_rbtree.h"
 
 /*****************************************************************/
 /*****************************************************************/
@@ -58,6 +59,10 @@ static void benchtestdata_init(struct benchtestdata *bench)
          * comparison of remove performance we will simply avoid duplicates.
          */
         n = 1024*1024;
+        /*
+        n = 64*1024;
+        n = 1024;
+        */
         printf("Generating %zd elements\n", n);
         data = xcalloc(n, sizeof *data);
         for (i = 0; i < n; i++) {
@@ -85,6 +90,8 @@ static void runbench(struct treebenchfuncs *impl, struct benchtestdata *bench)
         void *data;
         long ms;
         int s;
+        size_t nodecount;
+        unsigned nodesum;
 
         printf("Running bench %s\n", impl->benchname);
         printf("===========================\n");
@@ -96,6 +103,9 @@ static void runbench(struct treebenchfuncs *impl, struct benchtestdata *bench)
         sil_timer_elapsed_s_ms(&timer, &s, &ms);
         printf("Inserting each element: %d.%.03lds\n", s, ms); fflush(stdout);
 
+        impl->addelems(data, &nodecount, &nodesum);
+        printf("DEBUG count: %zd, hashsum: %u\n", nodecount, nodesum); fflush(stdout);
+
         sil_timer_reset(&timer);
         impl->retrievebench(data, bench->data, bench->n);
         sil_timer_elapsed_s_ms(&timer, &s, &ms);
@@ -105,6 +115,9 @@ static void runbench(struct treebenchfuncs *impl, struct benchtestdata *bench)
         impl->removebench(data, bench->data, bench->n);
         sil_timer_elapsed_s_ms(&timer, &s, &ms);
         printf("Removing each element: %d.%.03lds\n", s, ms); fflush(stdout);
+
+        impl->addelems(data, &nodecount, &nodesum);
+        printf("DEBUG count: %zd, hashsum: %u\n", nodecount, nodesum); fflush(stdout);
 
         impl->exit(data);
 
@@ -120,8 +133,9 @@ int main(void)
         permute_benchdata(&bench);
 
         printf("\n");
+        runbench(&np_rbtree_funcs, &bench);
         runbench(&sil_funcs, &bench);
-        runbench(&rbtree_funcs, &bench);
+        runbench(&silrb_funcs, &bench);
         benchtestdata_exit(&bench);
 
         return 0;
