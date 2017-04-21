@@ -21,11 +21,11 @@ static int SIL_RB_UNUSED check_tree_valid(struct sil_rb_head *head, int isred)
                 return !isred;
         }
         if (isred) {
-                if (sil_rb_get_color(head, SIL_RB_LEFT) == SIL_RB_RED) {
+                if (sil_rb_is_red(head->cld[SIL_RB_LEFT])) {
                         printf("error at %p (RED child in dir %d)\n", head, SIL_RB_LEFT);
                         return 0;
                 }
-                if (sil_rb_get_color(head, SIL_RB_RIGHT) == SIL_RB_RED) {
+                if (sil_rb_is_red(head->cld[SIL_RB_RIGHT])) {
                         printf("error at %p (RED child in dir %d)\n", head, SIL_RB_RIGHT);
                         return 0;
                 }
@@ -42,7 +42,7 @@ static int SIL_RB_UNUSED check_tree_valid(struct sil_rb_head *head, int isred)
 }
 
 
-static void insert_rebalance(struct sil_rb_path *path)
+void insert_rebalance(struct sil_rb_path *path)
 {
         struct sil_rb_head *head;
         struct sil_rb_head *pnt;
@@ -80,7 +80,7 @@ static void insert_rebalance(struct sil_rb_path *path)
         ggpnt = sil_rb_path_get_stack_elem(path, 3);
         assert(sil_rb_get_color(ggpnt, sil_rb_get_direction(ggpnt, gpnt)) == SIL_RB_BLACK);
 
-        if (sil_rb_get_color(gpnt, !gdir) == SIL_RB_RED) {
+        if (sil_rb_is_red(gpnt->cld[!gdir])) {
                 /* uncle is red (as is parent) */
                 sil_rb_set_color(ggpnt, sil_rb_get_direction(ggpnt, gpnt), SIL_RB_RED);
                 sil_rb_set_color(gpnt, SIL_RB_LEFT, SIL_RB_BLACK);
@@ -97,9 +97,8 @@ static void insert_rebalance(struct sil_rb_path *path)
                 sil_rb_set_cld(head, right, pnt, SIL_RB_RED);
                 sil_rb_set_cld(ggpnt, sil_rb_get_direction(ggpnt, gpnt), head, SIL_RB_BLACK);
         } else {
-                assert(sil_rb_get_cld(gpnt, gdir) == pnt); /* parent is red */
-                assert(sil_rb_get_color(gpnt, gdir) == SIL_RB_RED); /* parent is red */
-                assert(sil_rb_get_color(gpnt, !gdir) == SIL_RB_BLACK); /* uncle is black */
+                assert(sil_rb_is_red(gpn->cld[gdir])); /* parent is red */
+                assert(sil_rb_is_black(gpnt, !gdir)); /* uncle is black */
                 assert(sil_rb_get_cld(pnt, left) == head);
                 gpnt->cld[left] = pnt->cld[right];
                 sil_rb_set_cld(pnt, right, gpnt, SIL_RB_RED);
@@ -138,7 +137,7 @@ static void delete_rebalance(struct sil_rb_path *path)
         gdir = sil_rb_get_direction(gpnt, pnt);
         sleft = sil_rb_get_cld(sibling, left);
 
-        if (sil_rb_get_color(pnt, right) == SIL_RB_RED) {
+        if (sil_rb_is_red(pnt->cld[right])) {
                 assert(sil_rb_get_cld(sibling, left) && sil_rb_get_color(sibling, left) == SIL_RB_BLACK);
                 assert(sil_rb_get_cld(sibling, right) && sil_rb_get_color(sibling, right) == SIL_RB_BLACK);
                 /* sibling is red */
@@ -153,20 +152,20 @@ static void delete_rebalance(struct sil_rb_path *path)
                 sil_rb_path_INTERNAL_add(path, pnt);
                 sil_rb_path_INTERNAL_add(path, head);
                 delete_rebalance(path);
-        } else if (sil_rb_get_color(sibling, left) == SIL_RB_RED) {
+        } else if (sil_rb_is_red(sibling->cld[left])) {
                 /* inner child of sibling red */
                 pnt->cld[right] = sleft->cld[left];
                 sibling->cld[left] = sleft->cld[right];
                 sil_rb_set_cld(gpnt, gdir, sleft, sil_rb_get_color(gpnt, gdir));
                 sil_rb_set_cld(sleft, left, pnt, SIL_RB_BLACK);
                 sil_rb_set_cld(sleft, right, sibling, SIL_RB_BLACK);
-        } else if (sil_rb_get_color(sibling, right) == SIL_RB_RED) {
+        } else if (sil_rb_is_red(sibling->cld[right])) {
                 /* outer child of sibling red */
                 pnt->cld[right] = sibling->cld[left];
                 sil_rb_set_cld(gpnt, gdir, sibling, sil_rb_get_color(gpnt, gdir));
                 sil_rb_set_cld(sibling, left, pnt, SIL_RB_BLACK);
                 sil_rb_set_color(sibling, right, SIL_RB_BLACK);
-        } else if (sil_rb_get_color(gpnt, gdir) == SIL_RB_RED) {
+        } else if (sil_rb_is_red(gpnt->cld[gdir])) {
                 /* parent red */
                 sil_rb_set_color(gpnt, gdir, SIL_RB_BLACK);
                 sil_rb_set_color(pnt, right, SIL_RB_RED);
@@ -210,7 +209,7 @@ static void delete_noninternal(struct sil_rb_path *path, int clddir)
         dir = sil_rb_get_direction(pnt, head);
         assert(sil_rb_get_cld(head, !clddir) == NULL);
 
-        if (sil_rb_get_color(pnt, dir) == SIL_RB_RED || sil_rb_get_color(head, clddir) == SIL_RB_RED) {
+        if (sil_rb_is_red(pnt->cld[dir]) || sil_rb_is_red(head->cld[clddir])) {
                 sil_rb_set_cld(pnt, dir, sil_rb_get_cld(head, clddir), SIL_RB_BLACK);
         } else {
                 sil_rb_set_cld(pnt, dir, sil_rb_get_cld(head, clddir), SIL_RB_BLACK);

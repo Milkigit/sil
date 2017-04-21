@@ -110,6 +110,18 @@ void sil_rb_ptr_set_color(sil_rb_ptr_t *ptr, sil_rb_color_t color)
         *ptr = (*ptr & ~2) | color;
 }
 
+static SIL_RB_UNUSED
+int sil_rb_is_red(sil_rb_ptr_t ptr)
+{
+        return !!(ptr & 2);
+}
+
+static SIL_RB_UNUSED
+int sil_rb_is_black(sil_rb_ptr_t ptr)
+{
+        return !(ptr & 2);
+}
+
 
 /*
  * Operations on struct sil_rb_head
@@ -245,19 +257,15 @@ struct sil_rb_head *sil_rb_path_visit_child(struct sil_rb_path *path, sil_rb_dir
         return child;
 }
 
-
 static SIL_RB_UNUSED
 struct sil_rb_head *sil_rb_path_visit_parent_successor(struct sil_rb_path *path)
 {
-        struct sil_rb_head *head;
-        struct sil_rb_head *next;
-
-        while (sil_rb_path_get_stack_size(path) > 1) {
-                head = sil_rb_path_get_current(path);
-                sil_rb_path_pop(path);
-                next = sil_rb_path_get_current(path);
-                if (sil_rb_get_direction(next, head) == SIL_RB_LEFT)
-                        return next;
+        int i = path->ptr;
+        while (i-- > 2) {
+                if (sil_rb_get_cld(path->stack[i-1], SIL_RB_LEFT) == path->stack[i]) {
+                        path->ptr = i;
+                        return path->stack[i-1];
+                }
         }
         return NULL;
 }
