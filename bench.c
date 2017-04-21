@@ -7,7 +7,7 @@
 #include "bench.h"
 #include "bench_np_rbtree.h"
 #include "bench_sil_avltree.h"
-#include "bench_sil_rbtree.h"
+#include "bench_sil_rb2ptr.h"
 
 /*****************************************************************/
 /*****************************************************************/

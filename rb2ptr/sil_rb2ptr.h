@@ -75,6 +75,12 @@ struct sil_rb_path {
  */
 
 static SIL_RB_UNUSED
+sil_rb_ptr_t sil_rb_ptr_create(struct sil_rb_head *head, sil_rb_color_t color, sil_rb_dir_t dir)
+{
+        return (sil_rb_ptr_t) head | color | dir;
+}
+
+static SIL_RB_UNUSED
 struct sil_rb_head *sil_rb_ptr_get_head(sil_rb_ptr_t ptr)
 {
         return (struct sil_rb_head *)(ptr & ~3);
@@ -102,12 +108,6 @@ static SIL_RB_UNUSED
 sil_rb_color_t sil_rb_ptr_get_dir(sil_rb_ptr_t ptr)
 {
         return ptr & 1;
-}
-
-static SIL_RB_UNUSED
-sil_rb_ptr_t sil_rb_ptr_create(struct sil_rb_head *head, sil_rb_color_t color, sil_rb_dir_t dir)
-{
-        return (sil_rb_ptr_t) head | color | dir;
 }
 
 static SIL_RB_UNUSED
@@ -199,8 +199,7 @@ void sil_rb_cld_set_red(struct sil_rb_head *parent, sil_rb_dir_t dir)
 static SIL_RB_UNUSED
 int sil_rb_get_direction(struct sil_rb_head *parent, struct sil_rb_head *head)
 {
-        assert(sil_rb_get_cld(parent, SIL_RB_LEFT) == head
-                || sil_rb_get_cld(parent, SIL_RB_RIGHT) == head);
+        assert(sil_rb_get_cld(parent, SIL_RB_LEFT) == head || sil_rb_get_cld(parent, SIL_RB_RIGHT) == head);
         return sil_rb_get_cld(parent, SIL_RB_RIGHT) == head;
 }
 

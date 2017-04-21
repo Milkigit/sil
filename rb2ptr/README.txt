@@ -4,8 +4,14 @@ Advantages: Only 2 pointer (16 byte on x86-64) overhead for each node,
 therefore very memory efficient (compared to 3-pointer implementations).
 
 Disadvantages:
-Complexity (see implementation notes). On my machine it's slightly slower then
-Niels Provos' BSD RB tree (3 pointer + 1 int metadata)
+Complexity (see implementation notes).
+
+Performance:
+On my machine this implementation is 15% faster for insertion and retrieval but
+30% slower for deletion, compared to Niels Provos' BSD RB tree (3 pointer + 1
+int metadata). That's for random data. For sequential data NP RB tree is much
+faster. I still have to figure out why, but probably it's just because the
+cache efficiency is naturally increased, so code simplicity is more important.
 
 Implementation notes:
 

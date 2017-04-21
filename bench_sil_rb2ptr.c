@@ -2,8 +2,8 @@
 #include <stdio.h>
 
 #include "bench.h"
-#include "bench_sil_rbtree.h"
-#include "rbtree/rbtree.h"
+#include "bench_sil_rb2ptr.h"
+#include "rb2ptr/sil_rb2ptr.h"
 
 /***********************************
  * SIL RBTREE bench implementation *

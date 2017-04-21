@@ -1,7 +1,7 @@
-CFLAGS = -O2 -std=c89 -Wall -D_POSIX_C_SOURCE=200809L
+CFLAGS = -O2 -DNDEBUG -std=c89 -Wall -D_POSIX_C_SOURCE=200809L
 
-includes = avltree/sil_avltree.h rbtree/rbtree.h
-objects = bench.o bench_sil_avltree.o bench_sil_rbtree.o bench_np_rbtree.o rbtree/rbtree.o timer/sil_timer.o
+includes = avltree/sil_avltree.h rb2ptr/sil_rb2ptr.h
+objects = bench.o bench_sil_avltree.o bench_sil_rb2ptr.o bench_np_rbtree.o rb2ptr/sil_rb2ptr.o timer/sil_timer.o
 
 
 bench: $(objects) $(includes)
@@ -16,13 +16,13 @@ bench_np_rbtree.o: bench_np_rbtree.c bench_np_rbtree.h
 bench_sil_avltree.o: bench_sil_avltree.c bench_sil_avltree.h avltree/sil_avltree.h
 	$(CC) -c $(CFLAGS) $(EXTRA_CFLAGS) -o $@ $<
 
-bench_sil_rbtree.o: bench_sil_rbtree.c bench_sil_rbtree.h rbtree/rbtree.o
+bench_sil_rb2ptr.o: bench_sil_rb2ptr.c bench_sil_rb2ptr.h rb2ptr/sil_rb2ptr.o
 	$(CC) -c $(CFLAGS) $(EXTRA_CFLAGS) -o $@ $<
 
 timer/sil_timer.o: timer/sil_timer.c timer/sil_timer.c
 	$(CC) -c $(CFLAGS) $(EXTRA_CFLAGS) -o $@ $<
 
-rbtree/rbtree.o: rbtree/rbtree.c rbtree/rbtree.h
+rb2ptr/sil_rb2ptr.o: rb2ptr/sil_rb2ptr.c rb2ptr/sil_rb2ptr.h
 	$(CC) -c $(CFLAGS) $(EXTRA_CFLAGS) -o $@ $<
 
 
