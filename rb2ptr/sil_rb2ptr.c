@@ -1,48 +1,6 @@
-#include <stdio.h>  /* remove when debugged */
 #include <assert.h>
 #include <stddef.h>  /* NULL */
 #include "sil_rb2ptr.h"
-
-/*
-static int SIL_RB_UNUSED check_path_valid(struct sil_rb_path *path)
-{
-        size_t i;
-        for (i = 1; i < path->ptr; i++)
-                if(path->stack[i] != sil_rb_get_cld(path->stack[i-1], SIL_RB_LEFT)
-                    && path->stack[i] != sil_rb_get_cld(path->stack[i-1], SIL_RB_RIGHT))
-                        return 0;
-        return 1;
-}
-
-static int SIL_RB_UNUSED check_tree_valid(struct sil_rb_head *head, int isred)
-{
-        if (head == NULL) {
-                if (isred)
-                        printf("error at leaf %p\n", head);
-                return !isred;
-        }
-        if (isred) {
-                if (sil_rb_cld_is_red(head, SIL_RB_LEFT)) {
-                        printf("error at %p (RED child in dir %d)\n", head, SIL_RB_LEFT);
-                        return 0;
-                }
-                if (sil_rb_cld_is_red(head, SIL_RB_RIGHT)) {
-                        printf("error at %p (RED child in dir %d)\n", head, SIL_RB_RIGHT);
-                        return 0;
-                }
-        }
-        if (!check_tree_valid(sil_rb_get_cld(head, SIL_RB_LEFT), sil_rb_cld_get_color(head, SIL_RB_LEFT))) {
-                printf("traceback: %p (%s child in dir %d)\n", head, sil_rb_cld_get_color(head, SIL_RB_LEFT) ? "RED" : "BLACK", SIL_RB_LEFT);
-                return 0;
-        }
-        if (!check_tree_valid(sil_rb_get_cld(head, SIL_RB_RIGHT), sil_rb_cld_get_color(head, SIL_RB_RIGHT))) {
-                printf("traceback: %p (%s child in dir %d)\n", head, sil_rb_cld_get_color(head, SIL_RB_RIGHT) ? "RED" : "BLACK", SIL_RB_RIGHT);
-                return 0;
-        }
-        return 1;
-}
-*/
-
 
 void insert_rebalance(struct sil_rb_path *path)
 {
@@ -65,7 +23,7 @@ void insert_rebalance(struct sil_rb_path *path)
 
         assert(sil_rb_path_get_stack_size(path) >= 1);
         head = sil_rb_path_get_stack_elem(path, 0);
-        pnt = sil_rb_path_get_stack_elem(path, 1);  /* might be base fake-elem */
+        pnt = sil_rb_path_get_stack_elem(path, 1);  /* could be base head */
         left = sil_rb_get_direction(pnt, head);
         right = !left;
 
@@ -85,22 +43,20 @@ void insert_rebalance(struct sil_rb_path *path)
         }
 
         /*
-         * Have at least head, parent, grandparent, grand-grandparent.
-         * grand-grandparent might be fake base-elem, though.
+         * At this point we have at least head, parent, grandparent,
+         * grand-grandparent. grand-grandparent could be the base head though.
          */
         ggpnt = sil_rb_path_get_stack_elem(path, 3);
         ggdir = sil_rb_get_direction(ggpnt, gpnt);
-        /* grandparent must be black because must hold because parent is red */
         assert(sil_rb_cld_is_black(ggpnt, ggdir));
 
         if (sil_rb_cld_is_red(gpnt, !gdir)) {
                 /* uncle is red (as is parent) */
-                sil_rb_cld_set_red(ggpnt, sil_rb_get_direction(ggpnt, gpnt));
+                sil_rb_cld_set_red(ggpnt, ggdir);
                 sil_rb_cld_set_black(gpnt, SIL_RB_LEFT);
                 sil_rb_cld_set_black(gpnt, SIL_RB_RIGHT);
-                /* continue rebalancing at grandparent */
-                sil_rb_path_pop(path);
-                sil_rb_path_pop(path);
+                sil_rb_path_pop(path);  /* pop head */
+                sil_rb_path_pop(path);  /* pop parent */
                 insert_rebalance(path);
         } else if (gdir == right) {
                 pnt->cld[left] = head->cld[right];
@@ -138,7 +94,7 @@ static void delete_rebalance(struct sil_rb_path *path)
         left = sil_rb_get_direction(pnt, head);
         right = !left;
         sibling = sil_rb_get_cld(pnt, right);
-        assert(sil_rb_cld_is_black(pnt, sil_rb_get_direction(pnt, head)));
+        assert(sil_rb_cld_is_black(pnt, left));
 
         gpnt = sil_rb_path_get_stack_elem(path, 2);  /* could be base head */
         gdir = sil_rb_get_direction(gpnt, pnt);
@@ -272,3 +228,44 @@ void sil_rb_delete(struct sil_rb_path *path)
 {
         delete(path);
 }
+
+
+/*
+static int SIL_RB_UNUSED check_path_valid(struct sil_rb_path *path)
+{
+        size_t i;
+        for (i = 1; i < path->ptr; i++)
+                if(path->stack[i] != sil_rb_get_cld(path->stack[i-1], SIL_RB_LEFT)
+                    && path->stack[i] != sil_rb_get_cld(path->stack[i-1], SIL_RB_RIGHT))
+                        return 0;
+        return 1;
+}
+
+static int SIL_RB_UNUSED check_tree_valid(struct sil_rb_head *head, int isred)
+{
+        if (head == NULL) {
+                if (isred)
+                        printf("error at leaf %p\n", head);
+                return !isred;
+        }
+        if (isred) {
+                if (sil_rb_cld_is_red(head, SIL_RB_LEFT)) {
+                        printf("error at %p (RED child in dir %d)\n", head, SIL_RB_LEFT);
+                        return 0;
+                }
+                if (sil_rb_cld_is_red(head, SIL_RB_RIGHT)) {
+                        printf("error at %p (RED child in dir %d)\n", head, SIL_RB_RIGHT);
+                        return 0;
+                }
+        }
+        if (!check_tree_valid(sil_rb_get_cld(head, SIL_RB_LEFT), sil_rb_cld_get_color(head, SIL_RB_LEFT))) {
+                printf("traceback: %p (%s child in dir %d)\n", head, sil_rb_cld_get_color(head, SIL_RB_LEFT) ? "RED" : "BLACK", SIL_RB_LEFT);
+                return 0;
+        }
+        if (!check_tree_valid(sil_rb_get_cld(head, SIL_RB_RIGHT), sil_rb_cld_get_color(head, SIL_RB_RIGHT))) {
+                printf("traceback: %p (%s child in dir %d)\n", head, sil_rb_cld_get_color(head, SIL_RB_RIGHT) ? "RED" : "BLACK", SIL_RB_RIGHT);
+                return 0;
+        }
+        return 1;
+}
+*/
