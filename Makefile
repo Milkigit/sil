@@ -1,4 +1,4 @@
-CFLAGS = -O2 -DNDEBUG -std=c89 -Wall -D_POSIX_C_SOURCE=200809L
+CFLAGS = -O2 -std=c89 -Wall -D_POSIX_C_SOURCE=200809L
 
 includes = avltree/sil_avltree.h rbtree/rbtree.h
 objects = bench.o bench_sil_avltree.o bench_sil_rbtree.o bench_np_rbtree.o rbtree/rbtree.o timer/sil_timer.o

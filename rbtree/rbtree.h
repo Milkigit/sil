@@ -87,6 +87,18 @@ sil_rb_color_t sil_rb_ptr_get_color(sil_rb_ptr_t ptr)
 }
 
 static SIL_RB_UNUSED
+int sil_rb_ptr_is_red(sil_rb_ptr_t ptr)
+{
+        return !!(ptr & 2);
+}
+
+static SIL_RB_UNUSED
+int sil_rb_ptr_is_black(sil_rb_ptr_t ptr)
+{
+        return !(ptr & 2);
+}
+
+static SIL_RB_UNUSED
 sil_rb_color_t sil_rb_ptr_get_dir(sil_rb_ptr_t ptr)
 {
         return ptr & 1;
@@ -111,15 +123,15 @@ void sil_rb_ptr_set_color(sil_rb_ptr_t *ptr, sil_rb_color_t color)
 }
 
 static SIL_RB_UNUSED
-int sil_rb_is_red(sil_rb_ptr_t ptr)
+void sil_rb_ptr_set_black(sil_rb_ptr_t *ptr)
 {
-        return !!(ptr & 2);
+        *ptr &= ~2;
 }
 
 static SIL_RB_UNUSED
-int sil_rb_is_black(sil_rb_ptr_t ptr)
+void sil_rb_ptr_set_red(sil_rb_ptr_t *ptr)
 {
-        return !(ptr & 2);
+        *ptr |= 2;
 }
 
 
@@ -142,18 +154,46 @@ void sil_rb_set_cld(struct sil_rb_head *parent, sil_rb_dir_t dir, struct sil_rb_
 }
 
 static SIL_RB_UNUSED
-int sil_rb_get_color(struct sil_rb_head *parent, sil_rb_dir_t dir)
+int sil_rb_cld_get_color(struct sil_rb_head *parent, sil_rb_dir_t dir)
 {
         assert(SIL_RB_IS_DIR(dir));
         return sil_rb_ptr_get_color(parent->cld[dir]);
 }
 
 static SIL_RB_UNUSED
-void sil_rb_set_color(struct sil_rb_head *parent, sil_rb_dir_t dir, sil_rb_color_t color)
+int sil_rb_cld_is_red(struct sil_rb_head *parent, sil_rb_dir_t dir)
+{
+        assert(SIL_RB_IS_DIR(dir));
+        return sil_rb_ptr_is_red(parent->cld[dir]);
+}
+
+static SIL_RB_UNUSED
+int sil_rb_cld_is_black(struct sil_rb_head *parent, sil_rb_dir_t dir)
+{
+        assert(SIL_RB_IS_DIR(dir));
+        return sil_rb_ptr_is_black(parent->cld[dir]);
+}
+
+static SIL_RB_UNUSED
+void sil_rb_cld_set_color(struct sil_rb_head *parent, sil_rb_dir_t dir, sil_rb_color_t color)
 {
         assert(SIL_RB_IS_DIR(dir));
         assert(SIL_RB_IS_COLOR(color));
         sil_rb_ptr_set_color(&parent->cld[dir], color);
+}
+
+static SIL_RB_UNUSED
+void sil_rb_cld_set_black(struct sil_rb_head *parent, sil_rb_dir_t dir)
+{
+        assert(SIL_RB_IS_DIR(dir));
+        sil_rb_ptr_set_black(&parent->cld[dir]);
+}
+
+static SIL_RB_UNUSED
+void sil_rb_cld_set_red(struct sil_rb_head *parent, sil_rb_dir_t dir)
+{
+        assert(SIL_RB_IS_DIR(dir));
+        sil_rb_ptr_set_red(&parent->cld[dir]);
 }
 
 static SIL_RB_UNUSED
@@ -313,7 +353,7 @@ void sil_rb_reset(struct sil_rb_tree *tree)
 static SIL_RB_UNUSED
 int sil_rb_is_empty(struct sil_rb_tree *tree)
 {
-        assert(sil_rb_get_color(&tree->base, SIL_RB_LEFT) == SIL_RB_BLACK);
+        assert(sil_rb_cld_get_color(&tree->base, SIL_RB_LEFT) == SIL_RB_BLACK);
         return sil_rb_get_cld(&tree->base, SIL_RB_LEFT) != NULL;
 }
 
