@@ -81,6 +81,10 @@ void sil_retrievebench(void *self, struct benchpayload *data, size_t n)
         struct sil_node *node;
         size_t i;
 
+        /* must use data from tree nodes, since the API is lacking */
+        (void) data;
+        (void) n;
+
         state = self;
         for (i = 0; i < n; i++) {
                 node = SIL_AVLtree_find(&state->tree, &state->nodes[i]);
@@ -95,13 +99,11 @@ void sil_removebench(void *self, struct benchpayload *data, size_t n)
         struct sil_node *node;
         size_t i;
 
+        /* must use data from tree nodes, since the API is lacking */
+        (void) data;
+        (void) n;
+
         state = self;
-
-        /*
-        assert_valid_parentlinks_in_tree(state->tree.base.left);
-        printf("parent links before removal seem to be ok!\n"); fflush(stdout);
-        */
-
         for (i = 0; i < n; i++) {
                 node = SIL_AVLtree_find(&state->tree, &state->nodes[i]);
                 if (!node)
@@ -110,17 +112,12 @@ void sil_removebench(void *self, struct benchpayload *data, size_t n)
                         continue;
 
                 SIL_AVLtree_erase(node);
-
-                /*
-                printf("checking parent links after removal of #%zd\n", i); fflush(stdout);
-                assert_valid_parentlinks_in_tree(state->tree.base.left);
-                printf("parent links after removal of #%zd seem to be ok!\n", i); fflush(stdout);
-                */
         }
 }
 void sil_addelems(void *self, size_t *out_count, unsigned *out_sumofhashes)
 {
         /* TODO */
+        (void) self;
         *out_count = 42;
         *out_sumofhashes = 42;
 }

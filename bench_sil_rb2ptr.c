@@ -20,22 +20,19 @@ struct silrb_state {
         size_t nnodes;
 };
 
-static int compare_sil_rb_head(struct sil_rb_head *a, struct sil_rb_head *b)
+static int compare_sil_rb_head(struct sil_rb_head *a, struct benchpayload *data)
 {
-        return compare_benchpayload(
-                &((struct silrb_node *)a)->payload,
-                &((struct silrb_node *)b)->payload);
+        return compare_benchpayload(&((struct silrb_node *)a)->payload, data);
 }
 
-static struct sil_rb_head *find(struct sil_rb_tree *tree, struct sil_rb_head *elem)
+static struct sil_rb_head *find(struct sil_rb_tree *tree, struct benchpayload *data)
 {
         struct sil_rb_head *head;
         int r;
 
-        assert(tree);
         head = sil_rb_get_root(tree);
         while (head) {
-                r = compare_sil_rb_head(head, elem);
+                r = compare_sil_rb_head(head, data);
                 if (r < 0)
                         head = sil_rb_get_cld(head, SIL_RB_LEFT);
                 else if (r > 0)
@@ -47,20 +44,16 @@ static struct sil_rb_head *find(struct sil_rb_tree *tree, struct sil_rb_head *el
 }
 
 /* like find, but records path */
-static void findpath(struct sil_rb_tree *tree, struct sil_rb_head *elem, struct sil_rb_path *path, int *r_out)
+static void findpath(struct sil_rb_tree *tree, struct benchpayload *data, struct sil_rb_path *path, int *r_out)
 {
         struct sil_rb_head *head;
         int r;
 
-        /*printf("looking for %d\n", ((struct silrb_node *)elem)->payload.a);
-         */
         r = -1;
         sil_rb_path_reset(path, tree);
         head = sil_rb_path_visit_root(path);
         while (head) {
-                /*printf("At %d!\n", ((struct silrb_node *)head)->payload.a);
-                 */
-                r = compare_sil_rb_head(head, elem);
+                r = compare_sil_rb_head(head, data);
                 if (r < 0)
                         head = sil_rb_path_visit_child(path, SIL_RB_LEFT);
                 else if (r > 0)
@@ -77,8 +70,6 @@ static void *silrb_init(void)
         printf("sizeof sil_rb_head struct: %zd\n", sizeof state->nodes[0].head);
         printf("position of payload in node: %zd\n", ((char *)&state->nodes[0].payload) - ((char*)&state->nodes[0]));
         printf("sizeof struct silrb_node: %zd\n", sizeof state->nodes[0]);
-        /*
-         */
         state = xcalloc(1, sizeof *state);
         return state;
 }
@@ -109,17 +100,12 @@ static void silrb_insertbench(void *self, struct benchpayload *data, size_t n)
                 state->nodes[i].payload = data[i];
 
         for (i = 0; i < n; i++) {
-                /*printf("inserting %zd\n", i);
-                 */
-                findpath(&state->tree, &state->nodes[i].head, &path, &r);
+                findpath(&state->tree, &data[i], &path, &r);
                 if (r == 0) {
-                        printf("element present!\n");
                         /* element present */
                         continue;
                 }
-                sil_rb_insert(&path,
-                              r < 0 ? SIL_RB_LEFT : SIL_RB_RIGHT,
-                              &state->nodes[i].head);
+                sil_rb_insert(&path, r < 0 ? SIL_RB_LEFT : SIL_RB_RIGHT, &state->nodes[i].head);
         }
 }
 
@@ -136,7 +122,7 @@ static void silrb_retrievebench(void *self, struct benchpayload *data, size_t n)
                 /*findpath(&state->tree, &state->nodes[i].head, &path, &r);
                 assert(r == 0);
                   */
-                head = find(&state->tree, &state->nodes[i].head);
+                head = find(&state->tree, &data[i]);
                 assert(head);
         }
 }
@@ -150,14 +136,10 @@ static void silrb_removebench(void *self, struct benchpayload *data, size_t n)
 
         state = self;
         for (i = 0; i < n; i++) {
-                findpath(&state->tree, &state->nodes[i].head, &path, &r);
-                /*printf("mustdelete %d\n", state->nodes[i].payload.a);
-                 */
+                findpath(&state->tree, &data[i], &path, &r);
                 if (r != 0) {
                         /* Node already deleted. Can happen if there are
                          * duplicate elements in input data. */
-                        /*printf("already deleted\n");
-                         */
                         continue;
                 }
                 sil_rb_delete(&path);

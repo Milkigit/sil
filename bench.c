@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include <time.h>
 #include "timer/sil_timer.h"
-
 #include "bench.h"
 #include "bench_np_rbtree.h"
 #include "bench_sil_avltree.h"
 #include "bench_sil_rb2ptr.h"
+#include "bench_sil_rb3ptr.h"
 
 /*****************************************************************/
 /*****************************************************************/
@@ -133,6 +133,7 @@ int main(void)
         permute_benchdata(&bench);
 
         printf("\n");
+        runbench(&bench_rb3_funcs, &bench);
         runbench(&np_rbtree_funcs, &bench);
         runbench(&sil_funcs, &bench);
         runbench(&silrb_funcs, &bench);

@@ -60,6 +60,10 @@ void np_rbtree_retrievebench(void *self, struct benchpayload *data, size_t n)
         struct np_rbtree_state *state;
         size_t i;
 
+        /* must use data from tree nodes, since the API is lacking */
+        (void) data;
+        (void) n;
+
         state = self;
 
         for (i = 0; i < n; i++)
@@ -71,24 +75,21 @@ void np_rbtree_removebench(void *self, struct benchpayload *data, size_t n)
         struct np_rbtree_state *state;
         size_t i;
 
+        /* must use data from tree nodes, since the API is lacking */
+        (void) data;
+        (void) n;
+
         state = self;
 
-        for (i = 0; i < n; i++) {
-                /*
-                 * If we can't guarantee that there are no duplicates
-                 * in data we have to do an exists check first.
-                 */
-                /*
+        for (i = 0; i < n; i++)
                 if (RB_FIND(RBtree, &state->tree, &state->nodes[i]))
-                */
                         RB_REMOVE(RBtree, &state->tree, &state->nodes[i]);
-        }
-
 }
 
 void np_rbtree_addelems(void *self, size_t *out_count, unsigned *out_sumofhashes)
 {
         /* TODO */
+        (void) self;
         *out_count = 42;
         *out_sumofhashes = 42;
 }

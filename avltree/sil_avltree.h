@@ -617,6 +617,7 @@ void SIL_AVL_INIT(struct SIL_AVL_NAME *tree)
 void SIL_AVL_EXIT(struct SIL_AVL_NAME *tree)
 {
         /* ? */
+        (void) tree;
 }
 
 int SIL_AVL_ISEMPTY(struct SIL_AVL_NAME *tree)
