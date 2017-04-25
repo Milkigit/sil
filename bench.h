@@ -2,6 +2,10 @@
 #error bench.h included twice!
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define BENCH_H_INCLUDED
 
 #include <stddef.h>
@@ -17,9 +21,7 @@ void xfree(void *);
 /* bench interface */
 
 struct benchpayload {
-        /* can be changed. Be sure to adapt compare_benchpayload() as well */
-
-#if BENCH_PAYLOAAD_TYPE == 0
+#if BENCH_PAYLOAD_TYPE == 0
         int a;
 #else
         float a;
@@ -57,3 +59,7 @@ static unsigned int BENCH_UNUSED hash_benchdata(struct benchpayload *x)
         return x->a * 33 + x->b;
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif
