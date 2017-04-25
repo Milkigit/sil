@@ -57,10 +57,18 @@ static void bench_stlset_removebench(void *self, struct benchpayload *data, size
 
 static void bench_stlset_addelems(void *self, size_t *out_count, unsigned *out_sumofhashes)
 {
-    (void) self;
+    bench_stlset_state *state = reinterpret_cast<bench_stlset_state *>(self);
+    size_t x;
+    unsigned y;
 
-    *out_count = 42;
-    *out_sumofhashes = 42;
+    x = state->tree.size();
+
+    y = 0;
+    for (benchpayload p : state->tree)
+        y += hash_benchdata(&p);
+
+    *out_count = x;
+    *out_sumofhashes = y;
 }
 
 struct treebenchfuncs bench_stlset_funcs = {

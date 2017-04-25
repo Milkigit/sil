@@ -2,6 +2,14 @@
 #error bench.h included twice!
 #endif
 
+#if !(defined(BENCH_PAYLOAD_TYPE))
+#error BENCH_PAYLOAD_TYPE undefined!
+#endif
+
+#if BENCH_PAYLOAD_TYPE < 0 || BENCH_PAYLOAD_TYPE > 2
+#error Valid values for BENCH_PAYLOAD_TYPE are 0, 1, and 2!
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -11,7 +19,6 @@ extern "C" {
 #include <stddef.h>
 
 #define BENCH_UNUSED __attribute__((unused))
-#define BENCH_PAYLOAD_TYPE 0
 
 /* Helper functions */
 
@@ -23,9 +30,24 @@ void xfree(void *);
 struct benchpayload {
 #if BENCH_PAYLOAD_TYPE == 0
         int a;
+#elif BENCH_PAYLOAD_TYPE == 1
+        double a;
+        double b;
+#elif BENCH_PAYLOAD_TYPE == 2
+        double a;
+        double b;
+        double c;
 #else
-        float a;
-        float b;
+        double a;
+        double b;
+        double c;
+        double d;
+        double e;
+        double f;
+        double g;
+        double h;
+        double i;
+        double j;
 #endif
 };
 
@@ -43,10 +65,34 @@ static int BENCH_UNUSED compare_benchpayload(struct benchpayload *x, struct benc
 {
 #if BENCH_PAYLOAD_TYPE == 0
         return y->a - x->a;
-#else
+#elif BENCH_PAYLOAD_TYPE == 1
         if (x->a != y->a)
                 return y->a - x->a;
         return y->b - x->b;
+#elif BENCH_PAYLOAD_TYPE == 2
+        if (x->a != y->a)
+                return y->a - x->a;
+        if (x->b != y->b)
+                return y->b - x->b;
+        return y->c - x->c;
+#else
+        if (x->a != y->a)
+                return y->a - x->a;
+        if (x->b != y->b)
+                return y->b - x->b;
+        if (x->c != y->c)
+                return y->c - x->c;
+        if (x->d != y->d)
+                return y->d - x->d;
+        if (x->e != y->e)
+                return y->e - x->e;
+        if (x->f != y->f)
+                return y->f - x->f;
+        if (x->g != y->g)
+                return y->g - x->g;
+        if (x->h != y->h)
+                return y->h - x->h;
+        return y->i - x->i;
 #endif
 }
 
@@ -55,8 +101,13 @@ static unsigned int BENCH_UNUSED hash_benchdata(struct benchpayload *x)
 {
 #if BENCH_PAYLOAD_TYPE == 0
         return x->a;
-#else
+#elif BENCH_PAYLOAD_TYPE == 1
         return x->a * 33 + x->b;
+#elif BENCH_PAYLOAD_TYPE == 2
+        return (x->a * 33 + x->b) * 33 + x->c;
+#else
+        /* TODO */
+        return (x->a * 33 + x->b) * 33 + x->c;
 #endif
 }
 

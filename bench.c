@@ -10,6 +10,9 @@
 #include "bench_sil_rb3ptr.h"
 #include "bench_stl_set.h"
 
+#define _STRINGIFY(s) #s
+#define STRINGIFY(s) _STRINGIFY(s)
+
 /*****************************************************************/
 /*****************************************************************/
 void *xcalloc(size_t n, size_t s)
@@ -34,7 +37,8 @@ struct benchtestdata {
         size_t n;
 };
 
-static void permute_benchdata(struct benchtestdata *bench)
+static BENCH_UNUSED
+void permute_benchdata(struct benchtestdata *bench)
 {
         /* Knuth Shuffle */
         size_t i;
@@ -50,6 +54,7 @@ static void permute_benchdata(struct benchtestdata *bench)
 static void benchtestdata_init(struct benchtestdata *bench)
 {
         size_t i;
+        size_t j;
         size_t n;
         struct benchpayload *data;
         /*
@@ -67,12 +72,9 @@ static void benchtestdata_init(struct benchtestdata *bench)
         printf("Generating %zd elements\n", n);
         data = xcalloc(n, sizeof *data);
         for (i = 0; i < n; i++) {
-#if PAYLOAD_TYPE == 0
-                data[i].a = i;
-#else
-                data[i].a = i;
-                data[i].b = i;
-#endif
+                for (j = 0; j < sizeof (struct benchpayload); j++) {
+                        ((unsigned char *)(&data[i]))[j] = rand();
+                }
         }
         bench->n = n;
         bench->data = data;
@@ -129,16 +131,17 @@ int main(void)
 {
         struct benchtestdata bench;
 
+        printf("BENCH_PAYLOAD_TYPE=" STRINGIFY(BENCH_PAYLOAD_TYPE) "\n\n");
+
         srand(time(NULL));
         benchtestdata_init(&bench);
-        permute_benchdata(&bench);
 
         printf("\n");
         runbench(&bench_stlset_funcs, &bench);
-        runbench(&bench_rb3_funcs, &bench);
         runbench(&np_rbtree_funcs, &bench);
         runbench(&sil_funcs, &bench);
         runbench(&silrb_funcs, &bench);
+        runbench(&bench_rb3_funcs, &bench);
         benchtestdata_exit(&bench);
 
         return 0;

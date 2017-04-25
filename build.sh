@@ -1,9 +1,16 @@
-c++ -O2 -DNDEBUG -std=c++11 -Wall -Wextra -c bench_stl_set.cpp
+defines="
+	-DNDEBUG
+	-DBENCH_PAYLOAD_TYPE=0
+	-D_POSIX_C_SOURCE=200809L
+"
+
+c++ -O2 $defines -std=c++11 -Wall -Wextra -c bench_stl_set.cpp
 
 # This was originally a C program, but since we added the std::set bench we
 # have to link in libstdc++. Let's hope that works. NOTE: it will crash badly
 # when the C++ code throws exceptions (std::bad_alloc!).
-cc -O2 -DNDEBUG -std=c89 -Wall -Wextra -D_POSIX_C_SOURCE=200809L \
+cc -std=c89 -Wall -Wextra -O2 \
+	$defines \
 	-l stdc++ \
 	-o bench \
 	bench.c \
