@@ -1,1 +1,1 @@
-extern struct treebenchfuncs sil_funcs;
+extern struct treebenchfuncs bench_silavl_funcs;

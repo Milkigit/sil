@@ -2,6 +2,8 @@
 #error bench.h included twice!
 #endif
 
+#include <stdio.h>
+
 #if !(defined(BENCH_PAYLOAD_TYPE))
 #error BENCH_PAYLOAD_TYPE undefined!
 #endif
@@ -97,7 +99,8 @@ static int BENCH_UNUSED compare_benchpayload(struct benchpayload *x, struct benc
 }
 
 /* only used for asserting correctness of the implementations */
-static unsigned int BENCH_UNUSED hash_benchdata(struct benchpayload *x)
+static unsigned int BENCH_UNUSED
+hash_benchdata(struct benchpayload *x)
 {
 #if BENCH_PAYLOAD_TYPE == 0
         return x->a;
@@ -108,6 +111,21 @@ static unsigned int BENCH_UNUSED hash_benchdata(struct benchpayload *x)
 #else
         /* TODO */
         return (x->a * 33 + x->b) * 33 + x->c;
+#endif
+}
+
+/* for debugging */
+static void BENCH_UNUSED
+bench_payload_print(FILE *f, struct benchpayload *payload)
+{
+#if BENCH_PAYLOAD_TYPE == 0
+        fprintf(f, "%d", payload->a);
+#elif BENCH_PAYLOAD_TYPE == 1
+        fprintf(f, "%lf %lf", payload->a, payload->b);
+#elif BENCH_PAYLOAD_TYPE == 2
+        fprintf(f, "%lf %lf %lf", payload->a, payload->b, payload->c);
+#else
+        fprintf(f, "%lf %lf %lf <7 more values..>", payload->a, payload->b, payload->c);
 #endif
 }
 

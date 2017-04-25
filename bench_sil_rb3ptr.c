@@ -20,10 +20,23 @@ struct bench_rb3_state {
         size_t nnodes;
 };
 
+static struct benchpayload *bench_rb3_payload_from_head(struct rb3_head *head)
+{
+        return &((struct bench_rb3_node *) head)->payload;
+}
+
+static BENCH_UNUSED
+void bench_rb3_node_debugprint(struct rb3_head *head, void *data)
+{
+        (void) data;
+        printf("%p ", head);
+        bench_payload_print(stdout, bench_rb3_payload_from_head(head));
+        printf("\n");
+}
+
 static int compare_rb3_head(struct rb3_head *a, struct benchpayload *payload)
 {
-        return compare_benchpayload(
-                &((struct bench_rb3_node *)a)->payload, payload);
+        return compare_benchpayload(bench_rb3_payload_from_head(a), payload);
 }
 
 static struct rb3_head *find(struct rb3_tree *tree, struct benchpayload *payload)
@@ -35,9 +48,9 @@ static struct rb3_head *find(struct rb3_tree *tree, struct benchpayload *payload
         while (head) {
                 r = compare_rb3_head(head, payload);
                 if (r < 0)
-                        head = RB3_CHILD(head, RB3_LEFT);
+                        head = rb3_get_child(head, RB3_LEFT);
                 else if (r > 0)
-                        head = RB3_CHILD(head, RB3_RIGHT);
+                        head = rb3_get_child(head, RB3_RIGHT);
                 else
                         return head;
         }
@@ -54,7 +67,7 @@ static struct rb3_head *bench_rb3_find_insertion_point(struct rb3_tree *tree, st
         parent = &tree->base;
         dir = RB3_LEFT;
         for (;;) {
-                head = RB3_CHILD(parent, dir);
+                head = rb3_get_child(parent, dir);
                 if (!head)
                         break;
                 r = compare_rb3_head(head, payload);
@@ -110,11 +123,23 @@ static void bench_rb3_insertbench(void *self, struct benchpayload *data, size_t 
         for (i = 0; i < n; i++) {
                 found = bench_rb3_find_insertion_point(
                                 &state->tree, &data[i], &parent, &dir);
-                if (found != NULL) {
+
+                if (found != NULL)
                         /* element present */
                         continue;
-                }
+
+                /*
+                printf("inserting element %d into %p\n", data[i].a, parent);
+                */
+
                 rb3_insert(&state->nodes[i].head, parent, dir);
+
+                /*
+                printf("\nstate now:\n");
+                rb3_inorder_traversal(rb3_get_root(&state->tree),
+                                      bench_rb3_node_debugprint, NULL);
+                printf("\n");
+                */
         }
 }
 
@@ -141,8 +166,23 @@ static void bench_rb3_removebench(void *self, struct benchpayload *data, size_t 
         state = self;
         for (i = 0; i < n; i++) {
                 found = find(&state->tree, &data[i]);
-                if (found != NULL)
-                        rb3_delete(found);
+
+                if (found == NULL)
+                        /* element already deleted (duplicates?) */
+                        continue;
+
+                /*
+                printf("deleting element %d\n", data[i].a);
+                */
+
+                rb3_delete(found);
+
+                /*
+                printf("\nstate now:\n");
+                rb3_inorder_traversal(rb3_get_root(&state->tree),
+                                      bench_rb3_node_debugprint, NULL);
+                printf("\n");
+                */
         }
 }
 
@@ -151,16 +191,21 @@ static void bench_rb3_addelems(void *self, size_t *out_count, unsigned *out_sumo
         struct bench_rb3_state *state;
         struct rb3_head *head;
         size_t count;
-        unsigned sumofhashes;
+        unsigned hsum;
 
-        (void) self;
-        (void) state;
-        (void) head;
-        (void) count;
-        (void) sumofhashes;
+        state = self;
 
-        *out_count = 42;
-        *out_sumofhashes = 42;
+        count = 0;
+        hsum = 0;
+
+        for (head = rb3_get_min(&state->tree);
+             head != NULL; head = rb3_get_inorder_successor(head)) {
+                count += 1;
+                hsum += hash_benchdata(bench_rb3_payload_from_head(head));
+        }
+
+        *out_count = count;
+        *out_sumofhashes = hsum;
 }
 
 struct treebenchfuncs bench_rb3_funcs = {

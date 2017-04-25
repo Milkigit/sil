@@ -170,8 +170,8 @@ static void silrb_addelems(void *self, size_t *out_count, unsigned *out_sumofhas
         *out_sumofhashes = sumofhashes;
 }
 
-struct treebenchfuncs silrb_funcs = {
-        "SIL RB tree",
+struct treebenchfuncs bench_rb2_funcs = {
+        "SIL 2-pointer Red-black tree",
         silrb_init,
         silrb_exit,
         silrb_insertbench,

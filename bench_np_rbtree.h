@@ -12,4 +12,4 @@
 
 #define BENCH_NP_RBTREE_H_INCLUDED
 
-struct treebenchfuncs np_rbtree_funcs;
+struct treebenchfuncs bench_np_rbtree_funcs;

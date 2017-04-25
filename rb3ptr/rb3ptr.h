@@ -1,24 +1,9 @@
-#ifdef RB3PTR_H_INCLUDED
+#ifdef RB3_HEADER_INCLUDED
 #error rb3ptr.h included twice!
 #endif
 
-#define RB3PTR_H_INCLUDED
-
 #define RB3_UNUSED __attribute__((unused))
-
-#define RB3_DIR_BIT (1<<0)
-#define RB3_COLOR_BIT (1<<1)
-#define RB3_BLACK (0)
-#define RB3_RED (RB3_COLOR_BIT)
-#define RB3_MASK (~3)
-#define RB3_CHILD_PTR(head, color) ((rb3_ptr)(head) | color)
-#define RB3_PARENT_PTR(head, dir) ((rb3_ptr)(head) | dir)
-#define RB3_SWAP_HEAD(ptr, head) (((ptr) & RB3_MASK) | (rb3_ptr)(head))
-#define RB3_GET_COLOR_BIT(head, dir) ((head)->ptr[dir] & RB3_COLOR_BIT)
-#define RB3_CHILD(head, dir) ((struct rb3_head *)((head)->ptr[dir] & ~RB3_COLOR_BIT))
-#define RB3_BLACK_CHILD(head, dir) ((struct rb3_head *)(head)->ptr[dir])
-#define RB3_PARENT(head) ((struct rb3_head *)((head)->ptr[RB3_PARENT] & ~RB3_DIR_BIT))
-#define RB3_PARENT_DIR(head) ((head)->ptr[RB3_PARENT] & RB3_DIR_BIT)
+#define RB3_HEADER_INCLUDED
 
 typedef unsigned long rb3_ptr;
 
@@ -49,21 +34,12 @@ struct rb3_tree {
 };
 
 /*
- * Get topmost element of tree (or NULL) if empty
- */
-static RB3_UNUSED
-struct rb3_head *rb3_get_root(struct rb3_tree *tree)
-{
-        return RB3_CHILD(&tree->base, RB3_LEFT);
-}
-
-/*
  * Get (left or right) child
  */
 static RB3_UNUSED
 struct rb3_head *rb3_get_child(struct rb3_head *head, rb3_dir dir)
 {
-        return RB3_CHILD(head, dir);
+        return (struct rb3_head *)((head->ptr[dir]) & ~3);
 }
 
 /*
@@ -72,14 +48,149 @@ struct rb3_head *rb3_get_child(struct rb3_head *head, rb3_dir dir)
 static RB3_UNUSED
 struct rb3_head *rb3_get_parent(struct rb3_head *head)
 {
-        return RB3_PARENT(head);
+        return (struct rb3_head *)(head->ptr[RB3_PARENT] & ~3);
 }
 
+/*
+ * Get topmost element of tree (or NULL if empty)
+ */
 static RB3_UNUSED
-rb3_ptr rb3_child_ptr(struct rb3_head *child, int color)
+struct rb3_head *rb3_get_root(struct rb3_tree *tree)
 {
-        rb3_ptr result = (rb3_ptr)(child) | color;
-        return result;
+        return rb3_get_child(&tree->base, RB3_LEFT);
+}
+
+/*
+ * Get minimum element in tree (or NULL if empty)
+ */
+static RB3_UNUSED
+struct rb3_head *rb3_get_min(struct rb3_tree *tree)
+{
+        struct rb3_head *head;
+
+        head = rb3_get_root(tree);
+        if (!head)
+                return NULL;
+        while (rb3_get_child(head, RB3_LEFT))
+                head = rb3_get_child(head, RB3_LEFT);
+        return head;
+}
+
+/*
+ * Get maximum element in tree (or NULL if empty)
+ */
+static RB3_UNUSED
+struct rb3_head *rb3_get_max(struct rb3_tree *tree)
+{
+        struct rb3_head *head;
+
+        head = rb3_get_root(tree);
+        if (!head)
+                return NULL;
+        while (rb3_get_child(head, RB3_RIGHT))
+                head = rb3_get_child(head, RB3_RIGHT);
+        return head;
+}
+
+/*
+ * Get direction from parent to child.
+ *
+ * Return RB3_LEFT when the parent sorts after the given element.
+ * Return RB3_RIGHT when the parent sorts before the given element.
+ *
+ * If the given node is the root node, RB3_LEFT is returned (this is an
+ * implementation detail. Client can test for the root node before calling this
+ * function).
+ */
+static int rb3_get_parent_dir(struct rb3_head *head)
+{
+        return (head)->ptr[RB3_PARENT] & 1;
+}
+
+/*
+ * Get in-order ascendant successor (minimal ancestor node that sorts after
+ * the given element) or NULL if no such element is in the tree.
+ */
+static RB3_UNUSED
+struct rb3_head *rb3_get_ascendant_successor(struct rb3_head *head)
+{
+        while (head && rb3_get_parent_dir(head) == RB3_RIGHT)
+                head = rb3_get_parent(head);
+        if (head) {
+                head = rb3_get_parent(head);
+                if (head && !rb3_get_parent(head))
+                        /* base fake element */
+                        head = NULL;
+        }
+        return head;
+}
+
+/*
+ * Get in-order ascendant predecessor (maximal ancestor node that sorts before
+ * the given element) or NULL if no such element is in the tree.
+ */
+static RB3_UNUSED
+struct rb3_head *rb3_get_ascendant_predecessor(struct rb3_head *head)
+{
+        while (head && rb3_get_parent_dir(head) == RB3_LEFT)
+                head = rb3_get_parent(head);
+        if (head)
+                head = rb3_get_parent(head);
+        return head;
+}
+
+/*
+ * Get in-order descendant successor (minimal descendant node that sorts after
+ * the given element) or NULL if no such element is in the tree.
+ */
+static RB3_UNUSED
+struct rb3_head *rb3_get_descendant_successor(struct rb3_head *head)
+{
+        head = rb3_get_child(head, RB3_RIGHT);
+        if (!head)
+                return NULL;
+        while (rb3_get_child(head, RB3_LEFT))
+                head = rb3_get_child(head, RB3_LEFT);
+        return head;
+}
+
+/*
+ * Get in-order descendant predecessor (minimal descendant node that sorts after
+ * the given element) or NULL if no such element is in the tree.
+ */
+static RB3_UNUSED
+struct rb3_head *rb3_get_descendant_predecessor(struct rb3_head *head)
+{
+        head = rb3_get_child(head, RB3_RIGHT);
+        if (!head)
+                return NULL;
+        while (rb3_get_child(head, RB3_LEFT))
+                head = rb3_get_child(head, RB3_LEFT);
+        return head;
+}
+
+/*
+ * Get in-order successor (or NULL if given element is maximum element).
+ */
+static RB3_UNUSED
+struct rb3_head *rb3_get_inorder_successor(struct rb3_head *head)
+{
+        if (rb3_get_child(head, RB3_RIGHT))
+                return rb3_get_descendant_successor(head);
+        else
+                return rb3_get_ascendant_successor(head);
+}
+
+/*
+ * Get in-order predecessor (or NULL if given element is maximum element).
+ */
+static RB3_UNUSED
+struct rb3_head *rb3_get_inorder_predecessor(struct rb3_head *head)
+{
+        if (rb3_get_child(head, RB3_RIGHT))
+                return rb3_get_descendant_predecessor(head);
+        else
+                return rb3_get_ascendant_predecessor(head);
 }
 
 void rb3_init(struct rb3_tree *tree);
@@ -87,37 +198,6 @@ void rb3_exit(struct rb3_tree *tree);
 void rb3_insert(struct rb3_head *head, struct rb3_head *parent, int dir);
 void rb3_delete(struct rb3_head *head);
 
-
 /* debug */
-#include <stdio.h>
-static RB3_UNUSED
-int rb3_is_valid_tree(struct rb3_head *head, int isred)
-{
-        struct rb3_head *left;
-        struct rb3_head *right;
-        int isleftred;
-        int isrightred;
-
-        printf("c"); fflush(stdout);
-
-        if (!head)
-                return 1;
-
-        left = RB3_CHILD(head, RB3_LEFT);
-        right = RB3_CHILD(head, RB3_RIGHT);
-        isleftred = RB3_GET_COLOR_BIT(head, RB3_LEFT);
-        isrightred = RB3_GET_COLOR_BIT(head, RB3_RIGHT);
-
-        if (isred && isleftred)
-                return 0;
-        if (isred && isrightred)
-                return 0;
-
-        if (left && RB3_PARENT_DIR(left) != RB3_LEFT)
-                return 0;
-        if (right && RB3_PARENT_DIR(right) != RB3_RIGHT)
-                return 0;
-
-        return rb3_is_valid_tree(left, isleftred)
-                && rb3_is_valid_tree(right, isrightred);
-}
+int rb3_is_valid_tree(struct rb3_head *head, int isred);
+void rb3_inorder_traversal(struct rb3_head *head, void (*action)(struct rb3_head *, void *), void *arg);

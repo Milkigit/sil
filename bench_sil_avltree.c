@@ -122,7 +122,7 @@ void sil_addelems(void *self, size_t *out_count, unsigned *out_sumofhashes)
         *out_sumofhashes = 42;
 }
 
-struct treebenchfuncs sil_funcs = {
+struct treebenchfuncs bench_silavl_funcs = {
         "SIL AVLtree",
         sil_init,
         sil_exit,

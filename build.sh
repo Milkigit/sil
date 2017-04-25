@@ -1,3 +1,6 @@
+# Note: Payload types 1 and 2 (structs of double-typed values) do not work yet
+# for random binary-data reinterpreted structs.
+# The permuted integer-valued sequence (benchtestdata_init()) is fine.
 defines="
 	-DNDEBUG
 	-DBENCH_PAYLOAD_TYPE=0

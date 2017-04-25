@@ -54,7 +54,6 @@ void permute_benchdata(struct benchtestdata *bench)
 static void benchtestdata_init(struct benchtestdata *bench)
 {
         size_t i;
-        size_t j;
         size_t n;
         struct benchpayload *data;
         /*
@@ -71,11 +70,8 @@ static void benchtestdata_init(struct benchtestdata *bench)
         */
         printf("Generating %zd elements\n", n);
         data = xcalloc(n, sizeof *data);
-        for (i = 0; i < n; i++) {
-                for (j = 0; j < sizeof (struct benchpayload); j++) {
-                        ((unsigned char *)(&data[i]))[j] = rand();
-                }
-        }
+        for (i = 0; i < n; i++)
+                data[i].a = i;
         bench->n = n;
         bench->data = data;
 }
@@ -93,8 +89,13 @@ static void runbench(struct treebenchfuncs *impl, struct benchtestdata *bench)
         void *data;
         long ms;
         int s;
+
+        /* these debug values are for making sure that good benchmarks are not
+         * more important than correct results :-) */
+        /*
         size_t nodecount;
         unsigned nodesum;
+        */
 
         printf("Running bench %s\n", impl->benchname);
         printf("===========================\n");
@@ -106,8 +107,10 @@ static void runbench(struct treebenchfuncs *impl, struct benchtestdata *bench)
         sil_timer_elapsed_s_ms(&timer, &s, &ms);
         printf("Inserting each element: %d.%.03lds\n", s, ms); fflush(stdout);
 
+        /*
         impl->addelems(data, &nodecount, &nodesum);
-        printf("DEBUG count: %zd, hashsum: %u\n", nodecount, nodesum); fflush(stdout);
+        printf("DEBUG count/hashsum: %zd %u\n", nodecount, nodesum); fflush(stdout);
+        */
 
         sil_timer_reset(&timer);
         impl->retrievebench(data, bench->data, bench->n);
@@ -119,8 +122,10 @@ static void runbench(struct treebenchfuncs *impl, struct benchtestdata *bench)
         sil_timer_elapsed_s_ms(&timer, &s, &ms);
         printf("Removing each element: %d.%.03lds\n", s, ms); fflush(stdout);
 
+        /*
         impl->addelems(data, &nodecount, &nodesum);
-        printf("DEBUG count: %zd, hashsum: %u\n", nodecount, nodesum); fflush(stdout);
+        printf("DEBUG count/hashsum: %zd %u\n", nodecount, nodesum); fflush(stdout);
+        */
 
         impl->exit(data);
 
@@ -135,12 +140,13 @@ int main(void)
 
         srand(time(NULL));
         benchtestdata_init(&bench);
+        permute_benchdata(&bench);
 
         printf("\n");
         runbench(&bench_stlset_funcs, &bench);
-        runbench(&np_rbtree_funcs, &bench);
-        runbench(&sil_funcs, &bench);
-        runbench(&silrb_funcs, &bench);
+        runbench(&bench_np_rbtree_funcs, &bench);
+        runbench(&bench_silavl_funcs, &bench);
+        runbench(&bench_rb2_funcs, &bench);
         runbench(&bench_rb3_funcs, &bench);
         benchtestdata_exit(&bench);
 

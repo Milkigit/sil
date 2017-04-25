@@ -94,7 +94,7 @@ void np_rbtree_addelems(void *self, size_t *out_count, unsigned *out_sumofhashes
         *out_sumofhashes = 42;
 }
 
-struct treebenchfuncs np_rbtree_funcs = {
+struct treebenchfuncs bench_np_rbtree_funcs = {
         "BSD RB tree",
         np_rbtree_init,
         np_rbtree_exit,
