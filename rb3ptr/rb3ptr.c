@@ -8,8 +8,11 @@
 #define RB3_RED (RB3_COLOR_BIT)
 #define RB3_CHILD_PTR(head, color) ((rb3_ptr)(head) | color)
 #define RB3_PARENT_PTR(head, dir) ((rb3_ptr)(head) | dir)
-#define RB3_BLACK_CHILD(head, dir) ((struct rb3_head *)(head)->ptr[dir])
-#define rb3_get_parent(head) ((struct rb3_head *)((head)->ptr[RB3_PARENT] & ~RB3_DIR_BIT))
+
+static struct rb3_head *rb3_get_black_child(struct rb3_head *head, int dir)
+{
+        return (struct rb3_head *) head->ptr[dir];
+}
 
 static int rb3_get_color_bit(struct rb3_head *head, int dir)
 {
@@ -37,7 +40,7 @@ static void rb3_connect(struct rb3_head *head, int dir, struct rb3_head *child, 
         child->ptr[RB3_PARENT] = RB3_PARENT_PTR(head, dir);
 }
 
-static void rb3_connect_if_child(struct rb3_head *head, int dir, struct rb3_head *child, int color)
+static void rb3_connect_null(struct rb3_head *head, int dir, struct rb3_head *child, int color)
 {
         head->ptr[dir] = RB3_CHILD_PTR(child, color);
         if (child)
@@ -56,7 +59,7 @@ static void rb3_insert_rebalance(struct rb3_head *head)
 
         if (!rb3_get_parent(rb3_get_parent(head))) {
                 /* We are root */
-                rb3_get_parent(head)->ptr[RB3_LEFT] &= ~RB3_COLOR_BIT;
+                rb3_set_black(rb3_get_parent(head), RB3_LEFT);
                 return;
         }
 
@@ -84,13 +87,13 @@ static void rb3_insert_rebalance(struct rb3_head *head)
                 rb3_set_black(gpnt, RB3_RIGHT);
                 rb3_insert_rebalance(gpnt);
         } else if (gdir == right) {
-                rb3_connect_if_child(pnt, left, RB3_BLACK_CHILD(head, right), RB3_BLACK);
-                rb3_connect_if_child(gpnt, right, RB3_BLACK_CHILD(head, left), RB3_BLACK);
+                rb3_connect_null(pnt, left, rb3_get_black_child(head, right), RB3_BLACK);
+                rb3_connect_null(gpnt, right, rb3_get_black_child(head, left), RB3_BLACK);
                 rb3_connect(head, left, gpnt, RB3_RED);
                 rb3_connect(head, right, pnt, RB3_RED);
                 rb3_connect(ggpnt, ggdir, head, RB3_BLACK);
         } else {
-                rb3_connect_if_child(gpnt, left, RB3_BLACK_CHILD(pnt, right), RB3_BLACK);
+                rb3_connect_null(gpnt, left, rb3_get_black_child(pnt, right), RB3_BLACK);
                 rb3_connect(pnt, right, gpnt, RB3_RED);
                 rb3_connect(ggpnt, ggdir, pnt, RB3_BLACK);
         }
@@ -132,7 +135,7 @@ static void rb3_delete_rebalance(struct rb3_head *head)
                 rb3_delete_rebalance(head);
         } else if (rb3_is_red(sibling, right)) {
                 /* outer child of sibling is red */
-                rb3_connect_if_child(pnt, right, sleft, rb3_get_color_bit(sibling, left));
+                rb3_connect_null(pnt, right, sleft, rb3_get_color_bit(sibling, left));
                 rb3_connect(sibling, left, pnt, RB3_BLACK);
                 rb3_connect(gpnt, gdir, sibling, rb3_get_color_bit(gpnt, gdir));
                 rb3_set_black(sibling, right);
@@ -140,8 +143,8 @@ static void rb3_delete_rebalance(struct rb3_head *head)
                 /* inner child of sibling is red */
                 sleftleft = rb3_get_child(sleft, left);
                 sleftright = rb3_get_child(sleft, right);
-                rb3_connect_if_child(pnt, right, sleftleft, RB3_BLACK);
-                rb3_connect_if_child(sibling, left, sleftright, RB3_BLACK);
+                rb3_connect_null(pnt, right, sleftleft, RB3_BLACK);
+                rb3_connect_null(sibling, left, sleftright, RB3_BLACK);
                 rb3_connect(sleft, left, pnt, RB3_BLACK);
                 rb3_connect(sleft, right, sibling, RB3_BLACK);
                 rb3_connect(gpnt, gdir, sleft, rb3_get_color_bit(gpnt, gdir));
@@ -178,7 +181,7 @@ static void rb3_delete_noninternal(struct rb3_head *head)
                  * => height decreased */
                 rb3_delete_rebalance(head);
 
-        rb3_connect_if_child(pnt, pdir, cld, RB3_BLACK);
+        rb3_connect_null(pnt, pdir, cld, RB3_BLACK);
 }
 
 static void rb3_delete_internal(struct rb3_head *head)
