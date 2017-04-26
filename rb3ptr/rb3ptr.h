@@ -29,11 +29,11 @@
 
 typedef unsigned long rb3_ptr;
 
-typedef enum {
+enum {
         RB3_LEFT = 0,
         RB3_RIGHT = 1,
         RB3_PARENT = 2,
-} rb3_dir;
+};
 
 struct rb3_head {
         /*
@@ -59,7 +59,7 @@ struct rb3_tree {
  * Get (left or right) child
  */
 static RB3_UNUSED
-struct rb3_head *rb3_get_child(struct rb3_head *head, rb3_dir dir)
+struct rb3_head *rb3_get_child(struct rb3_head *head, int dir)
 {
         return (struct rb3_head *)((head->ptr[dir]) & ~3);
 }
