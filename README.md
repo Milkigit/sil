@@ -41,7 +41,7 @@ rb3ptr/
 BENCH OUTPUTS:
 ==============
 
-Test system: Debian stretch, GCC, AMD64 X2 250, 4G RAM
+Test system: Debian stretch, GCC -O2 -DNDEBUG, AMD64 X2 250, 4G RAM
 
 Tested with 2^20 elements of different sizes.
 
