@@ -80,7 +80,6 @@ static void rb3_insert_rebalance(struct rb3_head *head)
         int ggdir;
 
         if (!rb3_get_parent(rb3_get_parent(head))) {
-                /* We are root */
                 rb3_set_black(rb3_get_parent(head), RB3_LEFT);
                 return;
         }
@@ -134,11 +133,9 @@ static void rb3_delete_rebalance(struct rb3_head *head)
         int gdir;
 
         if (!rb3_get_parent(head))
-                /* head is base fake head */
                 return;
 
         if (!rb3_get_parent(rb3_get_parent(head)))
-                /* head is root */
                 return;
 
         pnt = rb3_get_parent(head);
@@ -237,7 +234,7 @@ void rb3_init(struct rb3_tree *tree)
 
 void rb3_exit(struct rb3_tree *tree)
 {
-        /* ? */
+        /* No resources allocated */
         (void) tree;
 }
 
@@ -259,7 +256,6 @@ void rb3_delete(struct rb3_head *head)
         else
                 rb3_delete_noninternal(head);
 
-        /* Better zero it... someone will thank us in the future */
         head->ptr[RB3_LEFT] = 0;
         head->ptr[RB3_RIGHT] = 0;
         head->ptr[RB3_PARENT] = 0;
