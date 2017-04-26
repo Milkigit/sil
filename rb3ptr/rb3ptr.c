@@ -258,7 +258,7 @@ void rb3_insert(struct rb3_head *head, struct rb3_head *parent, int dir)
 
 void rb3_delete(struct rb3_head *head)
 {
-        if (rb3_get_child(head, RB3_LEFT) && rb3_get_child(head, RB3_RIGHT))
+        if (rb3_has_child(head, RB3_LEFT) && rb3_has_child(head, RB3_RIGHT))
                 rb3_delete_internal(head);
         else
                 rb3_delete_noninternal(head);
@@ -267,60 +267,4 @@ void rb3_delete(struct rb3_head *head)
         head->ptr[RB3_LEFT] = 0;
         head->ptr[RB3_RIGHT] = 0;
         head->ptr[RB3_PARENT] = 0;
-}
-
-/*
- * DEBUG
- */
-#include <stdio.h>
-
-int rb3_is_valid_tree(struct rb3_head *head, int isred)
-{
-        struct rb3_head *left;
-        struct rb3_head *right;
-        int isleftred;
-        int isrightred;
-
-        if (!head)
-                return 1;
-
-        left = rb3_get_child(head, RB3_LEFT);
-        right = rb3_get_child(head, RB3_RIGHT);
-        isleftred = rb3_is_red(head, RB3_LEFT);
-        isrightred = rb3_is_red(head, RB3_RIGHT);
-
-        if (isred && isleftred)
-                return 0;
-        if (isred && isrightred)
-                return 0;
-
-        if (left && rb3_get_parent_dir(left) != RB3_LEFT)
-                return 0;
-        if (right && rb3_get_parent_dir(right) != RB3_RIGHT)
-                return 0;
-
-        return rb3_is_valid_tree(left, isleftred)
-                && rb3_is_valid_tree(right, isrightred);
-}
-
-void rb3_inorder_traversal(struct rb3_head *head, void (*action)(struct rb3_head *, void *), void *arg)
-{
-        struct rb3_head *child;
-
-        if (!head)
-                return;
-
-        action(head, arg);
-
-        if (rb3_get_child(head, RB3_LEFT)) {
-                child = rb3_get_child(head, RB3_LEFT);
-                rb3_inorder_traversal(child, action, arg);
-                action(head, arg);
-        }
-
-        if (rb3_get_child(head, RB3_RIGHT)) {
-                child = rb3_get_child(head, RB3_RIGHT);
-                rb3_inorder_traversal(child, action, arg);
-                action(head, arg);
-        }
 }

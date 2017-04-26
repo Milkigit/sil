@@ -20,6 +20,10 @@
  * SOFTWARE.
  */
 
+#ifndef _STDDEF_H
+#error stddef.h must be included first!
+#endif
+
 #ifdef RB3_HEADER_INCLUDED
 #error rb3ptr.h included twice!
 #endif
@@ -35,6 +39,9 @@ enum {
         RB3_PARENT = 2,
 };
 
+/*
+ * Node type for 3-pointer Red-black trees.
+ */
 struct rb3_head {
         /*
          * Left, right, and parent pointers.
@@ -54,6 +61,28 @@ struct rb3_head {
 struct rb3_tree {
         struct rb3_head base;
 };
+
+/*
+ * Initialize a rb3_tree.
+ */
+void rb3_init(struct rb3_tree *tree);
+
+/*
+ * Free resources allocated by an rb3_tree (currently none, but this could
+ * change).
+ */
+void rb3_exit(struct rb3_tree *tree);
+
+/*
+ * Insert a node below another node in the given direction (RB3_LEFT or
+ * RB3_RIGHT). The new node must replace a leaf.
+ */
+void rb3_insert(struct rb3_head *head, struct rb3_head *parent, int dir);
+
+/*
+ * Delete a node.
+ */
+void rb3_delete(struct rb3_head *head);
 
 /*
  * Get (left or right) child
@@ -80,6 +109,33 @@ static RB3_UNUSED
 struct rb3_head *rb3_get_root(struct rb3_tree *tree)
 {
         return rb3_get_child(&tree->base, RB3_LEFT);
+}
+
+/*
+ * Test if a (left or right) child exists
+ *
+ * This slightly more efficient than calling rb3_get_child() and comparing to
+ * NULL.
+ */
+static RB3_UNUSED
+int rb3_has_child(struct rb3_head *head, int dir)
+{
+        return head->ptr[dir] != 0;
+}
+
+/*
+ * Get direction from parent to child.
+ *
+ * Return RB3_LEFT when the parent sorts after the given element.
+ * Return RB3_RIGHT when the parent sorts before the given element.
+ *
+ * If the given node is the root node, RB3_LEFT is returned (this is an
+ * implementation detail. Client can test for the root node before calling this
+ * function).
+ */
+static int rb3_get_parent_dir(struct rb3_head *head)
+{
+        return (head)->ptr[RB3_PARENT] & 1;
 }
 
 /*
@@ -112,21 +168,6 @@ struct rb3_head *rb3_get_max(struct rb3_tree *tree)
         while (rb3_get_child(head, RB3_RIGHT))
                 head = rb3_get_child(head, RB3_RIGHT);
         return head;
-}
-
-/*
- * Get direction from parent to child.
- *
- * Return RB3_LEFT when the parent sorts after the given element.
- * Return RB3_RIGHT when the parent sorts before the given element.
- *
- * If the given node is the root node, RB3_LEFT is returned (this is an
- * implementation detail. Client can test for the root node before calling this
- * function).
- */
-static int rb3_get_parent_dir(struct rb3_head *head)
-{
-        return (head)->ptr[RB3_PARENT] & 1;
 }
 
 /*
@@ -168,10 +209,10 @@ struct rb3_head *rb3_get_ascendant_predecessor(struct rb3_head *head)
 static RB3_UNUSED
 struct rb3_head *rb3_get_descendant_successor(struct rb3_head *head)
 {
-        head = rb3_get_child(head, RB3_RIGHT);
-        if (!head)
+        if (!rb3_has_child(head, RB3_RIGHT))
                 return NULL;
-        while (rb3_get_child(head, RB3_LEFT))
+        head = rb3_get_child(head, RB3_RIGHT);
+        while (rb3_has_child(head, RB3_LEFT))
                 head = rb3_get_child(head, RB3_LEFT);
         return head;
 }
@@ -183,9 +224,9 @@ struct rb3_head *rb3_get_descendant_successor(struct rb3_head *head)
 static RB3_UNUSED
 struct rb3_head *rb3_get_descendant_predecessor(struct rb3_head *head)
 {
-        head = rb3_get_child(head, RB3_RIGHT);
-        if (!head)
+        if (!rb3_has_child(head, RB3_RIGHT))
                 return NULL;
+        head = rb3_get_child(head, RB3_RIGHT);
         while (rb3_get_child(head, RB3_LEFT))
                 head = rb3_get_child(head, RB3_LEFT);
         return head;
@@ -197,7 +238,7 @@ struct rb3_head *rb3_get_descendant_predecessor(struct rb3_head *head)
 static RB3_UNUSED
 struct rb3_head *rb3_get_inorder_successor(struct rb3_head *head)
 {
-        if (rb3_get_child(head, RB3_RIGHT))
+        if (rb3_has_child(head, RB3_RIGHT))
                 return rb3_get_descendant_successor(head);
         else
                 return rb3_get_ascendant_successor(head);
@@ -209,17 +250,8 @@ struct rb3_head *rb3_get_inorder_successor(struct rb3_head *head)
 static RB3_UNUSED
 struct rb3_head *rb3_get_inorder_predecessor(struct rb3_head *head)
 {
-        if (rb3_get_child(head, RB3_RIGHT))
+        if (rb3_has_child(head, RB3_RIGHT))
                 return rb3_get_descendant_predecessor(head);
         else
                 return rb3_get_ascendant_predecessor(head);
 }
-
-void rb3_init(struct rb3_tree *tree);
-void rb3_exit(struct rb3_tree *tree);
-void rb3_insert(struct rb3_head *head, struct rb3_head *parent, int dir);
-void rb3_delete(struct rb3_head *head);
-
-/* debug */
-int rb3_is_valid_tree(struct rb3_head *head, int isred);
-void rb3_inorder_traversal(struct rb3_head *head, void (*action)(struct rb3_head *, void *), void *arg);
