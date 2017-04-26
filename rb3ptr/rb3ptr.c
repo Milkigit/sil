@@ -16,6 +16,11 @@ static int rb3_get_color_bit(struct rb3_head *head, int dir)
         return (head)->ptr[dir] & RB3_COLOR_BIT;
 }
 
+static int rb3_is_red(struct rb3_head *head, int dir)
+{
+        return rb3_get_color_bit(head, dir) != 0;
+}
+
 static void rb3_set_red(struct rb3_head *head, int dir)
 {
         head->ptr[dir] |= RB3_COLOR_BIT;
@@ -55,7 +60,7 @@ static void rb3_insert_rebalance(struct rb3_head *head)
                 return;
         }
 
-        if (!rb3_get_color_bit(rb3_get_parent(rb3_get_parent(head)), rb3_get_parent_dir(rb3_get_parent(head))))
+        if (!rb3_is_red(rb3_get_parent(rb3_get_parent(head)), rb3_get_parent_dir(rb3_get_parent(head))))
                 /* parent is black */
                 return;
 
@@ -72,7 +77,7 @@ static void rb3_insert_rebalance(struct rb3_head *head)
         gdir = rb3_get_parent_dir(pnt);
         ggdir = rb3_get_parent_dir(gpnt);
 
-        if (rb3_get_color_bit(gpnt, !gdir)) {
+        if (rb3_is_red(gpnt, !gdir)) {
                 /* uncle and parent are both red */
                 rb3_set_red(ggpnt, ggdir);
                 rb3_set_black(gpnt, RB3_LEFT);
@@ -119,19 +124,19 @@ static void rb3_delete_rebalance(struct rb3_head *head)
         sibling = rb3_get_child(pnt, right);
         sleft = rb3_get_child(sibling, left);
 
-        if (rb3_get_color_bit(pnt, right)) {
+        if (rb3_is_red(pnt, right)) {
                 /* sibling is red */
                 rb3_connect(pnt, right, sleft, RB3_BLACK);
                 rb3_connect(sibling, left, pnt, RB3_RED);
                 rb3_connect(gpnt, gdir, sibling, RB3_BLACK);
                 rb3_delete_rebalance(head);
-        } else if (rb3_get_color_bit(sibling, right)) {
+        } else if (rb3_is_red(sibling, right)) {
                 /* outer child of sibling is red */
                 rb3_connect_if_child(pnt, right, sleft, rb3_get_color_bit(sibling, left));
                 rb3_connect(sibling, left, pnt, RB3_BLACK);
                 rb3_connect(gpnt, gdir, sibling, rb3_get_color_bit(gpnt, gdir));
                 rb3_set_black(sibling, right);
-        } else if (rb3_get_color_bit(sibling, left)) {
+        } else if (rb3_is_red(sibling, left)) {
                 /* inner child of sibling is red */
                 sleftleft = rb3_get_child(sleft, left);
                 sleftright = rb3_get_child(sleft, right);
@@ -140,7 +145,7 @@ static void rb3_delete_rebalance(struct rb3_head *head)
                 rb3_connect(sleft, left, pnt, RB3_BLACK);
                 rb3_connect(sleft, right, sibling, RB3_BLACK);
                 rb3_connect(gpnt, gdir, sleft, rb3_get_color_bit(gpnt, gdir));
-        } else if (rb3_get_color_bit(gpnt, gdir)) {
+        } else if (rb3_is_red(gpnt, gdir)) {
                 /* parent is red */
                 rb3_set_red(pnt, right);
                 rb3_set_black(gpnt, gdir);
@@ -151,59 +156,29 @@ static void rb3_delete_rebalance(struct rb3_head *head)
         }
 }
 
-static void rb3_delete_leaf(struct rb3_head *head)
-{
-        struct rb3_head *pnt;
-        rb3_ptr pdir;
-
-        pnt = rb3_get_parent(head);
-        pdir = rb3_get_parent_dir(head);
-
-        if (!rb3_get_color_bit(pnt, pdir))
-                /* To be deleted node is black => height decreased */
-                rb3_delete_rebalance(head);
-
-        rb3_connect_if_child(pnt, pdir, NULL, RB3_BLACK);
-
-        /* Better zero it... someone will thank us in the future */
-        head->ptr[RB3_LEFT] = 0;
-        head->ptr[RB3_RIGHT] = 0;
-        head->ptr[RB3_PARENT] = 0;
-}
-
-static void rb3_delete_halfleaf(struct rb3_head *head, rb3_ptr dir)
+static void rb3_delete_noninternal(struct rb3_head *head)
 {
         struct rb3_head *pnt;
         struct rb3_head *cld;
         rb3_ptr pdir;
         rb3_ptr headred;
         rb3_ptr childred;
+        int dir;
+
+        dir = rb3_get_child(head, RB3_RIGHT) ? RB3_RIGHT : RB3_LEFT;
 
         pnt = rb3_get_parent(head);
         cld = rb3_get_child(head, dir);
         pdir = rb3_get_parent_dir(head);
-        headred = rb3_get_color_bit(pnt, pdir);
-        childred = rb3_get_color_bit(head, dir);
+        headred = rb3_is_red(pnt, pdir);
+        childred = rb3_is_red(head, dir);
 
         if (!headred && !childred)
                 /* To be deleted node is black (and child cannot be repainted)
                  * => height decreased */
-                rb3_delete_rebalance(cld);
+                rb3_delete_rebalance(head);
 
-        rb3_connect(pnt, pdir, cld, RB3_BLACK);
-
-        /* Better zero it... someone will thank us in the future */
-        head->ptr[RB3_LEFT] = 0;
-        head->ptr[RB3_RIGHT] = 0;
-        head->ptr[RB3_PARENT] = 0;
-}
-
-static struct rb3_head *rb3_descendant_inorder_successor(struct rb3_head *head)
-{
-        head = rb3_get_child(head, RB3_RIGHT);
-        while (rb3_get_child(head, RB3_LEFT))
-                head = rb3_get_child(head, RB3_LEFT);
-        return head;
+        rb3_connect_if_child(pnt, pdir, cld, RB3_BLACK);
 }
 
 static void rb3_delete_internal(struct rb3_head *head)
@@ -215,11 +190,8 @@ static void rb3_delete_internal(struct rb3_head *head)
         int pdir;
         int pcol;
 
-        subst = rb3_descendant_inorder_successor(head);
-        if (rb3_get_child(subst, RB3_RIGHT))
-                rb3_delete_halfleaf(subst, RB3_RIGHT);
-        else
-                rb3_delete_leaf(subst);
+        subst = rb3_get_descendant_successor(head);
+        rb3_delete_noninternal(subst);
         *subst = *head;
 
         left = rb3_get_child(head, RB3_LEFT);
@@ -252,9 +224,6 @@ void rb3_insert(struct rb3_head *head, struct rb3_head *parent, int dir)
 {
         assert(dir == RB3_LEFT || dir == RB3_RIGHT);
 
-        struct rb3_head *base = head;
-        while (rb3_get_parent(base)) base = rb3_get_parent(base);
-
         parent->ptr[dir] = RB3_CHILD_PTR(head, RB3_RED);
         head->ptr[RB3_PARENT] = RB3_PARENT_PTR(parent, dir);
         head->ptr[RB3_LEFT] = RB3_CHILD_PTR(NULL, RB3_BLACK);
@@ -264,16 +233,15 @@ void rb3_insert(struct rb3_head *head, struct rb3_head *parent, int dir)
 
 void rb3_delete(struct rb3_head *head)
 {
-        if (rb3_get_child(head, RB3_LEFT)) {
-                if (rb3_get_child(head, RB3_RIGHT))
-                        rb3_delete_internal(head);
-                else
-                        rb3_delete_halfleaf(head, RB3_LEFT);
-        } else if (rb3_get_child(head, RB3_RIGHT)) {
-                rb3_delete_halfleaf(head, RB3_RIGHT);
-        } else {
-                rb3_delete_leaf(head);
-        }
+        if (rb3_get_child(head, RB3_LEFT) && rb3_get_child(head, RB3_RIGHT))
+                rb3_delete_internal(head);
+        else
+                rb3_delete_noninternal(head);
+
+        /* Better zero it... someone will thank us in the future */
+        head->ptr[RB3_LEFT] = 0;
+        head->ptr[RB3_RIGHT] = 0;
+        head->ptr[RB3_PARENT] = 0;
 }
 
 /*
@@ -293,8 +261,8 @@ int rb3_is_valid_tree(struct rb3_head *head, int isred)
 
         left = rb3_get_child(head, RB3_LEFT);
         right = rb3_get_child(head, RB3_RIGHT);
-        isleftred = rb3_get_color_bit(head, RB3_LEFT);
-        isrightred = rb3_get_color_bit(head, RB3_RIGHT);
+        isleftred = rb3_is_red(head, RB3_LEFT);
+        isrightred = rb3_is_red(head, RB3_RIGHT);
 
         if (isred && isleftred)
                 return 0;
