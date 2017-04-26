@@ -85,6 +85,37 @@ void rb3_insert(struct rb3_head *head, struct rb3_head *parent, int dir);
 void rb3_delete(struct rb3_head *head);
 
 /*
+ * Get minimum (lefmost) element, or NULL if tree is empty
+ */
+struct rb3_head *rb3_get_min(struct rb3_tree *tree);
+
+/*
+ * Get maximum (rightmost) element, or NULL if tree is empty
+ */
+struct rb3_head *rb3_get_max(struct rb3_tree *tree);
+
+/*
+ * Test if a (left or right) child exists
+ *
+ * This slightly more efficient than calling rb3_get_child() and comparing to
+ * NULL.
+ */
+static RB3_UNUSED
+int rb3_has_child(struct rb3_head *head, int dir)
+{
+        return head->ptr[dir] != 0;
+}
+
+/*
+ * Check if tree is empty
+ */
+static RB3_UNUSED
+int rb3_isempty(struct rb3_tree *tree)
+{
+        return !rb3_has_child(&tree->base, RB3_LEFT);
+}
+
+/*
  * Get (left or right) child
  */
 static RB3_UNUSED
@@ -112,18 +143,6 @@ struct rb3_head *rb3_get_root(struct rb3_tree *tree)
 }
 
 /*
- * Test if a (left or right) child exists
- *
- * This slightly more efficient than calling rb3_get_child() and comparing to
- * NULL.
- */
-static RB3_UNUSED
-int rb3_has_child(struct rb3_head *head, int dir)
-{
-        return head->ptr[dir] != 0;
-}
-
-/*
  * Get direction from parent to child.
  *
  * Return RB3_LEFT when the parent sorts after the given element.
@@ -136,38 +155,6 @@ int rb3_has_child(struct rb3_head *head, int dir)
 static int rb3_get_parent_dir(struct rb3_head *head)
 {
         return (head)->ptr[RB3_PARENT] & 1;
-}
-
-/*
- * Get minimum element in tree (or NULL if empty)
- */
-static RB3_UNUSED
-struct rb3_head *rb3_get_min(struct rb3_tree *tree)
-{
-        struct rb3_head *head;
-
-        head = rb3_get_root(tree);
-        if (!head)
-                return NULL;
-        while (rb3_get_child(head, RB3_LEFT))
-                head = rb3_get_child(head, RB3_LEFT);
-        return head;
-}
-
-/*
- * Get maximum element in tree (or NULL if empty)
- */
-static RB3_UNUSED
-struct rb3_head *rb3_get_max(struct rb3_tree *tree)
-{
-        struct rb3_head *head;
-
-        head = rb3_get_root(tree);
-        if (!head)
-                return NULL;
-        while (rb3_get_child(head, RB3_RIGHT))
-                head = rb3_get_child(head, RB3_RIGHT);
-        return head;
 }
 
 /*

@@ -38,7 +38,7 @@ static struct rb3_head *rb3_get_black_child(struct rb3_head *head, int dir)
 
 static int rb3_get_color_bit(struct rb3_head *head, int dir)
 {
-        return (head)->ptr[dir] & RB3_COLOR_BIT;
+        return head->ptr[dir] & RB3_COLOR_BIT;
 }
 
 static int rb3_is_red(struct rb3_head *head, int dir)
@@ -185,9 +185,7 @@ static void rb3_delete_noninternal(struct rb3_head *head)
 {
         struct rb3_head *pnt;
         struct rb3_head *cld;
-        rb3_ptr pdir;
-        rb3_ptr headred;
-        rb3_ptr childred;
+        int pdir;
         int dir;
 
         dir = rb3_get_child(head, RB3_RIGHT) ? RB3_RIGHT : RB3_LEFT;
@@ -195,10 +193,8 @@ static void rb3_delete_noninternal(struct rb3_head *head)
         pnt = rb3_get_parent(head);
         cld = rb3_get_child(head, dir);
         pdir = rb3_get_parent_dir(head);
-        headred = rb3_is_red(pnt, pdir);
-        childred = rb3_is_red(head, dir);
 
-        if (!headred && !childred)
+        if (!rb3_is_red(pnt, pdir) && !rb3_is_red(head, dir))
                 /* To be deleted node is black (and child cannot be repainted)
                  * => height decreased */
                 rb3_delete_rebalance(head);
@@ -267,4 +263,28 @@ void rb3_delete(struct rb3_head *head)
         head->ptr[RB3_LEFT] = 0;
         head->ptr[RB3_RIGHT] = 0;
         head->ptr[RB3_PARENT] = 0;
+}
+
+struct rb3_head *rb3_get_min(struct rb3_tree *tree)
+{
+        struct rb3_head *head;
+
+        head = rb3_get_root(tree);
+        if (!head)
+                return NULL;
+        while (rb3_get_child(head, RB3_LEFT))
+                head = rb3_get_child(head, RB3_LEFT);
+        return head;
+}
+
+struct rb3_head *rb3_get_max(struct rb3_tree *tree)
+{
+        struct rb3_head *head;
+
+        head = rb3_get_root(tree);
+        if (!head)
+                return NULL;
+        while (rb3_get_child(head, RB3_RIGHT))
+                head = rb3_get_child(head, RB3_RIGHT);
+        return head;
 }
