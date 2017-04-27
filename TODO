@@ -1,0 +1,6 @@
+bench: The benchmark results are quite stable, but the order of the bench has
+some influence (CPU cache). Need to design better and/or larger tests.
+
+bench: Rb-tree can't show its advantage in deletion. Need another bench
+category "delete by iterator" (which can't be supported by all
+implementations).
