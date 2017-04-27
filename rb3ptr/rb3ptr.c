@@ -284,3 +284,61 @@ struct rb3_head *rb3_get_max(struct rb3_tree *tree)
                 head = rb3_get_child(head, RB3_RIGHT);
         return head;
 }
+
+struct rb3_head *rb3_get_ascendant_successor(struct rb3_head *head)
+{
+        while (head && rb3_get_parent_dir(head) == RB3_RIGHT)
+                head = rb3_get_parent(head);
+        if (head) {
+                head = rb3_get_parent(head);
+                if (head && !rb3_get_parent(head))
+                        /* base fake element */
+                        head = NULL;
+        }
+        return head;
+}
+
+struct rb3_head *rb3_get_ascendant_predecessor(struct rb3_head *head)
+{
+        while (head && rb3_get_parent_dir(head) == RB3_LEFT)
+                head = rb3_get_parent(head);
+        if (head)
+                head = rb3_get_parent(head);
+        return head;
+}
+
+struct rb3_head *rb3_get_descendant_successor(struct rb3_head *head)
+{
+        if (!rb3_has_child(head, RB3_RIGHT))
+                return NULL;
+        head = rb3_get_child(head, RB3_RIGHT);
+        while (rb3_has_child(head, RB3_LEFT))
+                head = rb3_get_child(head, RB3_LEFT);
+        return head;
+}
+
+struct rb3_head *rb3_get_descendant_predecessor(struct rb3_head *head)
+{
+        if (!rb3_has_child(head, RB3_RIGHT))
+                return NULL;
+        head = rb3_get_child(head, RB3_RIGHT);
+        while (rb3_get_child(head, RB3_LEFT))
+                head = rb3_get_child(head, RB3_LEFT);
+        return head;
+}
+
+struct rb3_head *rb3_get_inorder_successor(struct rb3_head *head)
+{
+        if (rb3_has_child(head, RB3_RIGHT))
+                return rb3_get_descendant_successor(head);
+        else
+                return rb3_get_ascendant_successor(head);
+}
+
+struct rb3_head *rb3_get_inorder_predecessor(struct rb3_head *head)
+{
+        if (rb3_has_child(head, RB3_RIGHT))
+                return rb3_get_descendant_predecessor(head);
+        else
+                return rb3_get_ascendant_predecessor(head);
+}

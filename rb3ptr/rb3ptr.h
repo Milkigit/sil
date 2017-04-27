@@ -95,6 +95,40 @@ struct rb3_head *rb3_get_min(struct rb3_tree *tree);
 struct rb3_head *rb3_get_max(struct rb3_tree *tree);
 
 /*
+ * Get in-order ascendant successor (minimal ancestor node that sorts after
+ * the given element) or NULL if no such element is in the tree.
+ */
+struct rb3_head *rb3_get_ascendant_successor(struct rb3_head *head);
+
+/*
+ * Get in-order ascendant predecessor (maximal ancestor node that sorts before
+ * the given element) or NULL if no such element is in the tree.
+ */
+struct rb3_head *rb3_get_ascendant_predecessor(struct rb3_head *head);
+
+/*
+ * Get in-order descendant successor (minimal descendant node that sorts after
+ * the given element) or NULL if no such element is in the tree.
+ */
+struct rb3_head *rb3_get_descendant_successor(struct rb3_head *head);
+
+/*
+ * Get in-order descendant predecessor (minimal descendant node that sorts after
+ * the given element) or NULL if no such element is in the tree.
+ */
+struct rb3_head *rb3_get_descendant_predecessor(struct rb3_head *head);
+
+/*
+ * Get in-order successor (or NULL if given element is maximum element).
+ */
+struct rb3_head *rb3_get_inorder_successor(struct rb3_head *head);
+
+/*
+ * Get in-order predecessor (or NULL if given element is maximum element).
+ */
+struct rb3_head *rb3_get_inorder_predecessor(struct rb3_head *head);
+
+/*
  * Test if a (left or right) child exists
  *
  * This slightly more efficient than calling rb3_get_child() and comparing to
@@ -152,93 +186,8 @@ struct rb3_head *rb3_get_root(struct rb3_tree *tree)
  * implementation detail. Client can test for the root node before calling this
  * function).
  */
-static int rb3_get_parent_dir(struct rb3_head *head)
+static RB3_UNUSED
+int rb3_get_parent_dir(struct rb3_head *head)
 {
         return (head)->ptr[RB3_PARENT] & 1;
-}
-
-/*
- * Get in-order ascendant successor (minimal ancestor node that sorts after
- * the given element) or NULL if no such element is in the tree.
- */
-static RB3_UNUSED
-struct rb3_head *rb3_get_ascendant_successor(struct rb3_head *head)
-{
-        while (head && rb3_get_parent_dir(head) == RB3_RIGHT)
-                head = rb3_get_parent(head);
-        if (head) {
-                head = rb3_get_parent(head);
-                if (head && !rb3_get_parent(head))
-                        /* base fake element */
-                        head = NULL;
-        }
-        return head;
-}
-
-/*
- * Get in-order ascendant predecessor (maximal ancestor node that sorts before
- * the given element) or NULL if no such element is in the tree.
- */
-static RB3_UNUSED
-struct rb3_head *rb3_get_ascendant_predecessor(struct rb3_head *head)
-{
-        while (head && rb3_get_parent_dir(head) == RB3_LEFT)
-                head = rb3_get_parent(head);
-        if (head)
-                head = rb3_get_parent(head);
-        return head;
-}
-
-/*
- * Get in-order descendant successor (minimal descendant node that sorts after
- * the given element) or NULL if no such element is in the tree.
- */
-static RB3_UNUSED
-struct rb3_head *rb3_get_descendant_successor(struct rb3_head *head)
-{
-        if (!rb3_has_child(head, RB3_RIGHT))
-                return NULL;
-        head = rb3_get_child(head, RB3_RIGHT);
-        while (rb3_has_child(head, RB3_LEFT))
-                head = rb3_get_child(head, RB3_LEFT);
-        return head;
-}
-
-/*
- * Get in-order descendant predecessor (minimal descendant node that sorts after
- * the given element) or NULL if no such element is in the tree.
- */
-static RB3_UNUSED
-struct rb3_head *rb3_get_descendant_predecessor(struct rb3_head *head)
-{
-        if (!rb3_has_child(head, RB3_RIGHT))
-                return NULL;
-        head = rb3_get_child(head, RB3_RIGHT);
-        while (rb3_get_child(head, RB3_LEFT))
-                head = rb3_get_child(head, RB3_LEFT);
-        return head;
-}
-
-/*
- * Get in-order successor (or NULL if given element is maximum element).
- */
-static RB3_UNUSED
-struct rb3_head *rb3_get_inorder_successor(struct rb3_head *head)
-{
-        if (rb3_has_child(head, RB3_RIGHT))
-                return rb3_get_descendant_successor(head);
-        else
-                return rb3_get_ascendant_successor(head);
-}
-
-/*
- * Get in-order predecessor (or NULL if given element is maximum element).
- */
-static RB3_UNUSED
-struct rb3_head *rb3_get_inorder_predecessor(struct rb3_head *head)
-{
-        if (rb3_has_child(head, RB3_RIGHT))
-                return rb3_get_descendant_predecessor(head);
-        else
-                return rb3_get_ascendant_predecessor(head);
 }
