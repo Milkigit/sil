@@ -168,6 +168,19 @@ struct rb3_head *rb3_get_parent(struct rb3_head *head)
 }
 
 /*
+ * Get fake base of tree
+ *
+ * Warning: this special element is not embedded in a payload structure. You may
+ * only use it to insert an element into an empty tree (on the RB3_LEFT side of
+ * this head).
+ */
+static RB3_UNUSED
+struct rb3_head *rb3_get_base_head(struct rb3_tree *tree)
+{
+        return &tree->base;
+}
+
+/*
  * Get topmost element of tree (or NULL if empty)
  */
 static RB3_UNUSED
