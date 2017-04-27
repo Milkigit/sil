@@ -9,7 +9,8 @@ c++ -O2 $defines -std=c++11 -Wall -Wextra -c bench_stl_set.cpp
 # This was originally a C program, but since we added the std::set bench we
 # have to link in libstdc++. Let's hope that works. NOTE: it will crash badly
 # when the C++ code throws exceptions (std::bad_alloc!).
-cc -std=c89 -Wall -Wextra -O2 \
+cc -std=c99 -O2 \
+	-Wall -Wextra -Wno-missing-braces \
 	$defines \
 	-l stdc++ \
 	-o bench \
@@ -17,9 +18,10 @@ cc -std=c89 -Wall -Wextra -O2 \
 	bench_np_rbtree.c \
 	bench_sil_avltree.c \
 	bench_sil_rb2ptr.c \
+	-Irb3ptr/build/include/ \
 	bench_sil_rb3ptr.c \
 	timer/sil_timer.c \
 	rb2ptr/sil_rb2ptr.c \
-	rb3ptr/rb3ptr.c \
+	rb3ptr/build/rb3ptr.c \
 	\
 	bench_stl_set.o

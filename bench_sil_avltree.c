@@ -37,13 +37,13 @@ struct sil_state {
 void *sil_init(void)
 {
         struct sil_state *state;
+        state = xcalloc(1, sizeof *state);
+        SIL_AVLtree_init(&state->tree);
+        /*
         printf("sizeof SIL_AVLhead struct: %zd\n", sizeof state->nodes[0].head);
         printf("position of payload in node: %zd\n", ((char *)&state->nodes[0].payload) - ((char*)&state->nodes[0]));
         printf("sizeof struct sil_node: %zd\n", sizeof state->nodes[0]);
-        /*
          */
-        state = xcalloc(1, sizeof *state);
-        SIL_AVLtree_init(&state->tree);
         return state;
 }
 

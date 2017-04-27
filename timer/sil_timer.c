@@ -51,17 +51,17 @@ void sil_timer_elapsed_ms(struct sil_timer *timer, long *outms)
         sil_timer_elapsed_timespec(timer, &elapsed);
 
         ms = elapsed.tv_nsec / 1000000L;
-        ms += (long)elapsed.tv_sec * 1000L;
+        ms += elapsed.tv_sec * 1000L;
 
         *outms = ms;
 }
 
-void sil_timer_elapsed_s_ms(struct sil_timer *timer, int *outs, long *outms)
+void sil_timer_elapsed_s_ms(struct sil_timer *timer, int *outs, int *outms)
 {
         struct timespec elapsed;
 
         sil_timer_elapsed_timespec(timer, &elapsed);
 
         *outms = elapsed.tv_nsec / 1000000L;
-        *outs = (long) elapsed.tv_sec;
+        *outs = elapsed.tv_sec;
 }

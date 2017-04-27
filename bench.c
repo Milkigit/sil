@@ -87,8 +87,7 @@ static void runbench(struct treebenchfuncs *impl, struct benchtestdata *bench)
 {
         struct sil_timer timer;
         void *data;
-        long ms;
-        int s;
+        int s, ms;
 
         /* these debug values are for making sure that good benchmarks are not
          * more important than correct results :-) */
@@ -105,7 +104,7 @@ static void runbench(struct treebenchfuncs *impl, struct benchtestdata *bench)
         sil_timer_reset(&timer);
         impl->insertbench(data, bench->data, bench->n);
         sil_timer_elapsed_s_ms(&timer, &s, &ms);
-        printf("Inserting each element: %d.%.03lds\n", s, ms); fflush(stdout);
+        printf("Inserting each element: %d.%.03ds\n", s, ms); fflush(stdout);
 
         /*
         impl->addelems(data, &nodecount, &nodesum);
@@ -115,12 +114,12 @@ static void runbench(struct treebenchfuncs *impl, struct benchtestdata *bench)
         sil_timer_reset(&timer);
         impl->retrievebench(data, bench->data, bench->n);
         sil_timer_elapsed_s_ms(&timer, &s, &ms);
-        printf("Finding each element: %d.%.03lds\n", s, ms); fflush(stdout);
+        printf("Finding each element: %d.%.03ds\n", s, ms); fflush(stdout);
 
         sil_timer_reset(&timer);
         impl->removebench(data, bench->data, bench->n);
         sil_timer_elapsed_s_ms(&timer, &s, &ms);
-        printf("Removing each element: %d.%.03lds\n", s, ms); fflush(stdout);
+        printf("Removing each element: %d.%.03ds\n", s, ms); fflush(stdout);
 
         /*
         impl->addelems(data, &nodecount, &nodesum);
@@ -145,9 +144,9 @@ int main(void)
         printf("\n");
         runbench(&bench_stlset_funcs, &bench);
         runbench(&bench_np_rbtree_funcs, &bench);
+        runbench(&bench_rb3_funcs, &bench);
         runbench(&bench_silavl_funcs, &bench);
         runbench(&bench_rb2_funcs, &bench);
-        runbench(&bench_rb3_funcs, &bench);
         benchtestdata_exit(&bench);
 
         return 0;

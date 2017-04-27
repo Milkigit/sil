@@ -67,10 +67,13 @@ static void findpath(struct sil_rb_tree *tree, struct benchpayload *data, struct
 static void *silrb_init(void)
 {
         struct silrb_state *state;
+
+        state = xcalloc(1, sizeof *state);
+
         printf("sizeof sil_rb_head struct: %zd\n", sizeof state->nodes[0].head);
         printf("position of payload in node: %zd\n", ((char *)&state->nodes[0].payload) - ((char*)&state->nodes[0]));
         printf("sizeof struct silrb_node: %zd\n", sizeof state->nodes[0]);
-        state = xcalloc(1, sizeof *state);
+
         return state;
 }
 
