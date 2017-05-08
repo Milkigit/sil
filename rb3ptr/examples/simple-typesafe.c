@@ -60,6 +60,8 @@ static int footree_head_compare(struct footree_head *a, struct footree_head *b)
         return foo_compare(get_foo(a), get_foo(b));
 }
 
+RB3_GEN_INLINE_PROTO(footree, struct foo, get_head, get_foo);
+RB3_GEN_NODECMP_PROTO(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, footree_head_compare);
 RB3_GEN_INLINE(footree, struct foo, get_head, get_foo);
 RB3_GEN_NODECMP(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, footree_head_compare);
 
@@ -72,7 +74,7 @@ RB3_GEN_NODECMP(footree, /* no suffix for these compare functions */, struct foo
 int main(void)
 {
         struct footree_tree tree;
-        struct footree_head *iter;
+        struct foo *iter;
         struct foo *foo;
         size_t i;
 
@@ -83,7 +85,7 @@ int main(void)
         for (i = 0; i < NUM_FOOS; i++)
                 footree_insert(&foo[i], &tree);
         for (iter = footree_get_min(&tree); iter != NULL; iter = footree_get_next(iter))
-                printf("iter %d\n", get_foo(iter)->val);
+                printf("iter %d\n", iter->val);
         for (i = 0; i < NUM_FOOS; i++)
                 footree_delete(&foo[i], &tree);
         foo = xalloc(NUM_FOOS * sizeof (struct foo));

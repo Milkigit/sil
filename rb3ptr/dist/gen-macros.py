@@ -33,18 +33,28 @@ proxies = """
 
 #define RB3_GEN_INLINE(BASENAME, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD)  \\
     RB3_GEN_INLINE_REAL({args0}, {args1}, {args2})
+#define RB3_GEN_INLINE_PROTO(BASENAME, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD)  \\
+    RB3_GEN_INLINE_PROTO_REAL({args0}, {args1}, {args2})
 
 #define RB3_GEN_NODECMP(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_HEAD)  \\
     RB3_GEN_NODECMP_REAL({args0}, COMPARE_HEAD, {args1}, {args2}, {args3})
+#define RB3_GEN_NODECMP_PROTO(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_HEAD)  \\
+    RB3_GEN_NODECMP_PROTO_REAL({args0}, COMPARE_HEAD, {args1}, {args2}, {args3})
 
 #define RB3_GEN_DATACMP(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_HEAD)  \\
     RB3_GEN_DATACMP_REAL({args0}, COMPARE_HEAD, {args1}, {args2}, {args3})
+#define RB3_GEN_DATACMP_PROTO(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_HEAD)  \\
+    RB3_GEN_DATACMP_PROTO_REAL({args0}, COMPARE_HEAD, {args1}, {args2}, {args3})
 
 
 #define RB3_FOREACH(BASENAME, TREE, NODE) \\
-    for (struct BASENAME##_head *__rb3head = BASENAME##_get_min(TREE); \\
-        __rb3head ? (node = BASENAME##_get_node(__rb3head), 1) : 0; \\
-        __rb3head = BASENAME##_get_next(__rb3head))
+    for (node = BASENAME##_get_min_node(TREE); \\
+        !!NODE; NODE = BASENAME##_get_next(NODE))
+
+#define RB3_FOREACH_SAFE(BASENAME, TREE, NODE, NODE1) \\
+    for (node = BASENAME##_get_min_node(TREE); \\
+        (NODE && (NODE1 = BASENAME##_get_next(NODE))), !!NODE; \\
+        NODE = NODE1)
 
 /* (END stuff) */
 """.format(args0=cs(args0), args1=cs(args1), args2=cs(args2), args3=cs(args3))
@@ -52,6 +62,12 @@ proxies = """
 things = [
     ('templates/rb3ptr-structs.tpl',
     '#define RB3_GEN_STRUCTS_REAL(OUTER_HEAD_STRUCT_NAME, OUTER_TREE_STRUCT_NAME)  \\\n'),
+    ('templates/rb3ptr-inline-proto.tpl',
+    '#define RB3_GEN_INLINE_PROTO_REAL({}, {}, {})  \\\n'.format(cs(params0), cs(params1), cs(params2))),
+    ('templates/rb3ptr-nodecmp-proto.tpl',
+    '#define RB3_GEN_NODECMP_PROTO_REAL({}, COMPARE_HEAD, {}, {}, {})  \\\n'.format(cs(params0), cs(params1), cs(params2), cs(params3))),
+    ('templates/rb3ptr-datacmp-proto.tpl',
+    '#define RB3_GEN_DATACMP_PROTO_REAL({}, COMPARE_HEAD, {}, {}, {})  \\\n'.format(cs(params0), cs(params1), cs(params2), cs(params3))),
     ('templates/rb3ptr-inline.tpl',
     '#define RB3_GEN_INLINE_REAL({}, {}, {})  \\\n'.format(cs(params0), cs(params1), cs(params2))),
     ('templates/rb3ptr-nodecmp.tpl',

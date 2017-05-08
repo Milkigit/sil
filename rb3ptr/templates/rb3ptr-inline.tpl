@@ -1,25 +1,15 @@
 RB3_API_INLINE
-OUTER_HEAD_TYPE *GET_HEAD(NODE_TYPE *node)
+struct rb3_head *GET_HEAD(NODE_TYPE *node)
 {
-	return HEAD_FROM_NODE(node);
+	return &HEAD_FROM_NODE(node)->head;
 }
 
 RB3_API_INLINE
-NODE_TYPE *GET_NODE(OUTER_HEAD_TYPE *head)
+NODE_TYPE *GET_NODE(struct rb3_head *head)
 {
-	return NODE_FROM_HEAD(head);
-}
-
-RB3_API_INLINE
-struct rb3_head *INNER_HEAD(OUTER_HEAD_TYPE *head)
-{
-        return (struct rb3_head *) head;
-}
-
-RB3_API_INLINE
-OUTER_HEAD_TYPE *OUTER_HEAD(struct rb3_head *head)
-{
-        return (OUTER_HEAD_TYPE *) head;
+	if (head)
+	        return NODE_FROM_HEAD((OUTER_HEAD_TYPE *) head);
+	return (NODE_TYPE *) 0;
 }
 
 RB3_API_INLINE
@@ -53,103 +43,103 @@ void isempty(OUTER_TREE_TYPE *tree)
 }
 
 RB3_API_INLINE
-OUTER_HEAD_TYPE *get_min(OUTER_TREE_TYPE *tree)
+NODE_TYPE *get_min(OUTER_TREE_TYPE *tree)
 {
-        return OUTER_HEAD(rb3_get_min(INNER_TREE(tree)));
+        return GET_NODE(rb3_get_min(INNER_TREE(tree)));
 }
 
 RB3_API_INLINE
-OUTER_HEAD_TYPE *get_max(OUTER_TREE_TYPE *tree)
+NODE_TYPE *get_max(OUTER_TREE_TYPE *tree)
 {
-        return OUTER_HEAD(rb3_get_max(INNER_TREE(tree)));
+        return GET_NODE(rb3_get_max(INNER_TREE(tree)));
 }
 
 RB3_API_INLINE
-OUTER_HEAD_TYPE *get_prev(OUTER_HEAD_TYPE *node)
+NODE_TYPE *get_prev(NODE_TYPE *node)
 {
-        return OUTER_HEAD(rb3_get_prev(INNER_HEAD(node)));
+        return GET_NODE(rb3_get_prev(GET_HEAD(node)));
 }
 
 RB3_API_INLINE
-OUTER_HEAD_TYPE *get_next(OUTER_HEAD_TYPE *node)
+NODE_TYPE *get_next(NODE_TYPE *node)
 {
-        return OUTER_HEAD(rb3_get_next(INNER_HEAD(node)));
+        return GET_NODE(rb3_get_next(GET_HEAD(node)));
 }
 
 RB3_API_INLINE
-OUTER_HEAD_TYPE *get_root(OUTER_TREE_TYPE *tree)
+NODE_TYPE *get_root(OUTER_TREE_TYPE *tree)
 {
-        return OUTER_HEAD(rb3_get_root(INNER_TREE(tree)));
+        return GET_NODE(rb3_get_root(INNER_TREE(tree)));
 }
 
 RB3_API_INLINE
-int has_child(OUTER_HEAD_TYPE *node, int dir)
+int has_child(NODE_TYPE *node, int dir)
 {
-        return rb3_has_child(INNER_HEAD(node), dir);
+        return rb3_has_child(GET_HEAD(node), dir);
 }
 
 RB3_API_INLINE
-OUTER_HEAD_TYPE *get_child(OUTER_HEAD_TYPE *node, int dir)
+NODE_TYPE *get_child(NODE_TYPE *node, int dir)
 {
-        return OUTER_HEAD(rb3_get_child(INNER_HEAD(node), dir));
+        return GET_NODE(rb3_get_child(GET_HEAD(node), dir));
 }
 
 RB3_API_INLINE
-OUTER_HEAD_TYPE *get_parent(OUTER_HEAD_TYPE *node)
+NODE_TYPE *get_parent(NODE_TYPE *node)
 {
-        return OUTER_HEAD(rb3_get_parent(INNER_HEAD(node)));
+        return GET_NODE(rb3_get_parent(GET_HEAD(node)));
 }
 
 RB3_API_INLINE
-OUTER_HEAD_TYPE *get_prev_ancestor(OUTER_HEAD_TYPE *node)
+NODE_TYPE *get_prev_ancestor(NODE_TYPE *node)
 {
-        return OUTER_HEAD(rb3_get_prev_ancestor(INNER_HEAD(node)));
+        return GET_NODE(rb3_get_prev_ancestor(GET_HEAD(node)));
 }
 
 RB3_API_INLINE
-OUTER_HEAD_TYPE *get_next_ancestor(OUTER_HEAD_TYPE *node)
+NODE_TYPE *get_next_ancestor(NODE_TYPE *node)
 {
-        return OUTER_HEAD(rb3_get_next_ancestor(INNER_HEAD(node)));
+        return GET_NODE(rb3_get_next_ancestor(GET_HEAD(node)));
 }
 
 RB3_API_INLINE
-OUTER_HEAD_TYPE *get_prev_descendant(OUTER_HEAD_TYPE *node)
+NODE_TYPE *get_prev_descendant(NODE_TYPE *node)
 {
-        return OUTER_HEAD(rb3_get_prev_descendant(INNER_HEAD(node)));
+        return GET_NODE(rb3_get_prev_descendant(GET_HEAD(node)));
 }
 
 RB3_API_INLINE
-OUTER_HEAD_TYPE *get_next_descendant(OUTER_HEAD_TYPE *node)
+NODE_TYPE *get_next_descendant(NODE_TYPE *node)
 {
-        return OUTER_HEAD(rb3_get_next_descendant(INNER_HEAD(node)));
+        return GET_NODE(rb3_get_next_descendant(GET_HEAD(node)));
 }
 
 RB3_API_INLINE
-void insert_below(OUTER_HEAD_TYPE *node, OUTER_HEAD_TYPE *parent, int dir)
+void insert_below(NODE_TYPE *node, NODE_TYPE *parent, int dir)
 {
-        rb3_insert_below(INNER_HEAD(node), INNER_HEAD(parent), dir);
+        rb3_insert_below(GET_HEAD(node), GET_HEAD(parent), dir);
 }
 
 RB3_API_INLINE
-void delete_head(OUTER_HEAD_TYPE *node)
+void delete_head(NODE_TYPE *node)
 {
-        rb3_delete_head(INNER_HEAD(node));
+        rb3_delete_head(GET_HEAD(node));
 }
 
 RB3_API_INLINE
-int get_parent_dir(OUTER_HEAD_TYPE *node)
+int get_parent_dir(NODE_TYPE *node)
 {
-        return rb3_get_parent_dir(INNER_HEAD(node));
+        return rb3_get_parent_dir(GET_HEAD(node));
 }
 
 RB3_API_INLINE
-OUTER_HEAD_TYPE *get_base(OUTER_TREE_TYPE *tree)
+NODE_TYPE *get_base(OUTER_TREE_TYPE *tree)
 {
-        return OUTER_HEAD(rb3_get_base(INNER_TREE(tree)));
+        return GET_NODE(rb3_get_base(INNER_TREE(tree)));
 }
 
 RB3_API_INLINE
-OUTER_TREE_TYPE *get_containing_tree(OUTER_HEAD_TYPE *node)
+OUTER_TREE_TYPE *get_containing_tree(NODE_TYPE *node)
 {
-        return OUTER_TREE(rb3_get_containing_tree(INNER_HEAD(node)));
+        return OUTER_TREE(rb3_get_containing_tree(GET_HEAD(node)));
 }
