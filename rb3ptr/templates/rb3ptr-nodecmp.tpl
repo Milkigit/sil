@@ -1,15 +1,13 @@
 RB3_API_STATIC_INLINE
-int headcmp(struct rb3_head *a, struct rb3_head *b)
+int nodecmp(struct rb3_head *a, struct rb3_head *b)
 {
-        return COMPARE_HEAD(
-		(OUTER_HEAD_TYPE *) a,
-		(OUTER_HEAD_TYPE *) b);
+        return COMPARE_NODE(GET_NODE(a), GET_NODE(b));
 }
 
 RB3_API RB3_NEVERINLINE
 NODE_TYPE *find_in_subtree(NODE_TYPE *subtree, NODE_TYPE *node)
 {
-        return GET_NODE(rb3_INLINE_find_in_subtree(GET_HEAD(subtree), (rb3_datacmp) headcmp, GET_HEAD(node)));
+        return GET_NODE(rb3_INLINE_find_in_subtree(GET_HEAD(subtree), (rb3_datacmp) nodecmp, GET_HEAD(node)));
 }
 
 RB3_API RB3_NEVERINLINE
@@ -18,7 +16,7 @@ NODE_TYPE *find_parent_in_subtree(NODE_TYPE *parent, int dir, NODE_TYPE *node, N
         struct rb3_head *found;
         struct rb3_head *pnt;
 
-        found = rb3_INLINE_find_parent_in_subtree(GET_HEAD(parent), dir, (rb3_datacmp) headcmp, GET_HEAD(node), &pnt, &dir);
+        found = rb3_INLINE_find_parent_in_subtree(GET_HEAD(parent), dir, (rb3_datacmp) nodecmp, GET_HEAD(node), &pnt, &dir);
         if (found)
                 return GET_NODE(found);
         *parent_out = GET_NODE(pnt);

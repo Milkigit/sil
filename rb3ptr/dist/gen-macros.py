@@ -20,7 +20,7 @@ args1 = 'BASENAME##_get_head BASENAME##_get_node BASENAME##_inner_head BASENAME#
 params2 = 'init exit isempty get_min get_max get_prev get_next get_root has_child get_child get_parent get_prev_ancestor get_next_ancestor get_prev_descendant get_next_descendant insert_below delete_head get_parent_dir get_base get_containing_tree'.split()
 args2 = ['BASENAME##_{}'.format(name) for name in params2]
 
-params3 = 'headcmp find_in_subtree find_parent_in_subtree delete_in_subtree insert_in_subtree find delete insert'.split()
+params3 = 'nodecmp find_in_subtree find_parent_in_subtree delete_in_subtree insert_in_subtree find delete insert'.split()
 args3 = ['BASENAME##_{}##SUFFIX'.format(name) for name in params3]
 
 
@@ -36,15 +36,15 @@ proxies = """
 #define RB3_GEN_INLINE_PROTO(BASENAME, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD)  \\
     RB3_GEN_INLINE_PROTO_REAL({args0}, {args1}, {args2})
 
-#define RB3_GEN_NODECMP(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_HEAD)  \\
-    RB3_GEN_NODECMP_REAL({args0}, COMPARE_HEAD, {args1}, {args2}, {args3})
-#define RB3_GEN_NODECMP_PROTO(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_HEAD)  \\
-    RB3_GEN_NODECMP_PROTO_REAL({args0}, COMPARE_HEAD, {args1}, {args2}, {args3})
+#define RB3_GEN_NODECMP(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_NODE)  \\
+    RB3_GEN_NODECMP_REAL({args0}, COMPARE_NODE, {args1}, {args2}, {args3})
+#define RB3_GEN_NODECMP_PROTO(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_NODE)  \\
+    RB3_GEN_NODECMP_PROTO_REAL({args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
-#define RB3_GEN_DATACMP(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_HEAD)  \\
-    RB3_GEN_DATACMP_REAL({args0}, COMPARE_HEAD, {args1}, {args2}, {args3})
-#define RB3_GEN_DATACMP_PROTO(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_HEAD)  \\
-    RB3_GEN_DATACMP_PROTO_REAL({args0}, COMPARE_HEAD, {args1}, {args2}, {args3})
+#define RB3_GEN_DATACMP(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_NODE)  \\
+    RB3_GEN_DATACMP_REAL({args0}, COMPARE_NODE, {args1}, {args2}, {args3})
+#define RB3_GEN_DATACMP_PROTO(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_NODE)  \\
+    RB3_GEN_DATACMP_PROTO_REAL({args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
 
 #define RB3_FOREACH(BASENAME, TREE, NODE) \\
@@ -65,15 +65,15 @@ things = [
     ('templates/rb3ptr-inline-proto.tpl',
     '#define RB3_GEN_INLINE_PROTO_REAL({}, {}, {})  \\\n'.format(cs(params0), cs(params1), cs(params2))),
     ('templates/rb3ptr-nodecmp-proto.tpl',
-    '#define RB3_GEN_NODECMP_PROTO_REAL({}, COMPARE_HEAD, {}, {}, {})  \\\n'.format(cs(params0), cs(params1), cs(params2), cs(params3))),
+    '#define RB3_GEN_NODECMP_PROTO_REAL({}, COMPARE_NODE, {}, {}, {})  \\\n'.format(cs(params0), cs(params1), cs(params2), cs(params3))),
     ('templates/rb3ptr-datacmp-proto.tpl',
-    '#define RB3_GEN_DATACMP_PROTO_REAL({}, COMPARE_HEAD, {}, {}, {})  \\\n'.format(cs(params0), cs(params1), cs(params2), cs(params3))),
+    '#define RB3_GEN_DATACMP_PROTO_REAL({}, COMPARE_NODE, {}, {}, {})  \\\n'.format(cs(params0), cs(params1), cs(params2), cs(params3))),
     ('templates/rb3ptr-inline.tpl',
     '#define RB3_GEN_INLINE_REAL({}, {}, {})  \\\n'.format(cs(params0), cs(params1), cs(params2))),
     ('templates/rb3ptr-nodecmp.tpl',
-    '#define RB3_GEN_NODECMP_REAL({}, COMPARE_HEAD, {}, {}, {})  \\\n'.format(cs(params0), cs(params1), cs(params2), cs(params3))),
+    '#define RB3_GEN_NODECMP_REAL({}, COMPARE_NODE, {}, {}, {})  \\\n'.format(cs(params0), cs(params1), cs(params2), cs(params3))),
     ('templates/rb3ptr-datacmp.tpl',
-    '#define RB3_GEN_DATACMP_REAL({}, COMPARE_HEAD, {}, {}, {})  \\\n'.format(cs(params0), cs(params1), cs(params2), cs(params3))),
+    '#define RB3_GEN_DATACMP_REAL({}, COMPARE_NODE, {}, {}, {})  \\\n'.format(cs(params0), cs(params1), cs(params2), cs(params3))),
 ]
 
 
