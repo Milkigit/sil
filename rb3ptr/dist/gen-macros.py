@@ -48,12 +48,12 @@ proxies = """
 
 
 #define RB3_FOREACH(BASENAME, TREE, NODE) \\
-    for (node = BASENAME##_get_min_node(TREE); \\
+    for (NODE = BASENAME##_get_min(TREE); \\
         !!NODE; NODE = BASENAME##_get_next(NODE))
 
 #define RB3_FOREACH_SAFE(BASENAME, TREE, NODE, NODE1) \\
-    for (node = BASENAME##_get_min_node(TREE); \\
-        (NODE && (NODE1 = BASENAME##_get_next(NODE))), !!NODE; \\
+    for (NODE = BASENAME##_get_min(TREE); \\
+        (!!NODE ? (NODE1 = BASENAME##_get_next(NODE), !!NODE) : !!NODE); \\
         NODE = NODE1)
 
 /* (END stuff) */
