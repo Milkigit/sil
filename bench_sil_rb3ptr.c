@@ -29,15 +29,9 @@ static struct bench_rb3tree_head *bench_rb3_get_head(struct bench_rb3_node *node
         return &node->head;
 }
 
-static BENCH_UNUSED
-int comparison(struct bench_rb3tree_head *a, struct bench_rb3tree_head *b)
+static int comparison(struct bench_rb3_node *a, struct bench_rb3_node *b)
 {
-        struct bench_rb3_node *x;
-        struct bench_rb3_node *y;
-
-        x = bench_rb3_get_node(a);
-        y = bench_rb3_get_node(b);
-        return compare_benchpayload(&x->payload, &y->payload);
+        return compare_benchpayload(&a->payload, &b->payload);
 }
 
 RB3_GEN_INLINE(bench_rb3tree, struct bench_rb3_node, bench_rb3_get_head, bench_rb3_get_node);
