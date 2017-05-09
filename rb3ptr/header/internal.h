@@ -88,6 +88,7 @@ struct rb3_head *rb3_INLINE_find_parent_in_subtree(struct rb3_head *parent, int 
         struct rb3_head *head;
         int r;
 
+        RB3_ASSERT(parent != RB3_NULL);
         do {
                 head = rb3_get_child(parent, dir);
                 if (!head)

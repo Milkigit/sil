@@ -1,3 +1,6 @@
+/* don't want no assert.h dependency */
+#define RB3_ASSERT(cond)   /* TODO */
+
 /* don't want no stddef.h dependency */
 #define RB3_NULL ((void *)0)
 #define RB3_offsetof(st, m) ((char *)&(((st *)0)->m)-((char *)0))

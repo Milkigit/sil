@@ -7,8 +7,6 @@
 #define RB3_CHILD_PTR(head, color) ((rb3_ptr)(head) | color)
 #define RB3_PARENT_PTR(head, dir) ((rb3_ptr)(head) | dir)
 
-#define RB3_ASSERT(cond)   /* TODO */
-
 static RB3_INLINE
 struct rb3_head *rb3_get_black_child(struct rb3_head *head, int dir)
 {
