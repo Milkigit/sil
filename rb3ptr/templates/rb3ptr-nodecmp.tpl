@@ -48,19 +48,19 @@ NODE_TYPE *insert_in_subtree(NODE_TYPE *node, NODE_TYPE *parent, int dir)
         return found;
 }
 
-RB3_API_INLINE
+RB3_API
 NODE_TYPE *find(OUTER_TREE_TYPE *tree, NODE_TYPE *node)
 {
 	return find_in_subtree(get_root(tree), node);
 }
 
-RB3_API_INLINE
+RB3_API
 NODE_TYPE *delete(NODE_TYPE *node, OUTER_TREE_TYPE *tree)
 {
 	return delete_in_subtree(node, get_root(tree));
 }
 
-RB3_API_INLINE
+RB3_API
 NODE_TYPE *insert(NODE_TYPE *node, OUTER_TREE_TYPE *tree)
 {
         return insert_in_subtree(node, get_base(tree), RB3_LEFT);

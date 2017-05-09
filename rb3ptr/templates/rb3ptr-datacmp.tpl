@@ -1,3 +1,5 @@
+/* TODO: THIS FILE IS OUT OF DATE */
+
 RB3_API_STATIC_INLINE
 int headcmp(OUTER_HEAD *head, COMPARE_TYPE *data)
 {
