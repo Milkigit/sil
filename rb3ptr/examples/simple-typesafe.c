@@ -68,7 +68,7 @@ RB3_GEN_NODECMP(footree, /* no suffix for these compare functions */, struct foo
 
 int main(void)
 {
-        struct footree_tree tree;
+        struct footree tree;
         struct foo *iter;
         struct foo *foo;
         size_t i;

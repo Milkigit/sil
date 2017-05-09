@@ -12,7 +12,7 @@ def cs(xs):
     return ', '.join(xs)
 
 params0 = 'OUTER_HEAD_TYPE OUTER_TREE_TYPE NODE_TYPE HEAD_FROM_NODE NODE_FROM_HEAD'.split()
-args0 = ['struct BASENAME##_head', 'struct BASENAME##_tree', 'NODE_TYPE', 'HEAD_FROM_NODE', 'NODE_FROM_HEAD']
+args0 = ['struct BASENAME##_head', 'struct BASENAME', 'NODE_TYPE', 'HEAD_FROM_NODE', 'NODE_FROM_HEAD']
 
 params1 = 'GET_HEAD GET_NODE INNER_HEAD OUTER_HEAD INNER_TREE OUTER_TREE'.split()
 args1 = 'BASENAME##_get_head BASENAME##_get_node BASENAME##_inner_head BASENAME##_outer_head BASENAME##_inner_tree BASENAME##_outer_tree'.split()
@@ -29,7 +29,7 @@ proxies = """
  * This is the stuff the user wants to use
  */
 #define RB3_GEN_STRUCTS(BASENAME)  \\
-    RB3_GEN_STRUCTS_REAL(BASENAME##_head, BASENAME##_tree)
+    RB3_GEN_STRUCTS_REAL(BASENAME##_head, BASENAME)
 
 #define RB3_GEN_INLINE(BASENAME, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD)  \\
     RB3_GEN_INLINE_REAL({args0}, {args1}, {args2})
