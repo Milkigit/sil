@@ -19,7 +19,7 @@ NODE_TYPE *find_parent_in_subtree(struct rb3_head *parent, int dir, NODE_TYPE *n
 RB3_API
 NODE_TYPE *find(OUTER_TREE_TYPE *tree, NODE_TYPE *node)
 {
-	return find_in_subtree(get_root(tree), node);
+        return find_in_subtree(get_root(tree), node);
 }
 
 RB3_API
@@ -30,20 +30,20 @@ NODE_TYPE *delete(OUTER_TREE_TYPE *tree, NODE_TYPE *node)
         found = find_in_subtree(get_root(tree), node);
         if (found)
                 rb3_delete_head(GET_HEAD(found));
-	return found;
+        return found;
 }
 
 RB3_API
 NODE_TYPE *insert(OUTER_TREE_TYPE *tree, NODE_TYPE *node)
 {
         NODE_TYPE *found;
-	struct rb3_head *parent;
-	int dir;
+        struct rb3_head *parent;
+        int dir;
 
-	parent = &INNER_TREE(tree)->base;
-	dir = RB3_LEFT;
+        parent = &INNER_TREE(tree)->base;
+        dir = RB3_LEFT;
         found = find_parent_in_subtree(parent, dir, node, &parent, &dir);
         if (!found)
-		rb3_insert_below(GET_HEAD(node), parent, dir);
+                rb3_insert_below(GET_HEAD(node), parent, dir);
         return found;
 }
