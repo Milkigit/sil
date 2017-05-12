@@ -31,7 +31,7 @@ RB3_API_INLINE
 int rb3_isempty(struct rb3_tree *tree);
 
 /*
- * Get minimum (lefmost) element, or NULL if tree is empty.
+ * Get minimum (leftmost) element, or NULL if tree is empty.
  *
  * Time complexity: O(log n)
  */

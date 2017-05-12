@@ -1,15 +1,15 @@
 RB3_API_STATIC_INLINE
 struct rb3_head *GET_HEAD(NODE_TYPE *node)
 {
-	return &HEAD_FROM_NODE(node)->head;
+        return &HEAD_FROM_NODE(node)->head;
 }
 
 RB3_API_STATIC_INLINE
 NODE_TYPE *GET_NODE(struct rb3_head *head)
 {
-	if (head)
-	        return NODE_FROM_HEAD((OUTER_HEAD_TYPE *) head);
-	return (NODE_TYPE *) 0;
+        if (head)
+                return NODE_FROM_HEAD((OUTER_HEAD_TYPE *) head);
+        return (NODE_TYPE *) 0;
 }
 
 RB3_API_STATIC_INLINE
@@ -93,7 +93,12 @@ NODE_TYPE *get_child(NODE_TYPE *node, int dir)
 RB3_API_STATIC_INLINE
 NODE_TYPE *get_parent(NODE_TYPE *node)
 {
-        return GET_NODE(rb3_get_parent(GET_HEAD(node)));
+        struct rb3_head *parent;
+
+        parent = rb3_get_parent(GET_HEAD(node));
+        if (rb3_is_base(parent))
+                return (NODE_TYPE *) 0;
+        return GET_NODE(parent);
 }
 
 RB3_API_STATIC_INLINE
