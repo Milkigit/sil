@@ -72,6 +72,12 @@ NODE_TYPE *get_root(OUTER_TREE_TYPE *tree)
         return GET_NODE(rb3_get_root(INNER_TREE(tree)));
 }
 
+/*
+ * --------------------------
+ * Binary Search Tree stuff
+ * --------------------------
+ */
+
 RB3_API_STATIC_INLINE
 int has_child(NODE_TYPE *node, int dir)
 {
@@ -114,14 +120,14 @@ NODE_TYPE *get_next_descendant(NODE_TYPE *node)
         return GET_NODE(rb3_get_next_descendant(GET_HEAD(node)));
 }
 
+/*
+ * Delete a node that is known to be linked in a tree.
+ *
+ * This is deletion with a refined equivalence relation where nodes are only
+ * equal iff their memory addresses are identical.
+ */
 RB3_API_STATIC_INLINE
-void insert_below(NODE_TYPE *node, NODE_TYPE *parent, int dir)
-{
-        rb3_insert_below(GET_HEAD(node), GET_HEAD(parent), dir);
-}
-
-RB3_API_STATIC_INLINE
-void delete_head(NODE_TYPE *node)
+void delete_linked_node(NODE_TYPE *node)
 {
         rb3_delete_head(GET_HEAD(node));
 }
@@ -130,12 +136,6 @@ RB3_API_STATIC_INLINE
 int get_parent_dir(NODE_TYPE *node)
 {
         return rb3_get_parent_dir(GET_HEAD(node));
-}
-
-RB3_API_STATIC_INLINE
-NODE_TYPE *get_base(OUTER_TREE_TYPE *tree)
-{
-        return GET_NODE(rb3_get_base(INNER_TREE(tree)));
 }
 
 RB3_API_STATIC_INLINE

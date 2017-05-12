@@ -78,11 +78,11 @@ int main(void)
         for (i = 0; i < NUM_FOOS; i++)
                 foo[i].val = NUM_FOOS - (int) i;
         for (i = 0; i < NUM_FOOS; i++)
-                footree_insert(&foo[i], &tree);
+                footree_insert(&tree, &foo[i]);
         for (iter = footree_get_min(&tree); iter != NULL; iter = footree_get_next(iter))
                 printf("iter %d\n", iter->val);
         for (i = 0; i < NUM_FOOS; i++)
-                footree_delete(&foo[i], &tree);
+                footree_delete(&tree, &foo[i]);
         foo = xalloc(NUM_FOOS * sizeof (struct foo));
 
         return 0;

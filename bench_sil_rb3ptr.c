@@ -72,7 +72,7 @@ static void bench_rb3_insertbench(void *self, struct benchpayload *data, size_t 
         for (i = 0; i < n; i++)
                 state->nodes[i].payload = data[i];
         for (i = 0; i < n; i++)
-                bench_rb3tree_insert(&state->nodes[i], &state->tree);
+                bench_rb3tree_insert(&state->tree, &state->nodes[i]);
 }
 
 static void bench_rb3_retrievebench(void *self, struct benchpayload *data, size_t n)
@@ -97,7 +97,7 @@ static void bench_rb3_removebench(void *self, struct benchpayload *data, size_t 
         (void) data;
         state = self;
         for (i = 0; i < n; i++)
-                bench_rb3tree_delete(&state->nodes[i], &state->tree);
+                bench_rb3tree_delete(&state->tree, &state->nodes[i]);
 }
 
 static void bench_rb3_addelems(void *self, size_t *out_count, unsigned *out_sumofhashes)
