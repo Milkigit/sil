@@ -22,6 +22,5 @@ cc -std=c99 -O2 \
 	bench_sil_rb3ptr.c \
 	timer/sil_timer.c \
 	rb2ptr/sil_rb2ptr.c \
-	rb3ptr/build/rb3ptr.c \
 	\
 	bench_stl_set.o

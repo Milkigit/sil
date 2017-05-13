@@ -143,6 +143,12 @@ struct rb3_head *rb3_get_base(struct rb3_tree *tree);
  */
 
 RB3_API_INLINE
+int rb3_is_base(struct rb3_head *head)
+{
+	return !head->parent;
+}
+
+RB3_API_INLINE
 int rb3_get_parent_dir(struct rb3_head *head)
 {
         return head->parent & 1;

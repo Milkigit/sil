@@ -1,7 +1,10 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "rb3ptr.h"
+
+#include <rb3ptr.h>
+
+RB3_GEN_IMPL();
 
 /****************
  * Foo

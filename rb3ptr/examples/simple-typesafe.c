@@ -1,8 +1,10 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "rb3ptr.h"
-#include "rb3ptr-gen.h"
+
+#include <rb3ptr.h>
+
+RB3_GEN_IMPL_STATIC();
 
 /****************
  * Memory
@@ -55,10 +57,9 @@ static struct footree_head *get_head(struct foo *node)
         return &node->head;
 }
 
-RB3_GEN_INLINE_PROTO(footree, struct foo, get_head, get_foo);
-RB3_GEN_NODECMP_PROTO(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, foo_compare);
-RB3_GEN_INLINE(footree, struct foo, get_head, get_foo);
-RB3_GEN_NODECMP(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, foo_compare);
+RB3_GEN_INLINE_PROTO_STATIC(footree, struct foo, get_head, get_foo);
+RB3_GEN_NODECMP_PROTO_STATIC(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, foo_compare);
+RB3_GEN_NODECMP_STATIC(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, foo_compare);
 
 /****************
  * MAIN

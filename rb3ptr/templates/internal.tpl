@@ -12,6 +12,7 @@
  * Like rb3_find_datacmp() but starts at the given subtree represented by a
  * link head (which may be NULL) instead of at the root of the tree.
  */
+RB3_API
 struct rb3_head *rb3_find_in_subtree_datacmp(struct rb3_head *subtree, rb3_datacmp cmp, void *data);
 
 /*
@@ -24,6 +25,7 @@ struct rb3_head *rb3_find_in_subtree_datacmp(struct rb3_head *subtree, rb3_datac
  * 0), it is returned. In this case `parent_out` and `dir_out` are left
  * untouched.
  */
+RB3_API
 struct rb3_head *rb3_find_parent_in_subtree_datacmp(struct rb3_head *parent, int dir, rb3_datacmp cmp, void *data, struct rb3_head **parent_out, int *dir_out);
 
 /*

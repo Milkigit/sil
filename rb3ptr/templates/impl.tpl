@@ -1,12 +1,3 @@
-#include "rb3ptr.h"
-
-#define RB3_DIR_BIT (1<<0)
-#define RB3_COLOR_BIT (1<<1)
-#define RB3_BLACK (0)
-#define RB3_RED (RB3_COLOR_BIT)
-#define RB3_CHILD_PTR(head, color) ((rb3_ptr)(head) | color)
-#define RB3_PARENT_PTR(head, dir) ((rb3_ptr)(head) | dir)
-
 static RB3_INLINE
 struct rb3_head *rb3_get_black_child(struct rb3_head *head, int dir)
 {
