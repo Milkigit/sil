@@ -21,11 +21,11 @@ def filetomacro(name):
 
 params = 'RB3_API RB3_API_INLINE RB3_API_STATIC_INLINE RB3_COLD RB3_INLINE RB3_NEVERINLINE'.split()
 
-params0 = 'OUTER_HEAD_TYPE OUTER_TREE_TYPE NODE_TYPE HEAD_FROM_NODE NODE_FROM_HEAD'.split()
-args0 = ['struct BASENAME##_head', 'struct BASENAME', 'NODE_TYPE', 'HEAD_FROM_NODE', 'NODE_FROM_HEAD']
+params0 = 'OUTER_TREE_TYPE NODE_TYPE GET_HEAD GET_NODE'.split()
+args0 = ['struct BASENAME', 'NODE_TYPE', 'GET_HEAD', 'GET_NODE']
 
-params1 = 'GET_HEAD GET_NODE INNER_HEAD OUTER_HEAD INNER_TREE OUTER_TREE'.split()
-args1 = 'BASENAME##_get_head BASENAME##_get_node BASENAME##_inner_head BASENAME##_outer_head BASENAME##_inner_tree BASENAME##_outer_tree'.split()
+params1 = 'INNER_TREE OUTER_TREE'.split()
+args1 = 'BASENAME##_inner_tree BASENAME##_outer_tree'.split()
 
 params2 = 'init exit isempty get_min get_max get_prev get_next get_root has_child get_child get_parent get_prev_ancestor get_next_ancestor get_prev_descendant get_next_descendant insert_below delete_head get_parent_dir get_base get_containing_tree'.split()
 args2 = ['BASENAME##_{}'.format(name) for name in params2]
@@ -53,25 +53,25 @@ proxies = """
 
 
 #define RB3_GEN_STRUCTS(BASENAME)  \\
-    RB3_GEN_STRUCTS_REAL(BASENAME##_head, BASENAME)
+    RB3_GEN_STRUCTS_REAL(BASENAME)
 
 
-#define RB3_GEN_INLINE_PROTO(BASENAME, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD)  \\
+#define RB3_GEN_INLINE_PROTO(BASENAME, NODE_TYPE, GET_HEAD, GET_NODE)  \\
     RB3_GEN_INLINE_PROTO_REAL(RB3_EXTERN_ATTRS, {args0}, {args1}, {args2})
 
-#define RB3_GEN_INLINE_PROTO_STATIC(BASENAME, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD)  \\
+#define RB3_GEN_INLINE_PROTO_STATIC(BASENAME, NODE_TYPE, GET_HEAD, GET_NODE)  \\
     RB3_GEN_INLINE_PROTO_REAL(RB3_STATIC_ATTRS, {args0}, {args1}, {args2})
 
-#define RB3_GEN_NODECMP(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_NODE)  \\
+#define RB3_GEN_NODECMP(BASENAME, SUFFIX, NODE_TYPE, GET_HEAD, GET_NODE, COMPARE_NODE)  \\
     RB3_GEN_NODECMP_REAL(RB3_EXTERN_ATTRS, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
-#define RB3_GEN_NODECMP_STATIC(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_NODE)  \\
+#define RB3_GEN_NODECMP_STATIC(BASENAME, SUFFIX, NODE_TYPE, GET_HEAD, GET_NODE, COMPARE_NODE)  \\
     RB3_GEN_NODECMP_REAL(RB3_STATIC_ATTRS, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
-#define RB3_GEN_NODECMP_PROTO(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_NODE)  \\
+#define RB3_GEN_NODECMP_PROTO(BASENAME, SUFFIX, NODE_TYPE, GET_HEAD, GET_NODE, COMPARE_NODE)  \\
     RB3_GEN_NODECMP_PROTO_REAL(RB3_EXTERN_ATTRS, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
-#define RB3_GEN_NODECMP_PROTO_STATIC(BASENAME, SUFFIX, NODE_TYPE, HEAD_FROM_NODE, NODE_FROM_HEAD, COMPARE_NODE)  \\
+#define RB3_GEN_NODECMP_PROTO_STATIC(BASENAME, SUFFIX, NODE_TYPE, GET_HEAD, GET_NODE, COMPARE_NODE)  \\
     RB3_GEN_NODECMP_PROTO_REAL(RB3_STATIC_ATTRS, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
 
@@ -97,7 +97,7 @@ content = """
  * ===========================================================================
  */
 
-#define RB3_GEN_STRUCTS_REAL(OUTER_HEAD_STRUCT_NAME, OUTER_TREE_STRUCT_NAME) RB3_GEN_STRUCTS_TOTALLY_REAL(OUTER_HEAD_STRUCT_NAME, OUTER_TREE_STRUCT_NAME)
+#define RB3_GEN_STRUCTS_REAL(OUTER_TREE_STRUCT_NAME) RB3_GEN_STRUCTS_TOTALLY_REAL(OUTER_TREE_STRUCT_NAME)
 #define RB3_GEN_INLINE_PROTO_REAL(argstoexpand, {params0}, {params1}, {params2}) RB3_GEN_INLINE_PROTO_TOTALLY_REAL(argstoexpand, {params0}, {params1}, {params2})
 #define RB3_GEN_NODECMP_PROTO_REAL(argstoexpand, {params0}, COMPARE_NODE, {params1}, {params2}, {params3}) RB3_GEN_NODECMP_PROTO_TOTALLY_REAL(argstoexpand, {params0}, COMPARE_NODE, {params1}, {params2}, {params3})
 #define RB3_GEN_NODECMP_REAL(argstoexpand, {params0}, COMPARE_NODE, {params1}, {params2}, {params3}) RB3_GEN_NODECMP_TOTALLY_REAL(argstoexpand, {params0}, COMPARE_NODE, {params1}, {params2}, {params3})
@@ -106,7 +106,7 @@ content = """
 #define RB3_GEN_IMPL_REAL(argstoexpand) RB3_GEN_IMPL_TOTALLY_REAL(argstoexpand)
 
 
-#define RB3_GEN_STRUCTS_TOTALLY_REAL(OUTER_HEAD_STRUCT_NAME, OUTER_TREE_STRUCT_NAME)  \\
+#define RB3_GEN_STRUCTS_TOTALLY_REAL(OUTER_TREE_STRUCT_NAME)  \\
 {tpl_structs}
 
 #define RB3_GEN_INLINE_PROTO_TOTALLY_REAL({params}, {params0}, {params1}, {params2})  \\
@@ -145,10 +145,10 @@ content = """
     RB3_GEN_IMPL_TOTALLY_REAL_IMPL({params})
 
 """.format(params=cs(params), params0=cs(params0), params1=cs(params1), params2=cs(params2), params3=cs(params3),
-        tpl_structs=filetomacro('rb3ptr-structs'),
-        tpl_inline_proto=filetomacro('rb3ptr-inline-proto'),
-        tpl_nodecmp_proto=filetomacro('rb3ptr-nodecmp-proto'),
-        tpl_nodecmp=filetomacro('rb3ptr-nodecmp'),
+        tpl_structs=filetomacro('wrapper-structs'),
+        tpl_inline_proto=filetomacro('wrapper-inline-proto'),
+        tpl_nodecmp_proto=filetomacro('wrapper-nodecmp-proto'),
+        tpl_nodecmp=filetomacro('wrapper-nodecmp'),
         tpl_types=filetomacro('types'),
         tpl_basic=filetomacro('basic'),
         tpl_navigate=filetomacro('navigate'),

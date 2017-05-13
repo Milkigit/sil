@@ -1,18 +1,4 @@
 RB3_API_STATIC_INLINE
-struct rb3_head *GET_HEAD(NODE_TYPE *node)
-{
-        return &HEAD_FROM_NODE(node)->head;
-}
-
-RB3_API_STATIC_INLINE
-NODE_TYPE *GET_NODE(struct rb3_head *head)
-{
-        if (head)
-                return NODE_FROM_HEAD((OUTER_HEAD_TYPE *) head);
-        return (NODE_TYPE *) 0;
-}
-
-RB3_API_STATIC_INLINE
 struct rb3_tree *INNER_TREE(OUTER_TREE_TYPE *tree)
 {
         return (struct rb3_tree *) tree;

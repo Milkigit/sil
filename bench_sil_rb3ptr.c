@@ -11,20 +11,19 @@
  ********************/
 
 RB3_GEN_IMPL_STATIC();
-RB3_GEN_STRUCTS(bench_rb3tree);
 
 struct bench_rb3_node {
-        struct bench_rb3tree_head head;
+        struct rb3_head head;
         struct benchpayload payload;
 };
 
 
-static struct bench_rb3_node *bench_rb3_get_node(struct bench_rb3tree_head *head)
+static struct bench_rb3_node *bench_rb3_get_node(struct rb3_head *head)
 {
         return (struct bench_rb3_node *) ((char *)head - offsetof(struct bench_rb3_node, head));
 }
 
-static struct bench_rb3tree_head *bench_rb3_get_head(struct bench_rb3_node *node)
+static struct rb3_head *bench_rb3_get_head(struct bench_rb3_node *node)
 {
         return &node->head;
 }
@@ -34,6 +33,7 @@ static int comparison(struct bench_rb3_node *a, struct bench_rb3_node *b)
         return compare_benchpayload(&a->payload, &b->payload);
 }
 
+RB3_GEN_STRUCTS(bench_rb3tree);
 RB3_GEN_INLINE_PROTO_STATIC(bench_rb3tree, struct bench_rb3_node, bench_rb3_get_head, bench_rb3_get_node);
 RB3_GEN_NODECMP_PROTO_STATIC(bench_rb3tree, /* no suffix */, struct bench_rb3_node, bench_rb3_get_head, bench_rb3_get_node, comparison);
 RB3_GEN_NODECMP_STATIC(bench_rb3tree, /* no suffix */, struct bench_rb3_node, bench_rb3_get_head, bench_rb3_get_node, comparison);

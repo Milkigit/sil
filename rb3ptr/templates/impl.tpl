@@ -1,3 +1,12 @@
+/*
+ * ---------------------------------------------------------------------------
+ * Implementation
+ *
+ * This file provides the (key)type-agnostic tree code that can be shared
+ * across all tree instances (with differing key types).
+ * ---------------------------------------------------------------------------
+ */
+
 static RB3_INLINE
 struct rb3_head *rb3_get_black_child(struct rb3_head *head, int dir)
 {

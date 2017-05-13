@@ -1,6 +1,6 @@
 /*
  * ---------------------------------------------------------------------------
- * INTERNAL API
+ * Internal API
  *
  * These functions expose some of the more stable implementation details that
  * might be useful in other places. They are generally unsafe to use. Make

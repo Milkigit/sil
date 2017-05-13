@@ -34,10 +34,8 @@ static int int_compare(int a, int b)
         return (b < a) - (a < b);
 }
 
-RB3_GEN_STRUCTS(footree);
-
 struct foo {
-        struct footree_head head;
+        struct rb3_head head;
         int val;
 };
 
@@ -47,15 +45,17 @@ static int foo_compare(struct foo *x, void *data)
         return int_compare(x->val, y->val);
 }
 
-static struct foo *get_foo(struct footree_head *head)
+static struct foo *get_foo(struct rb3_head *head)
 {
         return (struct foo *)((char *) head - offsetof(struct foo, head));
 }
 
-static struct footree_head *get_head(struct foo *node)
+static struct rb3_head *get_head(struct foo *node)
 {
         return &node->head;
 }
+
+RB3_GEN_STRUCTS(footree);
 
 RB3_GEN_INLINE_PROTO_STATIC(footree, struct foo, get_head, get_foo);
 RB3_GEN_NODECMP_PROTO_STATIC(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, foo_compare);

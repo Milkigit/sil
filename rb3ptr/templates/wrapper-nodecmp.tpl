@@ -1,3 +1,12 @@
+/*
+ * ---------------------------------------------------------------------------
+ * Nodecmp
+ *
+ * This file implements the typesafe wrapper for comparison related functions
+ * (find, insert, delete).
+ * ---------------------------------------------------------------------------
+ */
+
 RB3_API_STATIC_INLINE
 int nodecmp(struct rb3_head *a, NODE_TYPE *b)
 {

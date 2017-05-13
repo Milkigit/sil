@@ -1,4 +1,13 @@
 /*
+ * ---------------------------------------------------------------------------
+ * Types
+ *
+ * This file provides the typedefs and struct definitions that are required
+ * for the type-agnostic API.
+ * ---------------------------------------------------------------------------
+ */
+
+/*
  * This type is used to efficiently store a pointer (at least 4-byte aligned)
  * and some more information in the unused low bits.
  */

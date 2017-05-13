@@ -142,6 +142,12 @@ int main(void)
         permute_benchdata(&bench);
 
         printf("\n");
+        /*
+         * TODO: On my machine, the first run is considerably slower. For now,
+         * run the first one twice...
+         */
+        runbench(&bench_stlset_funcs, &bench);
+        printf("Cache should be warm now, run again...\n\n");
         runbench(&bench_stlset_funcs, &bench);
         runbench(&bench_np_rbtree_funcs, &bench);
         runbench(&bench_rb3_funcs, &bench);

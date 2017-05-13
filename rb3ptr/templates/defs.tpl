@@ -1,5 +1,19 @@
+/*
+ * ---------------------------------------------------------------------------
+ * Preprocessor definitions
+ *
+ * This file contains preprocessor definitions used across the project. They
+ * are implementation details (not part of the user-facing API).
+ * ---------------------------------------------------------------------------
+ */
+
 /* don't want no assert.h dependency */
-#define RB3_ASSERT(cond)   /* TODO */
+#ifndef RB3_DEBUG
+#define RB3_ASSERT(cond)
+#else
+#include <assert.h>
+#define RB3_ASSERT assert
+#endif
 
 /* don't want no stddef.h dependency */
 #define RB3_NULL ((void *)0)
