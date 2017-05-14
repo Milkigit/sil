@@ -16,7 +16,11 @@
 #endif
 
 /* don't want no stddef.h dependency */
+#ifdef __cplusplus
+#define RB3_NULL 0
+#else
 #define RB3_NULL ((void *)0)
+#endif
 #define RB3_offsetof(st, m) ((char *)&(((st *)0)->m)-((char *)0))
 
 /* only used in impl */
