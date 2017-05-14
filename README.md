@@ -61,23 +61,34 @@ Randomly permuting elements
 
 Running bench STL std::set
 ===========================
-Inserting each element: 0.883s
-Finding each element: 0.771s
-Removing each element: 0.983s
+Inserting each element: 0.886s
+Finding each element: 0.769s
+Removing each element: 0.985s
+
+Cache should be warm now, run again...
+
+Running bench STL std::set
+===========================
+Inserting each element: 0.837s
+Finding each element: 0.768s
+Removing each element: 0.981s
 
 Running bench BSD RB tree
 ===========================
-Inserting each element: 0.804s
-Finding each element: 0.661s
-Removing each element: 0.899s
+Inserting each element: 0.806s
+Finding each element: 0.658s
+Removing each element: 0.895s
+
+Running bench SIL 3-pointer Red-black tree
+===========================
+Inserting each element: 0.658s
+Finding each element: 0.583s
+Removing each element: 0.727s
 
 Running bench SIL AVLtree
 ===========================
-sizeof SIL_AVLhead struct: 26
-position of payload in node: 28
-sizeof struct sil_node: 32
-Inserting each element: 0.732s
-Finding each element: 0.624s
+Inserting each element: 0.716s
+Finding each element: 0.614s
 Removing each element: 0.786s
 
 Running bench SIL 2-pointer Red-black tree
@@ -85,18 +96,9 @@ Running bench SIL 2-pointer Red-black tree
 sizeof sil_rb_head struct: 16
 position of payload in node: 16
 sizeof struct silrb_node: 24
-Inserting each element: 0.694s
-Finding each element: 0.580s
-Removing each element: 0.766s
-
-Running bench SIL 3-pointer Red-black tree
-===========================
-sizeof rb3_head struct: 24
-position of payload in node: 24
-sizeof struct bench_rb3_node: 32
-Inserting each element: 0.714s
-Finding each element: 0.637s
-Removing each element: 0.808s
+Inserting each element: 0.687s
+Finding each element: 0.573s
+Removing each element: 0.761s
 ```
 
 ```
@@ -107,23 +109,34 @@ Randomly permuting elements
 
 Running bench STL std::set
 ===========================
-Inserting each element: 1.075s
-Finding each element: 0.836s
-Removing each element: 1.150s
+Inserting each element: 1.058s
+Finding each element: 0.833s
+Removing each element: 1.146s
+
+Cache should be warm now, run again...
+
+Running bench STL std::set
+===========================
+Inserting each element: 1.010s
+Finding each element: 0.838s
+Removing each element: 1.138s
 
 Running bench BSD RB tree
 ===========================
-Inserting each element: 0.896s
-Finding each element: 0.746s
-Removing each element: 0.956s
+Inserting each element: 0.890s
+Finding each element: 0.743s
+Removing each element: 0.954s
+
+Running bench SIL 3-pointer Red-black tree
+===========================
+Inserting each element: 0.807s
+Finding each element: 0.719s
+Removing each element: 0.875s
 
 Running bench SIL AVLtree
 ===========================
-sizeof SIL_AVLhead struct: 26
-position of payload in node: 32
-sizeof struct sil_node: 48
-Inserting each element: 0.859s
-Finding each element: 0.741s
+Inserting each element: 0.855s
+Finding each element: 0.740s
 Removing each element: 0.874s
 
 Running bench SIL 2-pointer Red-black tree
@@ -131,18 +144,9 @@ Running bench SIL 2-pointer Red-black tree
 sizeof sil_rb_head struct: 16
 position of payload in node: 16
 sizeof struct silrb_node: 32
-Inserting each element: 0.826s
+Inserting each element: 0.821s
 Finding each element: 0.710s
-Removing each element: 0.865s
-
-Running bench SIL 3-pointer Red-black tree
-===========================
-sizeof rb3_head struct: 24
-position of payload in node: 24
-sizeof struct bench_rb3_node: 40
-Inserting each element: 0.824s
-Finding each element: 0.735s
-Removing each element: 0.885s
+Removing each element: 0.862s
 ```
 
 ```
@@ -153,40 +157,42 @@ Randomly permuting elements
 
 Running bench STL std::set
 ===========================
-Inserting each element: 1.069s
-Finding each element: 0.838s
-Removing each element: 1.152s
+Inserting each element: 1.061s
+Finding each element: 0.831s
+Removing each element: 1.141s
+
+Cache should be warm now, run again...
+
+Running bench STL std::set
+===========================
+Inserting each element: 1.010s
+Finding each element: 0.832s
+Removing each element: 1.138s
 
 Running bench BSD RB tree
 ===========================
-Inserting each element: 0.936s
-Finding each element: 0.786s
-Removing each element: 1.019s
+Inserting each element: 0.933s
+Finding each element: 0.785s
+Removing each element: 0.998s
+
+Running bench SIL 3-pointer Red-black tree
+===========================
+Inserting each element: 0.818s
+Finding each element: 0.727s
+Removing each element: 0.876s
 
 Running bench SIL AVLtree
 ===========================
-sizeof SIL_AVLhead struct: 26
-position of payload in node: 32
-sizeof struct sil_node: 56
-Inserting each element: 0.906s
-Finding each element: 0.776s
-Removing each element: 0.909s
+Inserting each element: 0.899s
+Finding each element: 0.773s
+Removing each element: 0.910s
 
 Running bench SIL 2-pointer Red-black tree
 ===========================
 sizeof sil_rb_head struct: 16
 position of payload in node: 16
 sizeof struct silrb_node: 40
-Inserting each element: 0.851s
-Finding each element: 0.720s
-Removing each element: 0.881s
-
-Running bench SIL 3-pointer Red-black tree
-===========================
-sizeof rb3_head struct: 24
-position of payload in node: 24
-sizeof struct bench_rb3_node: 48
-Inserting each element: 0.826s
-Finding each element: 0.736s
-Removing each element: 0.883s
+Inserting each element: 0.846s
+Finding each element: 0.715s
+Removing each element: 0.877s
 ```
