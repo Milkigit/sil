@@ -32,7 +32,6 @@
 #define RB3_EXTERN_ATTRS  \
         extern,  \
         static inline __attribute__((unused)),  \
-        static inline __attribute__((unused)),  \
         __attribute__((cold)),  \
         inline __attribute__((always_inline)),  \
         __attribute__((noinline))
@@ -40,7 +39,6 @@
 /* Function attributes used for static linkage */
 #define RB3_STATIC_ATTRS  \
         static __attribute__((unused)),  \
-        static inline __attribute__((unused)),  \
         static inline __attribute__((unused)),  \
         __attribute__((cold)),  \
         inline __attribute__((always_inline)),  \

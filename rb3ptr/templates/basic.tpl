@@ -27,7 +27,7 @@ void rb3_exit(struct rb3_tree *tree);
  *
  * Time complexity: O(1)
  */
-RB3_API_INLINE
+RB3_API_STATIC_INLINE
 int rb3_isempty(struct rb3_tree *tree);
 
 /*
@@ -123,7 +123,7 @@ struct rb3_head *rb3_delete_datacmp(struct rb3_tree *tree, rb3_datacmp cmp, void
  * Inline implementations
  */
 
-RB3_API_INLINE
+RB3_API_STATIC_INLINE
 int rb3_isempty(struct rb3_tree *tree)
 {
         return !rb3_has_child(rb3_get_base(tree), RB3_LEFT);

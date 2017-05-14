@@ -19,7 +19,7 @@ def filetomacro(name):
     return ''.join(cleanescapes(open('templates/' + name + '.tpl').readlines()))
 
 
-params = 'RB3_API RB3_API_INLINE RB3_API_STATIC_INLINE RB3_COLD RB3_INLINE RB3_NEVERINLINE'.split()
+params = 'RB3_API RB3_API_STATIC_INLINE RB3_COLD RB3_INLINE RB3_NEVERINLINE'.split()
 
 params0 = 'OUTER_TREE_TYPE NODE_TYPE GET_HEAD GET_NODE'.split()
 args0 = ['struct BASENAME', 'NODE_TYPE', 'GET_HEAD', 'GET_NODE']
