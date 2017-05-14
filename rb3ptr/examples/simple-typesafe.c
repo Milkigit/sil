@@ -7,6 +7,35 @@
 RB3_GEN_IMPL_STATIC();
 
 /****************
+ * Foo
+ ****************/
+
+struct foo {
+        struct rb3_head head;
+        int val;
+};
+
+static int foo_compare(struct foo *x, struct foo *y)
+{
+        return (x->val > y->val) - (x->val < y->val);
+}
+
+static struct foo *get_foo(struct rb3_head *head)
+{
+        return (struct foo *)((char *) head - offsetof(struct foo, head));
+}
+
+static struct rb3_head *get_head(struct foo *node)
+{
+        return &node->head;
+}
+
+RB3_GEN_TREE_DEFINITION(footree);
+RB3_GEN_INLINE_PROTO_STATIC(footree, struct foo, get_head, get_foo);
+RB3_GEN_NODECMP_PROTO_STATIC(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, foo_compare);
+RB3_GEN_NODECMP_STATIC(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, foo_compare);
+
+/****************
  * Memory
  ****************/
 
@@ -24,42 +53,6 @@ void xfree(void *p)
 {
         free(p);
 }
-
-/****************
- * Foo
- ****************/
-
-static int int_compare(int a, int b)
-{
-        return (b < a) - (a < b);
-}
-
-struct foo {
-        struct rb3_head head;
-        int val;
-};
-
-static int foo_compare(struct foo *x, void *data)
-{
-        struct foo *y = data;
-        return int_compare(x->val, y->val);
-}
-
-static struct foo *get_foo(struct rb3_head *head)
-{
-        return (struct foo *)((char *) head - offsetof(struct foo, head));
-}
-
-static struct rb3_head *get_head(struct foo *node)
-{
-        return &node->head;
-}
-
-RB3_GEN_TREE_DEFINITION(footree);
-
-RB3_GEN_INLINE_PROTO_STATIC(footree, struct foo, get_head, get_foo);
-RB3_GEN_NODECMP_PROTO_STATIC(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, foo_compare);
-RB3_GEN_NODECMP_STATIC(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, foo_compare);
 
 /****************
  * MAIN

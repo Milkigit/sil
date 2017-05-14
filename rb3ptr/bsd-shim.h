@@ -30,6 +30,9 @@
 #define RB_INIT(t) \
         rb3_init(&(t)->tree)
 
+#define RB_EXIT(t) \
+        rb3_exit(&(t)->tree)
+
 #define RB_INSERT(NAME, tree, elm) \
         NAME##_insert(tree, elm)
 

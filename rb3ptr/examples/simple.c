@@ -15,19 +15,14 @@ struct foo {
         int val;
 };
 
+static int foo_compare(struct foo *x, struct foo *y)
+{
+        return (x->val > y->val) - (x->val < y->val);
+}
+
 static struct foo *get_foo(struct rb3_head *head)
 {
         return (struct foo *)((char *) head - offsetof(struct foo, head));
-}
-
-static int int_compare(int a, int b)
-{
-        return (b < a) - (a < b);
-}
-
-static int foo_compare(struct foo *x, struct foo *y)
-{
-        return int_compare(x->val, y->val);
 }
 
 static int foohead_compare(struct rb3_head *a, struct rb3_head *b)
@@ -77,7 +72,8 @@ int main(void)
                 printf("iter %d\n", get_foo(iter)->val);
         for (i = 0; i < NUM_FOOS; i++)
                 rb3_delete(&tree, foohead_compare, &foo[i].head);
-        foo = xalloc(NUM_FOOS * sizeof (struct foo));
+        xfree(foo);
+        rb3_exit(&tree);
 
         return 0;
 }

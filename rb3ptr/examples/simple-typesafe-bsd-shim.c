@@ -8,6 +8,26 @@
 RB3_GEN_IMPL_STATIC();
 
 /****************
+ * Foo
+ ****************/
+
+struct foo {
+        RB_ENTRY(foo) entry;
+        int val;
+};
+
+static int foo_compare(struct foo *x, void *data)
+{
+        struct foo *y = data;
+        return (x->val > y->val) - (x->val < y->val);
+}
+
+RB_HEAD(footree, foo);
+RB_PROTOTYPE_STATIC(footree, foo, entry, foo_compare);
+RB_GENERATE_STATIC(footree, foo, entry, foo_compare);
+
+
+/****************
  * Memory
  ****************/
 
@@ -25,31 +45,6 @@ void xfree(void *p)
 {
         free(p);
 }
-
-/****************
- * Foo
- ****************/
-
-static int int_compare(int a, int b)
-{
-        return (b < a) - (a < b);
-}
-
-struct foo {
-        RB_ENTRY(foo) entry;
-        int val;
-};
-
-static int foo_compare(struct foo *x, void *data)
-{
-        struct foo *y = data;
-        return int_compare(x->val, y->val);
-}
-
-
-RB_HEAD(footree, foo);
-RB_PROTOTYPE_STATIC(footree, foo, entry, foo_compare);
-RB_GENERATE_STATIC(footree, foo, entry, foo_compare);
 
 /****************
  * MAIN
@@ -76,7 +71,8 @@ int main(void)
                 printf("iter %d\n", iter->val);
         for (i = 0; i < NUM_FOOS; i++)
                 RB_REMOVE(footree, &tree, &foo[i]);
-        foo = xalloc(NUM_FOOS * sizeof (struct foo));
+        xfree(foo);
+        RB_EXIT(&tree);
 
         return 0;
 }
