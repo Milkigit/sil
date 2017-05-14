@@ -16,7 +16,7 @@ def cleanescapes(lines):
     return [line.rstrip(' \\\n') + ' \\\n' for line in lines]
 
 def filetomacro(name):
-    return ''.join(cleanescapes(open('templates/' + name + '.tpl').readlines()))
+    return ''.join(cleanescapes(open('templates/' + name + '.c').readlines()))
 
 
 params = 'RB3_API RB3_API_STATIC_INLINE RB3_COLD RB3_INLINE RB3_NEVERINLINE'.split()
@@ -171,9 +171,9 @@ print("""
 #ifndef RB3_GEN_HEADER
 #define RB3_GEN_HEADER
 """)
-cat('templates/defs.tpl')
+cat('templates/defs.c')
 print(proxies)
 print(content)
-cat('templates/wrapper-defs.tpl')
+cat('templates/wrapper-defs.c')
 print()
 print('#endif  /* RB3_GEN_HEADER */')
