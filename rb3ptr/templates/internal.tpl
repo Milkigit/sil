@@ -8,14 +8,14 @@
  * ---------------------------------------------------------------------------
  */
 
-/*
+/**
  * Like rb3_find_datacmp() but starts at the given subtree represented by a
  * link head (which may be NULL) instead of at the root of the tree.
  */
 RB3_API
 struct rb3_head *rb3_find_in_subtree_datacmp(struct rb3_head *subtree, rb3_datacmp cmp, void *data);
 
-/*
+/**
  * Find suitable insertion point for a new node in a subtree, directed by the
  * rb3_datacmp search. The subtree is given by its parent node `parent` and
  * child direction `dir`. The insertion point and its child direction are
@@ -28,7 +28,7 @@ struct rb3_head *rb3_find_in_subtree_datacmp(struct rb3_head *subtree, rb3_datac
 RB3_API
 struct rb3_head *rb3_find_parent_in_subtree_datacmp(struct rb3_head *parent, int dir, rb3_datacmp cmp, void *data, struct rb3_head **parent_out, int *dir_out);
 
-/*
+/**
  * Insert a node below another node in the given direction (RB3_LEFT or
  * RB3_RIGHT). The new node must replace a leaf. You can use rb3_find_parent()
  * to find the insertion point.
@@ -38,7 +38,7 @@ struct rb3_head *rb3_find_parent_in_subtree_datacmp(struct rb3_head *parent, int
 RB3_API
 void rb3_insert_below(struct rb3_head *head, struct rb3_head *parent, int dir);
 
-/*
+/**
  * Delete a node that is known to be linked in a tree.
  *
  * This is more efficient than using rb3_find() because no search is needed.
@@ -50,7 +50,7 @@ void rb3_insert_below(struct rb3_head *head, struct rb3_head *parent, int dir);
 RB3_API
 void rb3_delete_head(struct rb3_head *head);
 
-/*
+/**
  * Given a node that is known to be linked in _some_ tree, find that tree.
  */
 RB3_API

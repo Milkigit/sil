@@ -7,13 +7,13 @@
  * ---------------------------------------------------------------------------
  */
 
-/*
+/**
  * This type is used to efficiently store a pointer (at least 4-byte aligned)
  * and some more information in the unused low bits.
  */
 typedef unsigned long rb3_ptr;
 
-/*
+/**
  * Directions for navigation in the tree.
  */
 enum {
@@ -21,7 +21,7 @@ enum {
         RB3_RIGHT = 1,
 };
 
-/*
+/**
  * Node type for 3-pointer Red-black trees.
  */
 struct rb3_head {
@@ -37,7 +37,7 @@ struct rb3_head {
         rb3_ptr parent;
 };
 
-/*
+/**
  * Tree type. It's just a fake base head that is wrapped for type safety and
  * future extensibility.
  */
@@ -45,7 +45,7 @@ struct rb3_tree {
         struct rb3_head base;
 };
 
-/*
+/**
  * User-provided comparison function. It must first cast (and offset) the
  * pointers to compare the client-side structures that embed `a` and `b`.
  *
@@ -64,7 +64,7 @@ struct rb3_tree {
  */
 typedef int (*rb3_cmp)(struct rb3_head *a, struct rb3_head *b);
 
-/*
+/**
  * User-provided search function. This is a more general variant of rb3_cmp
  * that supports more specialized searches in a tree.
  *
@@ -90,7 +90,7 @@ typedef int (*rb3_cmp)(struct rb3_head *a, struct rb3_head *b);
  */
 typedef int (*rb3_datacmp)(struct rb3_head *head_in_tree, void *data);
 
-/*
+/**
  * Get direction from parent to child by testing the direction
  *
  * Return RB3_LEFT or RB3_RIGHT, depending on whether this node is the left or
@@ -104,7 +104,7 @@ typedef int (*rb3_datacmp)(struct rb3_head *head_in_tree, void *data);
 RB3_API_STATIC_INLINE
 int rb3_get_parent_dir(struct rb3_head *head);
 
-/*
+/**
  * Get parent head, or NULL if given node is the base node.
  *
  * Note that normally you don't want to visit the base node but stop already
@@ -126,7 +126,7 @@ struct rb3_head *rb3_get_parent(struct rb3_head *head);
 RB3_API_STATIC_INLINE
 int rb3_has_child(struct rb3_head *head, int dir);
 
-/*
+/**
  * Get child in given direction, or NULL if there is no such child. `dir`
  * must be RB3_LEFT or RB3_RIGHT.
  *
@@ -135,7 +135,7 @@ int rb3_has_child(struct rb3_head *head, int dir);
 RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_child(struct rb3_head *head, int dir);
 
-/*
+/**
  * Get fake base of tree.
  *
  * Warning: the special base element is never embedded in a client payload
