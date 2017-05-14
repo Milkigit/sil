@@ -2,15 +2,14 @@ rb3ptr is a 3-pointer Red-black tree implementation that focuses on all of:
 efficiency (time, space and also code-size), type safety, ease of use.
 
 It aims for C99 compatibility. It uses a few C99 features but currently seems
-to compile with -std=gnu89 as well. (Not: -std=c89 since we need "inline")
+to compile with -std=gnu89 as well. (Not: -std=c89 since we use "inline")
 
-Type safety is provided by macros to wrap generic code into code that works
-only for a specific type of node values. The generic code is not templated, so
-a single compilation of it can be shared between all wrappers. The wrappers
-machine code size comes mostly from inlined comparison functions.
+Type safety is provided by macros that wrap the generic code. The wrapper's
+machine code size comes mostly from inlined comparison functions (inlining the
+comparison functions will soon be optional).
 
-rb3ptr has no external dependencies. It is even believed to not have any C
-standard library dependencies.
+rb3ptr has no external dependencies. It's not even dependent on the C standard
+library.
 
 Building the source
 ===================
@@ -21,8 +20,8 @@ file you want to include in your projects.
 
 To test the build you can then run build-examples.sh.
 
-Instead of building you can also use the prebuilt version in prebuilt/. Check
-the git commit hash to make sure that it's a recent version.
+Instead of building rb3ptr.h you can also use the prebuilt version in
+prebuilt/. Check the git commit hash to make sure that it's a recent version.
 
 Documentation
 =============
