@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include <rb3ptr.h>
+#include <rb3ptr-bsd-shim.h>
 
 RB3_GEN_IMPL_STATIC();
 
@@ -35,7 +36,7 @@ static int int_compare(int a, int b)
 }
 
 struct foo {
-        struct rb3_head head;
+        RB_ENTRY(foo) entry;
         int val;
 };
 
@@ -45,21 +46,10 @@ static int foo_compare(struct foo *x, void *data)
         return int_compare(x->val, y->val);
 }
 
-static struct foo *get_foo(struct rb3_head *head)
-{
-        return (struct foo *)((char *) head - offsetof(struct foo, head));
-}
 
-static struct rb3_head *get_head(struct foo *node)
-{
-        return &node->head;
-}
-
-RB3_GEN_TREE_DEFINITION(footree);
-
-RB3_GEN_INLINE_PROTO_STATIC(footree, struct foo, get_head, get_foo);
-RB3_GEN_NODECMP_PROTO_STATIC(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, foo_compare);
-RB3_GEN_NODECMP_STATIC(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, foo_compare);
+RB_HEAD(footree, foo);
+RB_PROTOTYPE_STATIC(footree, foo, entry, foo_compare);
+RB_GENERATE_STATIC(footree, foo, entry, foo_compare);
 
 /****************
  * MAIN
@@ -79,11 +69,13 @@ int main(void)
         for (i = 0; i < NUM_FOOS; i++)
                 foo[i].val = NUM_FOOS - (int) i;
         for (i = 0; i < NUM_FOOS; i++)
-                footree_insert(&tree, &foo[i]);
-        for (iter = footree_get_min(&tree); iter != NULL; iter = footree_get_next(iter))
+                RB_INSERT(footree, &tree, &foo[i]);
+        for (i = 0; i < NUM_FOOS; i++)
+                RB_FIND(footree, &tree, &foo[i]);
+        for (iter = RB_MIN(footree, &tree); iter != NULL; iter = RB_NEXT(footree, iter))
                 printf("iter %d\n", iter->val);
         for (i = 0; i < NUM_FOOS; i++)
-                footree_delete(&tree, &foo[i]);
+                RB_REMOVE(footree, &tree, &foo[i]);
         foo = xalloc(NUM_FOOS * sizeof (struct foo));
 
         return 0;

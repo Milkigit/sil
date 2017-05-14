@@ -52,10 +52,6 @@ proxies = """
     RB3_GEN_IMPL_REAL(RB3_STATIC_ATTRS)
 
 
-#define RB3_GEN_STRUCTS(BASENAME)  \\
-    RB3_GEN_STRUCTS_REAL(BASENAME)
-
-
 #define RB3_GEN_INLINE_PROTO(BASENAME, NODE_TYPE, GET_HEAD, GET_NODE)  \\
     RB3_GEN_INLINE_PROTO_REAL(RB3_EXTERN_ATTRS, {args0}, {args1}, {args2})
 
@@ -97,7 +93,6 @@ content = """
  * ===========================================================================
  */
 
-#define RB3_GEN_STRUCTS_REAL(OUTER_TREE_STRUCT_NAME) RB3_GEN_STRUCTS_TOTALLY_REAL(OUTER_TREE_STRUCT_NAME)
 #define RB3_GEN_INLINE_PROTO_REAL(argstoexpand, {params0}, {params1}, {params2}) RB3_GEN_INLINE_PROTO_TOTALLY_REAL(argstoexpand, {params0}, {params1}, {params2})
 #define RB3_GEN_NODECMP_PROTO_REAL(argstoexpand, {params0}, COMPARE_NODE, {params1}, {params2}, {params3}) RB3_GEN_NODECMP_PROTO_TOTALLY_REAL(argstoexpand, {params0}, COMPARE_NODE, {params1}, {params2}, {params3})
 #define RB3_GEN_NODECMP_REAL(argstoexpand, {params0}, COMPARE_NODE, {params1}, {params2}, {params3}) RB3_GEN_NODECMP_TOTALLY_REAL(argstoexpand, {params0}, COMPARE_NODE, {params1}, {params2}, {params3})
@@ -105,9 +100,6 @@ content = """
 #define RB3_GEN_IMPL_HEADER_REAL(argstoexpand)  RB3_GEN_IMPL_HEADER_TOTALLY_REAL(argstoexpand)
 #define RB3_GEN_IMPL_REAL(argstoexpand) RB3_GEN_IMPL_TOTALLY_REAL(argstoexpand)
 
-
-#define RB3_GEN_STRUCTS_TOTALLY_REAL(OUTER_TREE_STRUCT_NAME)  \\
-{tpl_structs}
 
 #define RB3_GEN_INLINE_PROTO_TOTALLY_REAL({params}, {params0}, {params1}, {params2})  \\
 {tpl_inline_proto}
@@ -145,7 +137,6 @@ content = """
     RB3_GEN_IMPL_TOTALLY_REAL_IMPL({params})
 
 """.format(params=cs(params), params0=cs(params0), params1=cs(params1), params2=cs(params2), params3=cs(params3),
-        tpl_structs=filetomacro('wrapper-structs'),
         tpl_inline_proto=filetomacro('wrapper-inline-proto'),
         tpl_nodecmp_proto=filetomacro('wrapper-nodecmp-proto'),
         tpl_nodecmp=filetomacro('wrapper-nodecmp'),
@@ -183,5 +174,6 @@ print("""
 cat('templates/defs.tpl')
 print(proxies)
 print(content)
+cat('templates/wrapper-defs.tpl')
 print()
 print('#endif  /* RB3_GEN_HEADER */')
