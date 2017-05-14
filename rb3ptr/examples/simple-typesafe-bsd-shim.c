@@ -64,7 +64,7 @@ int main(void)
         struct foo *foo;
         size_t i;
 
-        footree_init(&tree);
+        RB_INIT(&tree);
         foo = xalloc(NUM_FOOS * sizeof (struct foo));
         for (i = 0; i < NUM_FOOS; i++)
                 foo[i].val = NUM_FOOS - (int) i;
@@ -72,7 +72,7 @@ int main(void)
                 RB_INSERT(footree, &tree, &foo[i]);
         for (i = 0; i < NUM_FOOS; i++)
                 RB_FIND(footree, &tree, &foo[i]);
-        for (iter = RB_MIN(footree, &tree); iter != NULL; iter = RB_NEXT(footree, iter))
+        for (iter = RB_MIN(footree, &tree); iter != NULL; iter = RB_NEXT(footree, &tree, iter))
                 printf("iter %d\n", iter->val);
         for (i = 0; i < NUM_FOOS; i++)
                 RB_REMOVE(footree, &tree, &foo[i]);

@@ -27,6 +27,9 @@
 #define RB_HEAD(NAME, TYPE) \
         RB3_GEN_TREE_DEFINITION(NAME)
 
+#define RB_INIT(t) \
+        rb3_init(&(t)->tree)
+
 #define RB_INSERT(NAME, tree, elm) \
         NAME##_insert(tree, elm)
 
@@ -42,8 +45,10 @@
 #define RB_MAX(NAME, tree) \
         NAME##_get_max(tree)
 
-#define RB_PREV(NAME, elm) \
+/* `tree` is unused even in tree.h */
+#define RB_PREV(NAME, tree, elm) \
         NAME##_get_prev(elm)
 
-#define RB_NEXT(NAME, elm) \
+/* `tree` is unused even in tree.h */
+#define RB_NEXT(NAME, tree, elm) \
         NAME##_get_next(elm)
