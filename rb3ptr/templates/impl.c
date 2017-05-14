@@ -60,48 +60,38 @@ struct rb3_tree *rb3_get_containing_tree(struct rb3_head *head)
         return (struct rb3_tree *) ((char *) head - (RB3_offsetof(struct rb3_head, child[0])));
 }
 
+static RB3_NEVERINLINE
+struct rb3_head *rb3_get_minmax_in_subtree(struct rb3_head *head, int dir)
+{
+        if (!head)
+                return RB3_NULL;
+        while (rb3_has_child(head, dir))
+                head = rb3_get_child(head, dir);
+        return head;
+}
+
 RB3_API
 struct rb3_head *rb3_get_min(struct rb3_tree *tree)
 {
-        struct rb3_head *head;
-
-        head = rb3_get_root(tree);
-        if (!head)
-                return RB3_NULL;
-        while (rb3_has_child(head, RB3_LEFT))
-                head = rb3_get_child(head, RB3_LEFT);
-        return head;
+        return rb3_get_minmax_in_subtree(rb3_get_root(tree), RB3_LEFT);
 }
 
 RB3_API
 struct rb3_head *rb3_get_max(struct rb3_tree *tree)
 {
-        struct rb3_head *head;
-
-        head = rb3_get_root(tree);
-        if (!head)
-                return RB3_NULL;
-        while (rb3_has_child(head, RB3_RIGHT))
-                head = rb3_get_child(head, RB3_RIGHT);
-        return head;
+        return rb3_get_minmax_in_subtree(rb3_get_root(tree), RB3_RIGHT);
 }
 
 RB3_API
-struct rb3_head *rb3_get_prev(struct rb3_head *head)
+struct rb3_head *rb3_get_prev_descendant(struct rb3_head *head)
 {
-        if (rb3_has_child(head, RB3_LEFT))
-                return rb3_get_prev_descendant(head);
-        else
-                return rb3_get_prev_ancestor(head);
+        return rb3_get_minmax_in_subtree(rb3_get_child(head, RB3_LEFT), RB3_RIGHT);
 }
 
 RB3_API
-struct rb3_head *rb3_get_next(struct rb3_head *head)
+struct rb3_head *rb3_get_next_descendant(struct rb3_head *head)
 {
-        if (rb3_has_child(head, RB3_RIGHT))
-                return rb3_get_next_descendant(head);
-        else
-                return rb3_get_next_ancestor(head);
+        return rb3_get_minmax_in_subtree(rb3_get_child(head, RB3_RIGHT), RB3_LEFT);
 }
 
 RB3_API
@@ -127,25 +117,21 @@ struct rb3_head *rb3_get_next_ancestor(struct rb3_head *head)
 }
 
 RB3_API
-struct rb3_head *rb3_get_prev_descendant(struct rb3_head *head)
+struct rb3_head *rb3_get_prev(struct rb3_head *head)
 {
-        head = rb3_get_child(head, RB3_LEFT);
-        if (!head)
-                return RB3_NULL;
-        while (rb3_has_child(head, RB3_RIGHT))
-                head = rb3_get_child(head, RB3_RIGHT);
-        return head;
+        if (rb3_has_child(head, RB3_LEFT))
+                return rb3_get_prev_descendant(head);
+        else
+                return rb3_get_prev_ancestor(head);
 }
 
 RB3_API
-struct rb3_head *rb3_get_next_descendant(struct rb3_head *head)
+struct rb3_head *rb3_get_next(struct rb3_head *head)
 {
-        head = rb3_get_child(head, RB3_RIGHT);
-        if (!head)
-                return RB3_NULL;
-        while (rb3_has_child(head, RB3_LEFT))
-                head = rb3_get_child(head, RB3_LEFT);
-        return head;
+        if (rb3_has_child(head, RB3_RIGHT))
+                return rb3_get_next_descendant(head);
+        else
+                return rb3_get_next_ancestor(head);
 }
 
 /* insert implementation */

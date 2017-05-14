@@ -49,9 +49,7 @@ NODE_TYPE *insert(OUTER_TREE_TYPE *tree, NODE_TYPE *node)
         struct rb3_head *parent;
         int dir;
 
-        parent = &INNER_TREE(tree)->base;
-        dir = RB3_LEFT;
-        found = find_parent_in_subtree(parent, dir, node, &parent, &dir);
+        found = find_parent_in_subtree(&INNER_TREE(tree)->base, RB3_LEFT, node, &parent, &dir);
         if (!found)
                 rb3_insert_below(GET_HEAD(node), parent, dir);
         return found;
