@@ -1,3 +1,5 @@
+(cd rb3ptr; sh build.sh)
+
 defines="
 	-DNDEBUG
 	-DBENCH_PAYLOAD_TYPE=0

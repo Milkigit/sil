@@ -53,14 +53,41 @@ struct benchpayload {
 #endif
 };
 
+enum {
+        /*
+         * Add the given element from the input stream to the tree. Write to
+         * the output stream whether the element was already in the tree.
+         */
+        BENCH_ACTION_ADD = 1,
+        /*
+         * Find the given element. Write to output stream whether the element
+         * was found.
+         */
+        BENCH_ACTION_FIND = 2,
+        /*
+         * Remove the given element from the input stream to the tree. Write
+         * to the output stream whether the element was already in the tree.
+         */
+        BENCH_ACTION_REMOVE = 3,
+        /*
+         * Calculate the hash sum of all elements currently in the tree
+         * instead.
+         */
+        BENCH_ACTION_HASHSUM = 4,
+};
+
+struct action {
+        /* BENCH_ACTION_ADD / BENCH_ACTION_REMOVE / BENCH_ACTION_HASHSUM */
+        int action;
+        /* for BENCH_ACTION_ADD / BENCH_ACTION_REMOVE */
+        unsigned index;
+};
+
 struct treebenchfuncs {
         const char *benchname;
         void *(*init)(void);
         void (*exit)(void *self);
-        void (*insertbench)(void *self, struct benchpayload *data, size_t n);
-        void (*retrievebench)(void *self, struct benchpayload *data, size_t n);
-        void (*removebench)(void *self, struct benchpayload *data, size_t n);
-        void (*addelems)(void *self, size_t *out_count, unsigned *out_sumofhashes);
+        void (*bench)(void *self, struct benchpayload *data, struct action *action, size_t ndata, size_t naction, unsigned *result);
 };
 
 static int BENCH_UNUSED compare_benchpayload(struct benchpayload *x, struct benchpayload *y)

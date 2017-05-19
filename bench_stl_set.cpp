@@ -29,54 +29,50 @@ static void bench_stlset_exit(void *self)
     delete state;
 }
 
-static void bench_stlset_insertbench(void *self, struct benchpayload *data, size_t n)
+static void bench_stlset_bench(void *self, struct benchpayload *data, struct action *action, size_t ndata, size_t naction, unsigned *result)
 {
     bench_stlset_state *state = reinterpret_cast<bench_stlset_state *>(self);
+    unsigned r;
 
-    for (size_t i = 0; i < n; i++)
-        state->tree.insert(data[i]);
-}
+    (void) ndata;
 
-static void bench_stlset_retrievebench(void *self, struct benchpayload *data, size_t n)
-{
-    bench_stlset_state *state = reinterpret_cast<bench_stlset_state *>(self);
-
-    for (size_t i = 0; i < n; i++) {
-        auto found = state->tree.find(data[i]);
-        (void) found; assert(found != state->tree.end());
+    for (size_t i = 0; i < naction; i++) {
+        switch (action[i].action) {
+        case BENCH_ACTION_ADD:
+            r = state->tree.insert(data[action[i].index]).second ? 0 : 1;
+            break;
+        case BENCH_ACTION_FIND:
+            {
+                auto it = state->tree.find(data[action[i].index]);
+                r = it != state->tree.end();
+            }
+            break;
+        case BENCH_ACTION_REMOVE:
+            {
+                auto it = state->tree.find(data[action[i].index]);
+                if (it == state->tree.end())
+                    r = 0;
+                else {
+                    state->tree.erase(it);
+                    r = 1;
+                }
+            }
+            break;
+        case BENCH_ACTION_HASHSUM:
+            r = 0;
+            for (benchpayload p: state->tree)
+                r += hash_benchdata(&p);
+            break;
+        default:
+            r = 0;
+        }
+        result[i] = r;
     }
-}
-
-static void bench_stlset_removebench(void *self, struct benchpayload *data, size_t n)
-{
-    bench_stlset_state *state = reinterpret_cast<bench_stlset_state *>(self);
-
-    for (size_t i = 0; i < n; i++)
-        state->tree.erase(data[i]);
-}
-
-static void bench_stlset_addelems(void *self, size_t *out_count, unsigned *out_sumofhashes)
-{
-    bench_stlset_state *state = reinterpret_cast<bench_stlset_state *>(self);
-    size_t x;
-    unsigned y;
-
-    x = state->tree.size();
-
-    y = 0;
-    for (benchpayload p : state->tree)
-        y += hash_benchdata(&p);
-
-    *out_count = x;
-    *out_sumofhashes = y;
 }
 
 struct treebenchfuncs bench_stlset_funcs = {
     "STL std::set",
     bench_stlset_init,
     bench_stlset_exit,
-    bench_stlset_insertbench,
-    bench_stlset_retrievebench,
-    bench_stlset_removebench,
-    bench_stlset_addelems,
+    bench_stlset_bench,
 };

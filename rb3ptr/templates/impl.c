@@ -192,7 +192,7 @@ RB3_API RB3_NEVERINLINE
 void rb3_insert_below(struct rb3_head *head, struct rb3_head *parent, int dir)
 {
         RB3_ASSERT(dir == RB3_LEFT || dir == RB3_RIGHT);
-        RB3_ASSERT(rb3_get_child(parent, dir));
+        RB3_ASSERT(!rb3_has_child(parent, dir));
 
         parent->child[dir] = RB3_CHILD_PTR(head, RB3_RED);
         head->parent = RB3_PARENT_PTR(parent, dir);

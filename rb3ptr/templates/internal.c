@@ -101,7 +101,7 @@ struct rb3_head *rb3_INLINE_find_parent_in_subtree(struct rb3_head *parent, int 
                 else if (r > 0)
                         dir = RB3_LEFT;
                 else
-                        break;
+                        return head;
                 parent = head;
         } while (head);
         *parent_out = parent;

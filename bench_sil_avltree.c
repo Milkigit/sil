@@ -39,11 +39,6 @@ void *sil_init(void)
         struct sil_state *state;
         state = xcalloc(1, sizeof *state);
         SIL_AVLtree_init(&state->tree);
-        /*
-        printf("sizeof SIL_AVLhead struct: %zd\n", sizeof state->nodes[0].head);
-        printf("position of payload in node: %zd\n", ((char *)&state->nodes[0].payload) - ((char*)&state->nodes[0]));
-        printf("sizeof struct sil_node: %zd\n", sizeof state->nodes[0]);
-         */
         return state;
 }
 
@@ -55,81 +50,52 @@ void sil_exit(void *self)
         xfree(state);
 }
 
-void sil_insertbench(void *self, struct benchpayload *data, size_t n)
+static void sil_bench(void *self, struct benchpayload *data, struct action *action, size_t ndata, size_t naction, unsigned *result)
 {
         struct sil_state *state;
-        size_t i;
-
-        state = self;
-        state->nodes = xcalloc(n, sizeof *state->nodes);
-        state->nnodes = n;
-
-        for (i = 0; i < n; i++)
-                state->nodes[i].payload = data[i];
-
-        for (i = 0; i < n; i++)
-                SIL_AVLtree_insert(&state->tree, &state->nodes[i]);
-
-        /*
-        printf("Height after insertion bench: %d\n", SIL_AVLtree_getheight(&state->tree));
-        */
-}
-
-void sil_retrievebench(void *self, struct benchpayload *data, size_t n)
-{
-        struct sil_state *state;
+        struct sil_node *datanodes;
         struct sil_node *node;
         size_t i;
+        unsigned r;
 
-        /* must use data from tree nodes, since the API is lacking */
-        (void) data;
-        (void) n;
+        (void) ndata;
 
-        state = self;
-        for (i = 0; i < n; i++) {
-                node = SIL_AVLtree_find(&state->tree, &state->nodes[i]);
-                assert(node);
-                (void) node;  /* suppress unused warnings with -DNDEBUG */
-        }
-}
-
-void sil_removebench(void *self, struct benchpayload *data, size_t n)
-{
-        struct sil_state *state;
-        struct sil_node *node;
-        size_t i;
-
-        /* must use data from tree nodes, since the API is lacking */
-        (void) data;
-        (void) n;
+        datanodes = xcalloc(naction, sizeof *datanodes);
 
         state = self;
-        for (i = 0; i < n; i++) {
-                node = SIL_AVLtree_find(&state->tree, &state->nodes[i]);
-                if (!node)
-                        /* can happen if there are duplicate elements in input
-                         * data */
-                        continue;
-
-                SIL_AVLtree_erase(node);
+        for (i = 0; i < naction; i++) {
+                switch(action[i].action) {
+                case BENCH_ACTION_ADD:
+                        datanodes[i].payload = data[action[i].index];
+			r = !!SIL_AVLtree_insert(&state->tree, &datanodes[i]);
+                        break;
+                case BENCH_ACTION_FIND:
+			r = !!SIL_AVLtree_find(&state->tree, &datanodes[i]);
+                        break;
+                case BENCH_ACTION_REMOVE:
+			node = SIL_AVLtree_find(&state->tree, &datanodes[i]);
+			if (node)
+				SIL_AVLtree_erase(node);
+			r = !!node;
+                        break;
+                case BENCH_ACTION_HASHSUM:
+			/* TODO */
+                        r = 0;
+                        break;
+                default:
+                        r = 0;
+                }
+                result[i] = r;
         }
-}
-void sil_addelems(void *self, size_t *out_count, unsigned *out_sumofhashes)
-{
-        /* TODO */
-        (void) self;
-        *out_count = 42;
-        *out_sumofhashes = 42;
+
+        xfree(datanodes);
 }
 
 struct treebenchfuncs bench_silavl_funcs = {
         "SIL AVLtree",
         sil_init,
         sil_exit,
-        sil_insertbench,
-        sil_retrievebench,
-        sil_removebench,
-        sil_addelems,
+        sil_bench,
 };
 
 #undef NAME

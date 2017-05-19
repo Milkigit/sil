@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include "timer/sil_timer.h"
 #include "bench.h"
@@ -34,53 +35,81 @@ void xfree(void *ptr)
 
 struct benchtestdata {
         struct benchpayload *data;
-        size_t n;
+        struct action *action;
+        unsigned *reference_result;
+        unsigned *result_area;
+        size_t ndata;
+        size_t naction;
 };
-
-static BENCH_UNUSED
-void permute_benchdata(struct benchtestdata *bench)
-{
-        /* Knuth Shuffle */
-        size_t i;
-        printf("Randomly permuting elements\n");
-        for (i = 0; i < bench->n; i++) {
-                size_t j = rand() % (i+1);
-                struct benchpayload tmp = bench->data[i];
-                bench->data[i] = bench->data[j];
-                bench->data[j] = tmp;
-        }
-}
 
 static void benchtestdata_init(struct benchtestdata *bench)
 {
-        size_t i;
-        size_t n;
         struct benchpayload *data;
-        /*
-         * Generate random permutations of the numbers 0..n
-         *
-         * Before that it generated n random numbers, but tree.h Red-Black-Tree
-         * doesn't have "remove-if-exists"/"remove-by-iterator", so for a fair
-         * comparison of remove performance we will simply avoid duplicates.
-         */
-        n = 1024*1024;
-        /*
-        n = 64*1024;
-        n = 1024;
-        */
-        printf("Generating %zd elements\n", n);
-        data = xcalloc(n, sizeof *data);
-        for (i = 0; i < n; i++)
+        struct action *action;
+        unsigned *reference_result;
+        unsigned *result_area;
+        size_t ndata;
+        size_t naction;
+        size_t i;
+        size_t j;
+
+        ndata = 4*1024;
+        naction = 4*ndata;
+
+        printf("Generating %zd elements and %zd actions\n", ndata, naction);
+
+        data = xcalloc(ndata, sizeof *data);
+        action = xcalloc(naction, sizeof *action);
+        reference_result = xcalloc(naction, sizeof *reference_result);
+        result_area = xcalloc(naction, sizeof *result_area);
+
+        for (i = 0; i < ndata; i++)
                 data[i].a = i;
-        bench->n = n;
+        /* Knuth Shuffle */
+        for (i = 0; i < ndata; i++) {
+                size_t j = rand() % (i+1);
+                struct benchpayload tmp = data[i];
+                data[i] = data[j];
+                data[j] = tmp;
+        }
+
+        /* TODO: what's a good pattern (add/remove/find, what nodes?) */
+        for (i = 0; i < naction / 2; i++) {
+                action[i].action = BENCH_ACTION_ADD;
+                action[i].index = rand() % ndata;
+        }
+
+        for (; i < naction; i += 128) {
+                for (j = i; j < naction && j < i + 128; j++) {
+                        action[j].action = (rand() % 4) + 1;
+                        action[j].index = rand() % ndata;
+                }
+        }
+
+        /* Get reference result from C++ implementation */
+        printf("Generating reference result...\n");
+        {
+        void *stldata = bench_stlset_funcs.init();
+        bench_stlset_funcs.bench(stldata, data, action, ndata, naction, reference_result);
+        bench_stlset_funcs.exit(stldata);
+        }
+
         bench->data = data;
+        bench->action = action;
+        bench->reference_result = reference_result;
+        bench->result_area = result_area;
+        bench->ndata = ndata;
+        bench->naction = naction;
 }
 
 static void benchtestdata_exit(struct benchtestdata *bench)
 {
-        free(bench->data);
+        xfree(bench->data);
+        xfree(bench->action);
         bench->data = NULL;
-        bench->n = 0;
+        bench->action = NULL;
+        bench->ndata = 0;
+        bench->naction = 0;
 }
 
 static void runbench(struct treebenchfuncs *impl, struct benchtestdata *bench)
@@ -89,42 +118,23 @@ static void runbench(struct treebenchfuncs *impl, struct benchtestdata *bench)
         void *data;
         int s, ms;
 
-        /* these debug values are for making sure that good benchmarks are not
-         * more important than correct results :-) */
-        /*
-        size_t nodecount;
-        unsigned nodesum;
-        */
-
         printf("Running bench %s\n", impl->benchname);
         printf("===========================\n");
 
         data = impl->init();
 
+        memset(bench->result_area, 0, bench->naction * sizeof *bench->result_area);
         sil_timer_reset(&timer);
-        impl->insertbench(data, bench->data, bench->n);
+        impl->bench(data, bench->data, bench->action, bench->ndata, bench->naction, bench->result_area);
         sil_timer_elapsed_s_ms(&timer, &s, &ms);
-        printf("Inserting each element: %d.%.03ds\n", s, ms); fflush(stdout);
+        printf("Running stresstest: %d.%.03ds\n", s, ms);
 
-        /*
-        impl->addelems(data, &nodecount, &nodesum);
-        printf("DEBUG count/hashsum: %zd %u\n", nodecount, nodesum); fflush(stdout);
-        */
-
-        sil_timer_reset(&timer);
-        impl->retrievebench(data, bench->data, bench->n);
-        sil_timer_elapsed_s_ms(&timer, &s, &ms);
-        printf("Finding each element: %d.%.03ds\n", s, ms); fflush(stdout);
-
-        sil_timer_reset(&timer);
-        impl->removebench(data, bench->data, bench->n);
-        sil_timer_elapsed_s_ms(&timer, &s, &ms);
-        printf("Removing each element: %d.%.03ds\n", s, ms); fflush(stdout);
-
-        /*
-        impl->addelems(data, &nodecount, &nodesum);
-        printf("DEBUG count/hashsum: %zd %u\n", nodecount, nodesum); fflush(stdout);
-        */
+        for (size_t i = 0; i < bench->naction; i++) {
+                if (bench->result_area[i] != bench->reference_result[i]) {
+                        printf("ERROR from stresstest at position %zd\n", i);
+                        break;
+                }
+        }
 
         impl->exit(data);
 
@@ -139,18 +149,11 @@ int main(void)
 
         srand(time(NULL));
         benchtestdata_init(&bench);
-        permute_benchdata(&bench);
 
         printf("\n");
-        /*
-         * TODO: On my machine, the first run is considerably slower. For now,
-         * run the first one twice...
-         */
-        runbench(&bench_stlset_funcs, &bench);
-        printf("Cache should be warm now, run again...\n\n");
+        runbench(&bench_rb3_funcs, &bench);
         runbench(&bench_stlset_funcs, &bench);
         runbench(&bench_np_rbtree_funcs, &bench);
-        runbench(&bench_rb3_funcs, &bench);
         runbench(&bench_silavl_funcs, &bench);
         runbench(&bench_rb2_funcs, &bench);
         benchtestdata_exit(&bench);

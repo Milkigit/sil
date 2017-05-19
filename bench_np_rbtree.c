@@ -38,68 +38,53 @@ void np_rbtree_exit(void *self)
         xfree(state);
 }
 
-void np_rbtree_insertbench(void *self, struct benchpayload *data, size_t n)
+static void np_rbtree_bench(void *self, struct benchpayload *data, struct action *action, size_t ndata, size_t naction, unsigned *result)
 {
         struct np_rbtree_state *state;
+        struct np_rbtree_node *datanodes;
+        struct np_rbtree_node *node;
         size_t i;
+        unsigned r;
+
+        (void) ndata;
+
+        datanodes = xcalloc(naction, sizeof *datanodes);
 
         state = self;
-        xfree(state->nodes);
-        state->nodes = xcalloc(n, sizeof *state->nodes);
-        state->nnodes = n;
+        for (i = 0; i < naction; i++) {
+                switch(action[i].action) {
+                case BENCH_ACTION_ADD:
+                        datanodes[i].payload = data[action[i].index];
+                        r = !!RB_INSERT(RBtree, &state->tree, &datanodes[i]);
+                        break;
+                case BENCH_ACTION_FIND:
+                        datanodes[i].payload = data[action[i].index];
+                        r = !!RB_FIND(RBtree, &state->tree, &datanodes[i]);
+                        break;
+                case BENCH_ACTION_REMOVE:
+                        datanodes[i].payload = data[action[i].index];
+                        node = RB_FIND(RBtree, &state->tree, &datanodes[i]);
+                        if (node)
+                                RB_REMOVE(RBtree, &state->tree, node);
+                        r = !!node;
+                        break;
+                case BENCH_ACTION_HASHSUM:
+                        r = 0;
+                        RB_FOREACH(node, RBtree, &state->tree)
+                                r += hash_benchdata(&node->payload);
+                        break;
+                default:
+                        r = 0;
+                }
+                result[i] = r;
+        }
 
-        for (i = 0; i < n; i++)
-                state->nodes[i].payload = data[i];
-
-        for (i = 0; i < n; i++)
-                RB_INSERT(RBtree, &state->tree, &state->nodes[i]);
-}
-
-void np_rbtree_retrievebench(void *self, struct benchpayload *data, size_t n)
-{
-        struct np_rbtree_state *state;
-        size_t i;
-
-        /* must use data from tree nodes, since the API is lacking */
-        (void) data;
-        (void) n;
-
-        state = self;
-
-        for (i = 0; i < n; i++)
-                RB_FIND(RBtree, &state->tree, &state->nodes[i]);
-}
-
-void np_rbtree_removebench(void *self, struct benchpayload *data, size_t n)
-{
-        struct np_rbtree_state *state;
-        size_t i;
-
-        /* must use data from tree nodes, since the API is lacking */
-        (void) data;
-        (void) n;
-
-        state = self;
-
-        for (i = 0; i < n; i++)
-                if (RB_FIND(RBtree, &state->tree, &state->nodes[i]))
-                        RB_REMOVE(RBtree, &state->tree, &state->nodes[i]);
-}
-
-void np_rbtree_addelems(void *self, size_t *out_count, unsigned *out_sumofhashes)
-{
-        /* TODO */
-        (void) self;
-        *out_count = 42;
-        *out_sumofhashes = 42;
+        xfree(datanodes);
 }
 
 struct treebenchfuncs bench_np_rbtree_funcs = {
         "BSD RB tree",
         np_rbtree_init,
         np_rbtree_exit,
-        np_rbtree_insertbench,
-        np_rbtree_retrievebench,
-        np_rbtree_removebench,
-        np_rbtree_addelems,
+        np_rbtree_bench,
 };

@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h> /* for debugging */
 
 #include "bench.h"
 #include "bench_sil_rb3ptr.h"
@@ -60,69 +61,51 @@ static void bench_rb3_exit(void *self)
         bench_rb3tree_exit(&state->tree);
 }
 
-static void bench_rb3_insertbench(void *self, struct benchpayload *data, size_t n)
+static void bench_rb3_bench(void *self, struct benchpayload *data, struct action *action, size_t ndata, size_t naction, unsigned *result)
 {
         struct bench_rb3_state *state;
-        size_t i;
-
-        state = self;
-        state->nodes = xcalloc(n, sizeof *state->nodes);
-        state->nnodes = n;
-        for (i = 0; i < n; i++)
-                state->nodes[i].payload = data[i];
-        for (i = 0; i < n; i++)
-                bench_rb3tree_insert(&state->tree, &state->nodes[i]);
-}
-
-static void bench_rb3_retrievebench(void *self, struct benchpayload *data, size_t n)
-{
-        struct bench_rb3_node *found;
-        struct bench_rb3_state *state;
-        size_t i;
-
-        (void) data;
-        state = self;
-        for (i = 0; i < n; i++) {
-                found = bench_rb3tree_find(&state->tree, &state->nodes[i]);
-                (void) found; assert(found != NULL);
-        }
-}
-
-static void bench_rb3_removebench(void *self, struct benchpayload *data, size_t n)
-{
-        struct bench_rb3_state *state;
-        size_t i;
-
-        (void) data;
-        state = self;
-        for (i = 0; i < n; i++)
-                bench_rb3tree_delete(&state->tree, &state->nodes[i]);
-}
-
-static void bench_rb3_addelems(void *self, size_t *out_count, unsigned *out_sumofhashes)
-{
-        struct bench_rb3_state *state;
+        struct bench_rb3_node *datanodes;
         struct bench_rb3_node *node;
-        size_t count;
-        unsigned hsum;
+        size_t i;
+        unsigned r;
+
+        (void) ndata;
+
+        datanodes = xcalloc(naction, sizeof *datanodes);
 
         state = self;
-        count = 0;
-        hsum = 0;
-        RB3_FOREACH(bench_rb3tree, &state->tree, node) {
-                count += 1;
-                hsum += hash_benchdata(&node->payload);
+        for (i = 0; i < naction; i++) {
+                switch(action[i].action) {
+                case BENCH_ACTION_ADD:
+                        datanodes[i].payload = data[action[i].index];
+                        r = !!bench_rb3tree_insert(&state->tree, &datanodes[i]);
+                        break;
+                case BENCH_ACTION_FIND:
+                        datanodes[i].payload = data[action[i].index];
+                        r = !!bench_rb3tree_find(&state->tree, &datanodes[i]);
+                        break;
+                case BENCH_ACTION_REMOVE:
+                        datanodes[i].payload = data[action[i].index];
+                        node = bench_rb3tree_delete(&state->tree, &datanodes[i]);
+                        r = !!node;
+                        break;
+                case BENCH_ACTION_HASHSUM:
+                        r = 0;
+                        RB3_FOREACH(bench_rb3tree, &state->tree, node)
+                                r += hash_benchdata(&node->payload);
+                        break;
+                default:
+                        r = 0;
+                }
+                result[i] = r;
         }
-        *out_count = count;
-        *out_sumofhashes = hsum;
+
+        xfree(datanodes);
 }
 
 struct treebenchfuncs bench_rb3_funcs = {
         "SIL 3-pointer Red-black tree",
         bench_rb3_init,
         bench_rb3_exit,
-        bench_rb3_insertbench,
-        bench_rb3_retrievebench,
-        bench_rb3_removebench,
-        bench_rb3_addelems,
+        bench_rb3_bench,
 };
