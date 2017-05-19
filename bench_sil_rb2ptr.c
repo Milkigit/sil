@@ -34,9 +34,9 @@ static struct sil_rb_head *find(struct sil_rb_tree *tree, struct benchpayload *d
         while (head) {
                 r = compare_sil_rb_head(head, data);
                 if (r < 0)
-                        head = sil_rb_get_cld(head, SIL_RB_LEFT);
-                else if (r > 0)
                         head = sil_rb_get_cld(head, SIL_RB_RIGHT);
+                else if (r > 0)
+                        head = sil_rb_get_cld(head, SIL_RB_LEFT);
                 else
                         break;
         }
@@ -55,9 +55,9 @@ static void findpath(struct sil_rb_tree *tree, struct benchpayload *data, struct
         while (head) {
                 r = compare_sil_rb_head(head, data);
                 if (r < 0)
-                        head = sil_rb_path_visit_child(path, SIL_RB_LEFT);
-                else if (r > 0)
                         head = sil_rb_path_visit_child(path, SIL_RB_RIGHT);
+                else if (r > 0)
+                        head = sil_rb_path_visit_child(path, SIL_RB_LEFT);
                 else
                         break;
         }
@@ -101,17 +101,19 @@ static void silrb_bench(void *self, struct benchpayload *data, struct action *ac
         for (i = 0; i < naction; i++) {
                 switch(action[i].action) {
                 case BENCH_ACTION_ADD:
-                        findpath(&state->tree, &data[i], &path, &dir);
-                        if (dir == 0)
-                                sil_rb_insert(&path, dir < 0 ? SIL_RB_LEFT : SIL_RB_RIGHT, &state->nodes[i].head);
+                        findpath(&state->tree, &data[action[i].index], &path, &dir);
+                        if (dir != 0) {
+                                datanodes[i].payload = data[action[i].index];
+                                sil_rb_insert(&path, dir < 0 ? SIL_RB_RIGHT : SIL_RB_LEFT, &datanodes[i].head);
+                        }
                         r = !dir;
                         break;
                 case BENCH_ACTION_FIND:
-                        head = find(&state->tree, &data[i]);
+                        head = find(&state->tree, &data[action[i].index]);
                         r = !!head;
                         break;
                 case BENCH_ACTION_REMOVE:
-                        findpath(&state->tree, &data[i], &path, &dir);
+                        findpath(&state->tree, &data[action[i].index], &path, &dir);
                         if (dir == 0)
                                 sil_rb_delete(&path);
                         r = !dir;

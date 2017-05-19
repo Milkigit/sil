@@ -53,8 +53,8 @@ static void benchtestdata_init(struct benchtestdata *bench)
         size_t i;
         size_t j;
 
-        ndata = 4*1024;
-        naction = 4*ndata;
+        ndata = 32*1024;
+        naction = ndata;
 
         printf("Generating %zd elements and %zd actions\n", ndata, naction);
 
@@ -81,7 +81,12 @@ static void benchtestdata_init(struct benchtestdata *bench)
 
         for (; i < naction; i += 128) {
                 for (j = i; j < naction && j < i + 128; j++) {
-                        action[j].action = (rand() % 4) + 1;
+                        switch (rand() % 4) {
+                        case 0: action[j].action = BENCH_ACTION_ADD; break;
+                        case 1: action[j].action = BENCH_ACTION_FIND; break;
+                        case 2: action[j].action = BENCH_ACTION_REMOVE; break;
+                        case 3: action[j].action = BENCH_ACTION_HASHSUM; break;
+                        }
                         action[j].index = rand() % ndata;
                 }
         }
