@@ -40,7 +40,7 @@
         NAME##_find(tree, elm)
 
 #define RB_REMOVE(NAME, tree, elm) \
-        NAME##_delete(tree, elm)
+        NAME##_delete_head(elm)
 
 #define RB_MIN(NAME, tree) \
         NAME##_get_min(tree)

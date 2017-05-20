@@ -118,7 +118,7 @@ NODE_TYPE *get_next_descendant(NODE_TYPE *node)
  * equal iff their memory addresses are identical.
  */
 RB3_API_STATIC_INLINE
-void delete_linked_node(NODE_TYPE *node)
+void delete_head(NODE_TYPE *node)
 {
         rb3_delete_head(GET_HEAD(node));
 }
