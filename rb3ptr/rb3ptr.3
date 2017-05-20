@@ -1,0 +1,143 @@
+.TH rb3ptr 3 "May 20, 2017"
+.SH NAME
+rb3ptr \- Generic Red-black tree implementation and macros for typesafe access
+.SH SYNOPSIS
+The BASIC FUNCTIONS operate on a generic Red-black tree implementation to
+provide an ordered container API.
+.PP
+The NAVIGATION FUNCTIONS expose additional functionality for navigation in a
+binary search tree.
+.PP
+The MACROS generate wrappers for more better type-safety and more convenient
+access with fixed comparison functions.
+.PP
+The BSD MACROS expose a BSD
+.I <sys/tree.h>
+compatible interface.
+
+.SS BASIC FUNCTIONS
+
+.BI "void rb3_init(struct rb3_tree *" tree );
+
+.BI "void rb3_exit(struct rb3_tree *" tree );
+
+.BI "int rb3_isempty(struct rb3_tree *" tree );
+
+.BI "struct rb3_head *rb3_get_min(struct rb3_tree *" tree );
+
+.BI "struct rb3_head *rb3_get_max(struct rb3_tree *" tree );
+
+.BI "struct rb3_head *rb3_get_prev(struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_get_next(struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_insert(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_find(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_delete(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_insert_datacmp(struct rb3_tree *" tree ", struct rb3_datacmp " cmp ", struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_find_datacmp(struct rb3_tree *" tree ", struct rb3_datacmp " cmp ", struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_delete_datacmp(struct rb3_tree *" tree ", struct rb3_datacmp " cmp ", struct rb3_head *" head );
+
+.SS NAVIGATION FUNCTIONS
+
+.BI "struct rb3_head *rb3_get_root(struct rb3_tree *" tree );
+
+.BI "struct rb3_head *rb3_get_prev_ancestor(struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_get_next_ancestor(struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_get_prev_descendant(struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_get_next_descendant(struct rb3_head *" head );
+
+.SS MACROS
+
+.BI RB3_GENERATE_IMPL()
+
+.BI RB3_GENERATE_IMPL_STATIC()
+
+.BI RB3_GENERATE_INLINE( NAME ", " NODETYPE ", " GET_HEAD ", " GET_NODE )
+
+.BI RB3_GENERATE_NODECMP( NAME ", " NODETYPE ", " GET_HEAD ", " GET_NODE ", " NODECMP )
+
+
+.SS BSD MACROS
+
+.BI RB_PROTOTYPE()
+
+.BI RB_PROTOTYPE_STATIC()
+
+.BI RB_GENERATE()
+
+.BI RB_GENERATE_STATIC()
+
+.BI RB_INIT( tree )
+
+.BI RB_INSERT( NAME ", " tree ", " elm )
+
+.BI RB_FIND( NAME ", " tree ", " elm )
+
+.BI RB_REMOVE( NAME ", " tree ", " elm )
+
+.BI RB_MIN( NAME ", " tree )
+
+.BI RB_MAX( NAME ", " tree )
+
+.BI RB_PREV( NAME ", " tree ", " elm )
+
+.BI RB_NEXT( NAME ", " tree ", " elm )
+
+.Sh Description
+
+.SH EXAMPLE
+.nf
+#include <rb3ptr.h>
+
+/*
+ * Include the generic implementation. Alternatively, you can link with a
+ * seperately compiled generic implementation
+ */
+RB3_GENERATE_IMPL_STATIC();
+
+/*
+ * Define a node datatype and a compare operation
+ */
+struct foo {
+	/* the node type must include a rb3_head struct. */
+	struct rb3_head head;
+	int val;
+}
+
+int compare(struct foo *a, struct foo *b)
+{
+	return (a\->val > b\->val) \- (a\->val < b\->val);
+}
+
+RB3_GEN_INLINE_PROTO_STATIC(footree, struct foo, head);
+RB3_GEN_NODECMP_PROTO_STATIC(footree, struct foo, head, compare);
+
+void testoperations(void)
+{
+	struct footree tree;
+	struct foo *iter;
+	struct foo foo[42];
+	size_t i;
+
+	footree_init(&tree);
+	for (i = 0; i < 42; i++)
+		foo[i].val = rand();
+	for (i = 0; i < 42; i++)
+		footree_insert(&tree, &foo[i]);
+	for (iter = footree_get_min(&tree); iter != NULL; iter = footree_get_next(iter))
+		printf("iter %d\\n", iter\->val);
+	for (i = 0; i < 42; i++)
+		footree_delete(&tree, &foo[i]);
+	footree_exit(&tree);
+}
+
+.fi

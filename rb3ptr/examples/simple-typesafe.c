@@ -77,7 +77,8 @@ int main(void)
                 printf("iter %d\n", iter->val);
         for (i = 0; i < NUM_FOOS; i++)
                 footree_delete(&tree, &foo[i]);
-        foo = xalloc(NUM_FOOS * sizeof (struct foo));
+        xfree(foo);
+        footree_exit(&tree);
 
         return 0;
 }

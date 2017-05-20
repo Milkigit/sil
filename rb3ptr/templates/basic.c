@@ -73,7 +73,7 @@ struct rb3_head *rb3_get_next(struct rb3_head *head);
  * Time complexity: O(log n)
  */
 RB3_API
-struct rb3_head *rb3_insert(struct rb3_head *head, struct rb3_tree *tree, rb3_cmp cmp);
+struct rb3_head *rb3_insert(struct rb3_tree *tree, struct rb3_head *head, rb3_cmp cmp);
 
 /**
  * Find `head` in `tree` using `cmp` to direct the search. At each visited
@@ -103,7 +103,7 @@ struct rb3_head *rb3_delete(struct rb3_tree *tree, rb3_cmp cmp, struct rb3_head 
  * search phase.
  */
 RB3_API
-struct rb3_head *rb3_insert_datacmp(struct rb3_head *head, struct rb3_tree *tree, rb3_datacmp datacmp, void *data);
+struct rb3_head *rb3_insert_datacmp(struct rb3_tree *tree, struct rb3_head *head, rb3_datacmp datacmp, void *data);
 
 /**
  * Like rb3_find() but use a rb3_datacmp comparison function and `data` to

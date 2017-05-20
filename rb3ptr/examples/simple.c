@@ -67,7 +67,7 @@ int main(void)
         for (i = 0; i < NUM_FOOS; i++)
                 foo[i].val = NUM_FOOS - (int) i;
         for (i = 0; i < NUM_FOOS; i++)
-                rb3_insert(&foo[i].head, &tree, foohead_compare);
+                rb3_insert(&tree, &foo[i].head, foohead_compare);
         for (iter = rb3_get_min(&tree); iter != NULL; iter = rb3_get_next(iter))
                 printf("iter %d\n", get_foo(iter)->val);
         for (i = 0; i < NUM_FOOS; i++)

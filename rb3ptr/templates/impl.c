@@ -346,7 +346,7 @@ struct rb3_head *rb3_find_parent_in_subtree_datacmp(struct rb3_head *parent, int
 /* find, insert, delete with rb3_datacmp */
 
 RB3_API RB3_NEVERINLINE
-struct rb3_head *rb3_insert_datacmp(struct rb3_head *head, struct rb3_tree *tree, rb3_datacmp cmp, void *data)
+struct rb3_head *rb3_insert_datacmp(struct rb3_tree *tree, struct rb3_head *head, rb3_datacmp cmp, void *data)
 {
         struct rb3_head *found;
         struct rb3_head *parent;
@@ -383,9 +383,9 @@ struct rb3_head *rb3_find_datacmp(struct rb3_tree *tree, rb3_datacmp cmp, void *
 /* find, insert, delete with rb3_cmp */
 
 RB3_API RB3_NEVERINLINE
-struct rb3_head *rb3_insert(struct rb3_head *head, struct rb3_tree *tree, rb3_cmp cmp)
+struct rb3_head *rb3_insert(struct rb3_tree *tree, struct rb3_head *head, rb3_cmp cmp)
 {
-        return rb3_insert_datacmp(head, tree, (rb3_datacmp) cmp, head);
+        return rb3_insert_datacmp(tree, head, (rb3_datacmp) cmp, head);
 }
 
 RB3_API RB3_NEVERINLINE
