@@ -19,8 +19,6 @@ def filetomacro(name):
     return ''.join(cleanescapes(open('templates/' + name + '.c').readlines()))
 
 
-params = 'RB3_API RB3_API_STATIC_INLINE RB3_COLD RB3_INLINE RB3_NEVERINLINE'.split()
-
 params0 = 'OUTER_TREE_TYPE NODE_TYPE GET_HEAD GET_NODE'.split()
 args0 = ['struct BASENAME', 'NODE_TYPE', 'GET_HEAD', 'GET_NODE']
 
@@ -40,35 +38,35 @@ proxies = """
  */
 
 #define RB3_GEN_IMPL_HEADER()  \\
-    RB3_GEN_IMPL_HEADER_REAL(RB3_EXTERN_ATTRS)
+    _RB3_GEN_IMPL_HEADER_REAL(RB3_API_EXTERNIMPL)
 
 #define RB3_GEN_IMPL_HEADER_STATIC()  \\
-    RB3_GEN_IMPL_HEADER_REAL(RB3_STATIC_ATTRS)
+    _RB3_GEN_IMPL_HEADER_REAL(RB3_API_STATICIMPL)
 
 #define RB3_GEN_IMPL()  \\
-    RB3_GEN_IMPL_REAL(RB3_EXTERN_ATTRS)
+    _RB3_GEN_IMPL_REAL(RB3_API_EXTERNIMPL)
 
 #define RB3_GEN_IMPL_STATIC()  \\
-    RB3_GEN_IMPL_REAL(RB3_STATIC_ATTRS)
+    _RB3_GEN_IMPL_REAL(RB3_API_STATICIMPL)
 
 
 #define RB3_GEN_INLINE_PROTO(BASENAME, NODE_TYPE, GET_HEAD, GET_NODE)  \\
-    RB3_GEN_INLINE_PROTO_REAL(RB3_EXTERN_ATTRS, {args0}, {args1}, {args2})
+    _RB3_GEN_INLINE_PROTO_REAL(RB3_API_EXTERNIMPL, {args0}, {args1}, {args2})
 
 #define RB3_GEN_INLINE_PROTO_STATIC(BASENAME, NODE_TYPE, GET_HEAD, GET_NODE)  \\
-    RB3_GEN_INLINE_PROTO_REAL(RB3_STATIC_ATTRS, {args0}, {args1}, {args2})
+    _RB3_GEN_INLINE_PROTO_REAL(RB3_API_STATICIMPL, {args0}, {args1}, {args2})
 
 #define RB3_GEN_NODECMP(BASENAME, SUFFIX, NODE_TYPE, GET_HEAD, GET_NODE, COMPARE_NODE)  \\
-    RB3_GEN_NODECMP_REAL(RB3_EXTERN_ATTRS, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
+    _RB3_GEN_NODECMP_REAL(RB3_API_EXTERNIMPL, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
 #define RB3_GEN_NODECMP_STATIC(BASENAME, SUFFIX, NODE_TYPE, GET_HEAD, GET_NODE, COMPARE_NODE)  \\
-    RB3_GEN_NODECMP_REAL(RB3_STATIC_ATTRS, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
+    _RB3_GEN_NODECMP_REAL(RB3_API_STATICIMPL, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
 #define RB3_GEN_NODECMP_PROTO(BASENAME, SUFFIX, NODE_TYPE, GET_HEAD, GET_NODE, COMPARE_NODE)  \\
-    RB3_GEN_NODECMP_PROTO_REAL(RB3_EXTERN_ATTRS, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
+    _RB3_GEN_NODECMP_PROTO_REAL(RB3_API_EXTERNIMPL, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
 #define RB3_GEN_NODECMP_PROTO_STATIC(BASENAME, SUFFIX, NODE_TYPE, GET_HEAD, GET_NODE, COMPARE_NODE)  \\
-    RB3_GEN_NODECMP_PROTO_REAL(RB3_STATIC_ATTRS, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
+    _RB3_GEN_NODECMP_PROTO_REAL(RB3_API_STATICIMPL, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
 
 #define RB3_FOREACH(BASENAME, TREE, NODE) \\
@@ -93,50 +91,41 @@ content = """
  * ===========================================================================
  */
 
-#define RB3_GEN_INLINE_PROTO_REAL(argstoexpand, {params0}, {params1}, {params2}) RB3_GEN_INLINE_PROTO_TOTALLY_REAL(argstoexpand, {params0}, {params1}, {params2})
-#define RB3_GEN_NODECMP_PROTO_REAL(argstoexpand, {params0}, COMPARE_NODE, {params1}, {params2}, {params3}) RB3_GEN_NODECMP_PROTO_TOTALLY_REAL(argstoexpand, {params0}, COMPARE_NODE, {params1}, {params2}, {params3})
-#define RB3_GEN_NODECMP_REAL(argstoexpand, {params0}, COMPARE_NODE, {params1}, {params2}, {params3}) RB3_GEN_NODECMP_TOTALLY_REAL(argstoexpand, {params0}, COMPARE_NODE, {params1}, {params2}, {params3})
-
-#define RB3_GEN_IMPL_HEADER_REAL(argstoexpand)  RB3_GEN_IMPL_HEADER_TOTALLY_REAL(argstoexpand)
-#define RB3_GEN_IMPL_REAL(argstoexpand) RB3_GEN_IMPL_TOTALLY_REAL(argstoexpand)
-
-
-#define RB3_GEN_INLINE_PROTO_TOTALLY_REAL({params}, {params0}, {params1}, {params2})  \\
+#define _RB3_GEN_INLINE_PROTO_REAL(RB3_API, {params0}, {params1}, {params2})  \\
 {tpl_inline_proto}
 
-#define RB3_GEN_NODECMP_PROTO_TOTALLY_REAL({params}, {params0}, COMPARE_NODE, {params1}, {params2}, {params3})  \\
+#define _RB3_GEN_NODECMP_PROTO_REAL(RB3_API, {params0}, COMPARE_NODE, {params1}, {params2}, {params3})  \\
 {tpl_nodecmp_proto}
 
-#define RB3_GEN_NODECMP_TOTALLY_REAL({params}, {params0}, COMPARE_NODE, {params1}, {params2}, {params3})  \\
+#define _RB3_GEN_NODECMP_REAL(RB3_API, {params0}, COMPARE_NODE, {params1}, {params2}, {params3})  \\
 {tpl_nodecmp}
 
-
-#define RB3_GEN_IMPL_TOTALLY_REAL_TYPES({params})  \\
+#define _RB3_GEN_IMPL_REAL_TYPES(RB3_API)  \\
 {tpl_types}
 
-#define RB3_GEN_IMPL_TOTALLY_REAL_BASIC({params})  \\
+#define _RB3_GEN_IMPL_REAL_BASIC(RB3_API)  \\
 {tpl_basic}
 
-#define RB3_GEN_IMPL_TOTALLY_REAL_NAVIGATE({params})  \\
+#define _RB3_GEN_IMPL_REAL_NAVIGATE(RB3_API)  \\
 {tpl_navigate}
 
-#define RB3_GEN_IMPL_TOTALLY_REAL_INTERNAL({params})  \\
+#define _RB3_GEN_IMPL_REAL_INTERNAL(RB3_API)  \\
 {tpl_internal}
 
-#define RB3_GEN_IMPL_TOTALLY_REAL_IMPL({params})  \\
+#define _RB3_GEN_IMPL_REAL_IMPL(RB3_API)  \\
 {tpl_impl}
 
-#define RB3_GEN_IMPL_HEADER_TOTALLY_REAL({params})  \\
-    RB3_GEN_IMPL_TOTALLY_REAL_TYPES({params})  \\
-    RB3_GEN_IMPL_TOTALLY_REAL_BASIC({params})  \\
-    RB3_GEN_IMPL_TOTALLY_REAL_NAVIGATE({params})  \\
-    RB3_GEN_IMPL_TOTALLY_REAL_INTERNAL({params})
+#define _RB3_GEN_IMPL_HEADER_REAL(RB3_API)  \\
+    _RB3_GEN_IMPL_REAL_TYPES(RB3_API)  \\
+    _RB3_GEN_IMPL_REAL_BASIC(RB3_API)  \\
+    _RB3_GEN_IMPL_REAL_NAVIGATE(RB3_API)  \\
+    _RB3_GEN_IMPL_REAL_INTERNAL(RB3_API)
 
-#define RB3_GEN_IMPL_TOTALLY_REAL({params})  \\
-    RB3_GEN_IMPL_HEADER_TOTALLY_REAL({params})  \\
-    RB3_GEN_IMPL_TOTALLY_REAL_IMPL({params})
+#define _RB3_GEN_IMPL_REAL(RB3_API)  \\
+    _RB3_GEN_IMPL_HEADER_REAL(RB3_API)  \\
+    _RB3_GEN_IMPL_REAL_IMPL(RB3_API)
 
-""".format(params=cs(params), params0=cs(params0), params1=cs(params1), params2=cs(params2), params3=cs(params3),
+""".format(params0=cs(params0), params1=cs(params1), params2=cs(params2), params3=cs(params3),
         tpl_inline_proto=filetomacro('wrapper-inline-proto'),
         tpl_nodecmp_proto=filetomacro('wrapper-nodecmp-proto'),
         tpl_nodecmp=filetomacro('wrapper-nodecmp'),

@@ -31,19 +31,19 @@
 #define RB3_CHILD_PTR(head, color) ((rb3_ptr)(head) | color)
 #define RB3_PARENT_PTR(head, dir) ((rb3_ptr)(head) | dir)
 
+/*
+ * Function attributes. This currently needs "inline", but works both in C99
+ * and GNU89 inline models (only C99 supported!).
+ */
+#define RB3_API_STATIC_INLINE static inline __attribute__((unused))
+#define RB3_INLINE inline __attribute__((always_inline))
+#define RB3_NEVERINLINE __attribute__((noinline))
+#define RB3_COLD __attribute__((cold))
 
-/* Function attributes used for extern linkage */
-#define RB3_EXTERN_ATTRS  \
-        extern,  \
-        static inline __attribute__((unused)),  \
-        __attribute__((cold)),  \
-        inline __attribute__((always_inline)),  \
-        __attribute__((noinline))
-
-/* Function attributes used for static linkage */
-#define RB3_STATIC_ATTRS  \
-        static __attribute__((unused)),  \
-        static inline __attribute__((unused)),  \
-        __attribute__((cold)),  \
-        inline __attribute__((always_inline)),  \
-        __attribute__((noinline))
+/*
+ * Depending on whether the generic implementation is built as a linkable
+ * object or statically in a single file, the meaning of RB3_API can be either
+ * of these two:
+ */
+#define RB3_API_EXTERNIMPL extern
+#define RB3_API_STATICIMPL static __attribute__((unused))
