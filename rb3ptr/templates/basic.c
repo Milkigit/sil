@@ -12,14 +12,14 @@
  *
  * Time complexity: O(1)
  */
-RB3_API
+_RB3_API
 void rb3_init(struct rb3_tree *tree);
 
 /**
  * Free resources allocated by an rb3_tree (currently none, but this could
  * change).
  */
-RB3_API
+_RB3_API
 void rb3_exit(struct rb3_tree *tree);
 
 /**
@@ -27,7 +27,7 @@ void rb3_exit(struct rb3_tree *tree);
  *
  * Time complexity: O(1)
  */
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 int rb3_isempty(struct rb3_tree *tree);
 
 /**
@@ -35,7 +35,7 @@ int rb3_isempty(struct rb3_tree *tree);
  *
  * Time complexity: O(log n)
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_min(struct rb3_tree *tree);
 
 /**
@@ -43,7 +43,7 @@ struct rb3_head *rb3_get_min(struct rb3_tree *tree);
  *
  * Time complexity: O(log n)
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_max(struct rb3_tree *tree);
 
 /**
@@ -52,7 +52,7 @@ struct rb3_head *rb3_get_max(struct rb3_tree *tree);
  *
  * Time complexity: O(log n), amortized over sequential scan: O(1)
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_prev(struct rb3_head *head);
 
 /**
@@ -61,7 +61,7 @@ struct rb3_head *rb3_get_prev(struct rb3_head *head);
  *
  * Time complexity: O(log n), amortized over sequential scan: O(1)
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_next(struct rb3_head *head);
 
 /**
@@ -72,7 +72,7 @@ struct rb3_head *rb3_get_next(struct rb3_head *head);
  *
  * Time complexity: O(log n)
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_insert(struct rb3_tree *tree, struct rb3_head *head, rb3_cmp cmp);
 
 /**
@@ -83,7 +83,7 @@ struct rb3_head *rb3_insert(struct rb3_tree *tree, struct rb3_head *head, rb3_cm
  *
  * Time complexity: O(log n)
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_find(struct rb3_tree *tree, rb3_cmp cmp, struct rb3_head *head);
 
 /**
@@ -94,7 +94,7 @@ struct rb3_head *rb3_find(struct rb3_tree *tree, rb3_cmp cmp, struct rb3_head *h
  *
  * Time complexity: O(log n)
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_delete(struct rb3_tree *tree, rb3_cmp cmp, struct rb3_head *head);
 
 /**
@@ -102,28 +102,28 @@ struct rb3_head *rb3_delete(struct rb3_tree *tree, rb3_cmp cmp, struct rb3_head 
  * direct the search. Note in particular that `head` is not used during the
  * search phase.
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_insert_datacmp(struct rb3_tree *tree, struct rb3_head *head, rb3_datacmp datacmp, void *data);
 
 /**
  * Like rb3_find() but use a rb3_datacmp comparison function and `data` to
  * direct the search.
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_find_datacmp(struct rb3_tree *tree, rb3_datacmp cmp, void *data);
 
 /**
  * Like rb3_delete() but use a rb3_datacmp comparison function and `data` to
  * direct the search.
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_delete_datacmp(struct rb3_tree *tree, rb3_datacmp cmp, void *data);
 
 /*
  * Inline implementations
  */
 
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 int rb3_isempty(struct rb3_tree *tree)
 {
         return !rb3_has_child(rb3_get_base(tree), RB3_LEFT);

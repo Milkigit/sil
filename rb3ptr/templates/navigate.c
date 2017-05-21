@@ -12,7 +12,7 @@
  *
  * Time complexity: O(1)
  */
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_root(struct rb3_tree *tree);
 
 /**
@@ -21,7 +21,7 @@ struct rb3_head *rb3_get_root(struct rb3_tree *tree);
  *
  * Time complexity: O(log n)
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_prev_ancestor(struct rb3_head *head);
 
 /**
@@ -30,7 +30,7 @@ struct rb3_head *rb3_get_prev_ancestor(struct rb3_head *head);
  *
  * Time complexity: O(log n)
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_next_ancestor(struct rb3_head *head);
 
 /**
@@ -39,7 +39,7 @@ struct rb3_head *rb3_get_next_ancestor(struct rb3_head *head);
  *
  * Time complexity: O(log n)
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_prev_descendant(struct rb3_head *head);
 
 /**
@@ -48,14 +48,14 @@ struct rb3_head *rb3_get_prev_descendant(struct rb3_head *head);
  *
  * Time complexity: O(log n)
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_next_descendant(struct rb3_head *head);
 
 /*
  * Inline implementations
  */
 
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_root(struct rb3_tree *tree)
 {
         return rb3_get_child(&tree->base, RB3_LEFT);

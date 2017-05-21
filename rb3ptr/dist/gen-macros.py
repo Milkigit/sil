@@ -38,35 +38,35 @@ proxies = """
  */
 
 #define RB3_GEN_IMPL_HEADER()  \\
-    _RB3_GEN_IMPL_HEADER_REAL(RB3_API_EXTERNIMPL)
+    _RB3_GEN_IMPL_HEADER_REAL(_RB3_API_EXTERNIMPL)
 
 #define RB3_GEN_IMPL_HEADER_STATIC()  \\
-    _RB3_GEN_IMPL_HEADER_REAL(RB3_API_STATICIMPL)
+    _RB3_GEN_IMPL_HEADER_REAL(_RB3_API_STATICIMPL)
 
 #define RB3_GEN_IMPL()  \\
-    _RB3_GEN_IMPL_REAL(RB3_API_EXTERNIMPL)
+    _RB3_GEN_IMPL_REAL(_RB3_API_EXTERNIMPL)
 
 #define RB3_GEN_IMPL_STATIC()  \\
-    _RB3_GEN_IMPL_REAL(RB3_API_STATICIMPL)
+    _RB3_GEN_IMPL_REAL(_RB3_API_STATICIMPL)
 
 
 #define RB3_GEN_INLINE_PROTO(BASENAME, NODE_TYPE, GET_HEAD, GET_NODE)  \\
-    _RB3_GEN_INLINE_PROTO_REAL(RB3_API_EXTERNIMPL, {args0}, {args1}, {args2})
+    _RB3_GEN_INLINE_PROTO_REAL(_RB3_API_EXTERNIMPL, {args0}, {args1}, {args2})
 
 #define RB3_GEN_INLINE_PROTO_STATIC(BASENAME, NODE_TYPE, GET_HEAD, GET_NODE)  \\
-    _RB3_GEN_INLINE_PROTO_REAL(RB3_API_STATICIMPL, {args0}, {args1}, {args2})
+    _RB3_GEN_INLINE_PROTO_REAL(_RB3_API_STATICIMPL, {args0}, {args1}, {args2})
 
 #define RB3_GEN_NODECMP(BASENAME, SUFFIX, NODE_TYPE, GET_HEAD, GET_NODE, COMPARE_NODE)  \\
-    _RB3_GEN_NODECMP_REAL(RB3_API_EXTERNIMPL, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
+    _RB3_GEN_NODECMP_REAL(_RB3_API_EXTERNIMPL, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
 #define RB3_GEN_NODECMP_STATIC(BASENAME, SUFFIX, NODE_TYPE, GET_HEAD, GET_NODE, COMPARE_NODE)  \\
-    _RB3_GEN_NODECMP_REAL(RB3_API_STATICIMPL, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
+    _RB3_GEN_NODECMP_REAL(_RB3_API_STATICIMPL, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
 #define RB3_GEN_NODECMP_PROTO(BASENAME, SUFFIX, NODE_TYPE, GET_HEAD, GET_NODE, COMPARE_NODE)  \\
-    _RB3_GEN_NODECMP_PROTO_REAL(RB3_API_EXTERNIMPL, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
+    _RB3_GEN_NODECMP_PROTO_REAL(_RB3_API_EXTERNIMPL, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
 #define RB3_GEN_NODECMP_PROTO_STATIC(BASENAME, SUFFIX, NODE_TYPE, GET_HEAD, GET_NODE, COMPARE_NODE)  \\
-    _RB3_GEN_NODECMP_PROTO_REAL(RB3_API_STATICIMPL, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
+    _RB3_GEN_NODECMP_PROTO_REAL(_RB3_API_STATICIMPL, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
 
 #define RB3_FOREACH(BASENAME, TREE, NODE) \\
@@ -91,39 +91,39 @@ content = """
  * ===========================================================================
  */
 
-#define _RB3_GEN_INLINE_PROTO_REAL(RB3_API, {params0}, {params1}, {params2})  \\
+#define _RB3_GEN_INLINE_PROTO_REAL(_RB3_API, {params0}, {params1}, {params2})  \\
 {tpl_inline_proto}
 
-#define _RB3_GEN_NODECMP_PROTO_REAL(RB3_API, {params0}, COMPARE_NODE, {params1}, {params2}, {params3})  \\
+#define _RB3_GEN_NODECMP_PROTO_REAL(_RB3_API, {params0}, COMPARE_NODE, {params1}, {params2}, {params3})  \\
 {tpl_nodecmp_proto}
 
-#define _RB3_GEN_NODECMP_REAL(RB3_API, {params0}, COMPARE_NODE, {params1}, {params2}, {params3})  \\
+#define _RB3_GEN_NODECMP_REAL(_RB3_API, {params0}, COMPARE_NODE, {params1}, {params2}, {params3})  \\
 {tpl_nodecmp}
 
-#define _RB3_GEN_IMPL_REAL_TYPES(RB3_API)  \\
+#define _RB3_GEN_IMPL_REAL_TYPES(_RB3_API)  \\
 {tpl_types}
 
-#define _RB3_GEN_IMPL_REAL_BASIC(RB3_API)  \\
+#define _RB3_GEN_IMPL_REAL_BASIC(_RB3_API)  \\
 {tpl_basic}
 
-#define _RB3_GEN_IMPL_REAL_NAVIGATE(RB3_API)  \\
+#define _RB3_GEN_IMPL_REAL_NAVIGATE(_RB3_API)  \\
 {tpl_navigate}
 
-#define _RB3_GEN_IMPL_REAL_INTERNAL(RB3_API)  \\
+#define _RB3_GEN_IMPL_REAL_INTERNAL(_RB3_API)  \\
 {tpl_internal}
 
-#define _RB3_GEN_IMPL_REAL_IMPL(RB3_API)  \\
+#define _RB3_GEN_IMPL_REAL_IMPL(_RB3_API)  \\
 {tpl_impl}
 
-#define _RB3_GEN_IMPL_HEADER_REAL(RB3_API)  \\
-    _RB3_GEN_IMPL_REAL_TYPES(RB3_API)  \\
-    _RB3_GEN_IMPL_REAL_BASIC(RB3_API)  \\
-    _RB3_GEN_IMPL_REAL_NAVIGATE(RB3_API)  \\
-    _RB3_GEN_IMPL_REAL_INTERNAL(RB3_API)
+#define _RB3_GEN_IMPL_HEADER_REAL(_RB3_API)  \\
+    _RB3_GEN_IMPL_REAL_TYPES(_RB3_API)  \\
+    _RB3_GEN_IMPL_REAL_BASIC(_RB3_API)  \\
+    _RB3_GEN_IMPL_REAL_NAVIGATE(_RB3_API)  \\
+    _RB3_GEN_IMPL_REAL_INTERNAL(_RB3_API)
 
-#define _RB3_GEN_IMPL_REAL(RB3_API)  \\
-    _RB3_GEN_IMPL_HEADER_REAL(RB3_API)  \\
-    _RB3_GEN_IMPL_REAL_IMPL(RB3_API)
+#define _RB3_GEN_IMPL_REAL(_RB3_API)  \\
+    _RB3_GEN_IMPL_HEADER_REAL(_RB3_API)  \\
+    _RB3_GEN_IMPL_REAL_IMPL(_RB3_API)
 
 """.format(params0=cs(params0), params1=cs(params1), params2=cs(params2), params3=cs(params3),
         tpl_inline_proto=filetomacro('wrapper-inline-proto'),

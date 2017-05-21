@@ -12,7 +12,7 @@
  * Like rb3_find_datacmp() but starts at the given subtree represented by a
  * link head (which may be NULL) instead of at the root of the tree.
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_find_in_subtree_datacmp(struct rb3_head *subtree, rb3_datacmp cmp, void *data);
 
 /**
@@ -25,7 +25,7 @@ struct rb3_head *rb3_find_in_subtree_datacmp(struct rb3_head *subtree, rb3_datac
  * 0), it is returned. In this case `parent_out` and `dir_out` are left
  * untouched.
  */
-RB3_API
+_RB3_API
 struct rb3_head *rb3_find_parent_in_subtree_datacmp(struct rb3_head *parent, int dir, rb3_datacmp cmp, void *data, struct rb3_head **parent_out, int *dir_out);
 
 /**
@@ -35,7 +35,7 @@ struct rb3_head *rb3_find_parent_in_subtree_datacmp(struct rb3_head *parent, int
  *
  * Time complexity: O(log n)
  */
-RB3_API
+_RB3_API
 void rb3_insert_below(struct rb3_head *head, struct rb3_head *parent, int dir);
 
 /**
@@ -47,13 +47,13 @@ void rb3_insert_below(struct rb3_head *head, struct rb3_head *parent, int dir);
  *
  * Time complexity: O(log n)
  */
-RB3_API
+_RB3_API
 void rb3_delete_head(struct rb3_head *head);
 
 /**
  * Given a node that is known to be linked in _some_ tree, find that tree.
  */
-RB3_API
+_RB3_API
 struct rb3_tree *rb3_get_containing_tree(struct rb3_head *head);
 
 /*
@@ -62,7 +62,7 @@ struct rb3_tree *rb3_get_containing_tree(struct rb3_head *head);
 
 
 /* this interface is meant for code generation, not for casual consumption */
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_INLINE_find_in_subtree(struct rb3_head *subtree, rb3_datacmp cmp, void *data)
 {
         struct rb3_head *head;
@@ -80,17 +80,17 @@ struct rb3_head *rb3_INLINE_find_in_subtree(struct rb3_head *subtree, rb3_datacm
                         return head;
                 head = rb3_get_child(head, dir);
         }
-        return RB3_NULL;
+        return _RB3_NULL;
 }
 
 /* this interface is meant for code generation, not for casual consumption */
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_INLINE_find_parent_in_subtree(struct rb3_head *parent, int dir, rb3_datacmp cmp, void *data, struct rb3_head **parent_out, int *dir_out)
 {
         struct rb3_head *head;
         int r;
 
-        RB3_ASSERT(parent != RB3_NULL);
+        _RB3_ASSERT(parent != _RB3_NULL);
         do {
                 head = rb3_get_child(parent, dir);
                 if (!head)
@@ -106,5 +106,5 @@ struct rb3_head *rb3_INLINE_find_parent_in_subtree(struct rb3_head *parent, int 
         } while (head);
         *parent_out = parent;
         *dir_out = dir;
-        return RB3_NULL;
+        return _RB3_NULL;
 }

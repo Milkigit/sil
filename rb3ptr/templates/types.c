@@ -101,7 +101,7 @@ typedef int (*rb3_datacmp)(struct rb3_head *head_in_tree, void *data);
  * This is more convenient and (in theory) more efficient than getting the
  * parent and testing its left and right child.
  */
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 int rb3_get_parent_dir(struct rb3_head *head);
 
 /**
@@ -112,7 +112,7 @@ int rb3_get_parent_dir(struct rb3_head *head);
  *
  * Time complexity: O(1)
  */
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_parent(struct rb3_head *head);
 
 /*
@@ -123,7 +123,7 @@ struct rb3_head *rb3_get_parent(struct rb3_head *head);
  *
  * Time complexity: O(1)
  */
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 int rb3_has_child(struct rb3_head *head, int dir);
 
 /**
@@ -132,7 +132,7 @@ int rb3_has_child(struct rb3_head *head, int dir);
  *
  * Time complexity: O(1)
  */
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_child(struct rb3_head *head, int dir);
 
 /**
@@ -142,7 +142,7 @@ struct rb3_head *rb3_get_child(struct rb3_head *head, int dir);
  * structure. It's just a link to host the real root of the tree as its left
  * child.
  */
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_base(struct rb3_tree *tree);
 
 /*
@@ -151,37 +151,37 @@ struct rb3_head *rb3_get_base(struct rb3_tree *tree);
  * ---------------------------------------------------------------------------
  */
 
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 int rb3_is_base(struct rb3_head *head)
 {
 	return !head->parent;
 }
 
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 int rb3_get_parent_dir(struct rb3_head *head)
 {
         return head->parent & 1;
 }
 
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_parent(struct rb3_head *head)
 {
         return (struct rb3_head *)(head->parent & ~3);
 }
 
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 int rb3_has_child(struct rb3_head *head, int dir)
 {
         return head->child[dir] != 0;
 }
 
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_child(struct rb3_head *head, int dir)
 {
         return (struct rb3_head *)((head->child[dir]) & ~3);
 }
 
-RB3_API_STATIC_INLINE
+_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_base(struct rb3_tree *tree)
 {
         return &tree->base;

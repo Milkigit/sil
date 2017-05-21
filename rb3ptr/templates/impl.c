@@ -7,94 +7,94 @@
  * ---------------------------------------------------------------------------
  */
 
-static RB3_INLINE
+static _RB3_INLINE
 struct rb3_head *rb3_get_black_child(struct rb3_head *head, int dir)
 {
         return (struct rb3_head *) head->child[dir];
 }
 
-static RB3_INLINE
+static _RB3_INLINE
 int rb3_get_color_bit(struct rb3_head *head, int dir)
 {
-        return head->child[dir] & RB3_COLOR_BIT;
+        return head->child[dir] & _RB3_COLOR_BIT;
 }
 
-static RB3_INLINE
+static _RB3_INLINE
 int rb3_is_red(struct rb3_head *head, int dir)
 {
         return rb3_get_color_bit(head, dir) != 0;
 }
 
-static RB3_INLINE
+static _RB3_INLINE
 void rb3_set_red(struct rb3_head *head, int dir)
 {
-        head->child[dir] |= RB3_COLOR_BIT;
+        head->child[dir] |= _RB3_COLOR_BIT;
 }
 
-static RB3_INLINE
+static _RB3_INLINE
 void rb3_set_black(struct rb3_head *head, int dir)
 {
-        head->child[dir] &= ~RB3_COLOR_BIT;
+        head->child[dir] &= ~_RB3_COLOR_BIT;
 }
 
-static RB3_INLINE
+static _RB3_INLINE
 void rb3_connect(struct rb3_head *head, int dir, struct rb3_head *child, int color)
 {
-        head->child[dir] = RB3_CHILD_PTR(child, color);
-        child->parent = RB3_PARENT_PTR(head, dir);
+        head->child[dir] = _RB3_CHILD_PTR(child, color);
+        child->parent = _RB3_PARENT_PTR(head, dir);
 }
 
-static RB3_INLINE
+static _RB3_INLINE
 void rb3_connect_null(struct rb3_head *head, int dir, struct rb3_head *child, int color)
 {
-        head->child[dir] = RB3_CHILD_PTR(child, color);
+        head->child[dir] = _RB3_CHILD_PTR(child, color);
         if (child)
-                child->parent = RB3_PARENT_PTR(head, dir);
+                child->parent = _RB3_PARENT_PTR(head, dir);
 }
 
-RB3_API
+_RB3_API
 struct rb3_tree *rb3_get_containing_tree(struct rb3_head *head)
 {
         while (rb3_get_parent(head))
                 head = rb3_get_parent(head);
-        return (struct rb3_tree *) ((char *) head - (RB3_offsetof(struct rb3_head, child[0])));
+        return (struct rb3_tree *) ((char *) head - (_RB3_offsetof(struct rb3_head, child[0])));
 }
 
-static RB3_NEVERINLINE
+static _RB3_NEVERINLINE
 struct rb3_head *rb3_get_minmax_in_subtree(struct rb3_head *head, int dir)
 {
         if (!head)
-                return RB3_NULL;
+                return _RB3_NULL;
         while (rb3_has_child(head, dir))
                 head = rb3_get_child(head, dir);
         return head;
 }
 
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_min(struct rb3_tree *tree)
 {
         return rb3_get_minmax_in_subtree(rb3_get_root(tree), RB3_LEFT);
 }
 
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_max(struct rb3_tree *tree)
 {
         return rb3_get_minmax_in_subtree(rb3_get_root(tree), RB3_RIGHT);
 }
 
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_prev_descendant(struct rb3_head *head)
 {
         return rb3_get_minmax_in_subtree(rb3_get_child(head, RB3_LEFT), RB3_RIGHT);
 }
 
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_next_descendant(struct rb3_head *head)
 {
         return rb3_get_minmax_in_subtree(rb3_get_child(head, RB3_RIGHT), RB3_LEFT);
 }
 
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_prev_ancestor(struct rb3_head *head)
 {
         while (head && rb3_get_parent_dir(head) == RB3_LEFT)
@@ -104,7 +104,7 @@ struct rb3_head *rb3_get_prev_ancestor(struct rb3_head *head)
         return head;
 }
 
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_next_ancestor(struct rb3_head *head)
 {
         while (head && rb3_get_parent_dir(head) == RB3_RIGHT)
@@ -112,11 +112,11 @@ struct rb3_head *rb3_get_next_ancestor(struct rb3_head *head)
         head = rb3_get_parent(head);
         if (head && !rb3_get_parent(head))
                 /* base fake element */
-                head = RB3_NULL;
+                head = _RB3_NULL;
         return head;
 }
 
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_prev(struct rb3_head *head)
 {
         if (rb3_has_child(head, RB3_LEFT))
@@ -125,7 +125,7 @@ struct rb3_head *rb3_get_prev(struct rb3_head *head)
                 return rb3_get_prev_ancestor(head);
 }
 
-RB3_API
+_RB3_API
 struct rb3_head *rb3_get_next(struct rb3_head *head)
 {
         if (rb3_has_child(head, RB3_RIGHT))
@@ -136,7 +136,7 @@ struct rb3_head *rb3_get_next(struct rb3_head *head)
 
 /* insert implementation */
 
-static RB3_NEVERINLINE
+static _RB3_NEVERINLINE
 void rb3_insert_rebalance(struct rb3_head *head)
 {
         struct rb3_head *pnt;
@@ -176,34 +176,34 @@ void rb3_insert_rebalance(struct rb3_head *head)
                 rb3_set_black(gpnt, RB3_RIGHT);
                 rb3_insert_rebalance(gpnt);
         } else if (gdir == right) {
-                rb3_connect_null(pnt, left, rb3_get_black_child(head, right), RB3_BLACK);
-                rb3_connect_null(gpnt, right, rb3_get_black_child(head, left), RB3_BLACK);
-                rb3_connect(head, left, gpnt, RB3_RED);
-                rb3_connect(head, right, pnt, RB3_RED);
-                rb3_connect(ggpnt, ggdir, head, RB3_BLACK);
+                rb3_connect_null(pnt, left, rb3_get_black_child(head, right), _RB3_BLACK);
+                rb3_connect_null(gpnt, right, rb3_get_black_child(head, left), _RB3_BLACK);
+                rb3_connect(head, left, gpnt, _RB3_RED);
+                rb3_connect(head, right, pnt, _RB3_RED);
+                rb3_connect(ggpnt, ggdir, head, _RB3_BLACK);
         } else {
-                rb3_connect_null(gpnt, left, rb3_get_black_child(pnt, right), RB3_BLACK);
-                rb3_connect(pnt, right, gpnt, RB3_RED);
-                rb3_connect(ggpnt, ggdir, pnt, RB3_BLACK);
+                rb3_connect_null(gpnt, left, rb3_get_black_child(pnt, right), _RB3_BLACK);
+                rb3_connect(pnt, right, gpnt, _RB3_RED);
+                rb3_connect(ggpnt, ggdir, pnt, _RB3_BLACK);
         }
 }
 
-RB3_API RB3_NEVERINLINE
+_RB3_API _RB3_NEVERINLINE
 void rb3_insert_below(struct rb3_head *head, struct rb3_head *parent, int dir)
 {
-        RB3_ASSERT(dir == RB3_LEFT || dir == RB3_RIGHT);
-        RB3_ASSERT(!rb3_has_child(parent, dir));
+        _RB3_ASSERT(dir == RB3_LEFT || dir == RB3_RIGHT);
+        _RB3_ASSERT(!rb3_has_child(parent, dir));
 
-        parent->child[dir] = RB3_CHILD_PTR(head, RB3_RED);
-        head->parent = RB3_PARENT_PTR(parent, dir);
-        head->child[RB3_LEFT] = RB3_CHILD_PTR(RB3_NULL, RB3_BLACK);
-        head->child[RB3_RIGHT] = RB3_CHILD_PTR(RB3_NULL, RB3_BLACK);
+        parent->child[dir] = _RB3_CHILD_PTR(head, _RB3_RED);
+        head->parent = _RB3_PARENT_PTR(parent, dir);
+        head->child[RB3_LEFT] = _RB3_CHILD_PTR(_RB3_NULL, _RB3_BLACK);
+        head->child[RB3_RIGHT] = _RB3_CHILD_PTR(_RB3_NULL, _RB3_BLACK);
         rb3_insert_rebalance(head);
 }
 
 /* delete implementation */
 
-static RB3_NEVERINLINE
+static _RB3_NEVERINLINE
 void rb3_delete_rebalance(struct rb3_head *head)
 {
         struct rb3_head *pnt;
@@ -232,24 +232,24 @@ void rb3_delete_rebalance(struct rb3_head *head)
 
         if (rb3_is_red(pnt, right)) {
                 /* sibling is red */
-                rb3_connect(pnt, right, sleft, RB3_BLACK);
-                rb3_connect(sibling, left, pnt, RB3_RED);
-                rb3_connect(gpnt, gdir, sibling, RB3_BLACK);
+                rb3_connect(pnt, right, sleft, _RB3_BLACK);
+                rb3_connect(sibling, left, pnt, _RB3_RED);
+                rb3_connect(gpnt, gdir, sibling, _RB3_BLACK);
                 rb3_delete_rebalance(head);
         } else if (rb3_is_red(sibling, right)) {
                 /* outer child of sibling is red */
                 rb3_connect_null(pnt, right, sleft, rb3_get_color_bit(sibling, left));
-                rb3_connect(sibling, left, pnt, RB3_BLACK);
+                rb3_connect(sibling, left, pnt, _RB3_BLACK);
                 rb3_connect(gpnt, gdir, sibling, rb3_get_color_bit(gpnt, gdir));
                 rb3_set_black(sibling, right);
         } else if (rb3_is_red(sibling, left)) {
                 /* inner child of sibling is red */
                 sleftleft = rb3_get_child(sleft, left);
                 sleftright = rb3_get_child(sleft, right);
-                rb3_connect_null(pnt, right, sleftleft, RB3_BLACK);
-                rb3_connect_null(sibling, left, sleftright, RB3_BLACK);
-                rb3_connect(sleft, left, pnt, RB3_BLACK);
-                rb3_connect(sleft, right, sibling, RB3_BLACK);
+                rb3_connect_null(pnt, right, sleftleft, _RB3_BLACK);
+                rb3_connect_null(sibling, left, sleftright, _RB3_BLACK);
+                rb3_connect(sleft, left, pnt, _RB3_BLACK);
+                rb3_connect(sleft, right, sibling, _RB3_BLACK);
                 rb3_connect(gpnt, gdir, sleft, rb3_get_color_bit(gpnt, gdir));
         } else if (rb3_is_red(gpnt, gdir)) {
                 /* parent is red */
@@ -262,7 +262,7 @@ void rb3_delete_rebalance(struct rb3_head *head)
         }
 }
 
-static RB3_NEVERINLINE
+static _RB3_NEVERINLINE
 void rb3_delete_noninternal(struct rb3_head *head)
 {
         struct rb3_head *pnt;
@@ -281,10 +281,10 @@ void rb3_delete_noninternal(struct rb3_head *head)
                  * => height decreased */
                 rb3_delete_rebalance(head);
 
-        rb3_connect_null(pnt, pdir, cld, RB3_BLACK);
+        rb3_connect_null(pnt, pdir, cld, _RB3_BLACK);
 }
 
-static RB3_NEVERINLINE
+static _RB3_NEVERINLINE
 void rb3_delete_internal(struct rb3_head *head)
 {
         struct rb3_head *subst;
@@ -305,13 +305,13 @@ void rb3_delete_internal(struct rb3_head *head)
         pcol = rb3_get_color_bit(parent, pdir);
 
         if (left)
-                left->parent = RB3_PARENT_PTR(subst, RB3_LEFT);
+                left->parent = _RB3_PARENT_PTR(subst, RB3_LEFT);
         if (right)
-                right->parent = RB3_PARENT_PTR(subst, RB3_RIGHT);
-        parent->child[pdir] = RB3_CHILD_PTR(subst, pcol);
+                right->parent = _RB3_PARENT_PTR(subst, RB3_RIGHT);
+        parent->child[pdir] = _RB3_CHILD_PTR(subst, pcol);
 }
 
-RB3_API RB3_NEVERINLINE
+_RB3_API _RB3_NEVERINLINE
 void rb3_delete_head(struct rb3_head *head)
 {
         if (rb3_has_child(head, RB3_LEFT) && rb3_has_child(head, RB3_RIGHT))
@@ -331,13 +331,13 @@ void rb3_delete_head(struct rb3_head *head)
 
 /* node-find implementations using code from inline header functions */
 
-RB3_API RB3_NEVERINLINE
+_RB3_API _RB3_NEVERINLINE
 struct rb3_head *rb3_find_in_subtree_datacmp(struct rb3_head *subtree, rb3_datacmp cmp, void *data)
 {
         return rb3_INLINE_find_in_subtree(subtree, cmp, data);
 }
 
-RB3_API RB3_NEVERINLINE
+_RB3_API _RB3_NEVERINLINE
 struct rb3_head *rb3_find_parent_in_subtree_datacmp(struct rb3_head *parent, int dir, rb3_datacmp cmp, void *data, struct rb3_head **parent_out, int *dir_out)
 {
         return rb3_INLINE_find_parent_in_subtree(parent, dir, cmp, data, parent_out, dir_out);
@@ -345,7 +345,7 @@ struct rb3_head *rb3_find_parent_in_subtree_datacmp(struct rb3_head *parent, int
 
 /* find, insert, delete with rb3_datacmp */
 
-RB3_API RB3_NEVERINLINE
+_RB3_API _RB3_NEVERINLINE
 struct rb3_head *rb3_insert_datacmp(struct rb3_tree *tree, struct rb3_head *head, rb3_datacmp cmp, void *data)
 {
         struct rb3_head *found;
@@ -358,10 +358,10 @@ struct rb3_head *rb3_insert_datacmp(struct rb3_tree *tree, struct rb3_head *head
         if (found)
                 return found;
         rb3_insert_below(head, parent, dir);
-        return RB3_NULL;
+        return _RB3_NULL;
 }
 
-RB3_API RB3_NEVERINLINE
+_RB3_API _RB3_NEVERINLINE
 struct rb3_head *rb3_delete_datacmp(struct rb3_tree *tree, rb3_datacmp cmp, void *data)
 {
         struct rb3_head *found;
@@ -371,10 +371,10 @@ struct rb3_head *rb3_delete_datacmp(struct rb3_tree *tree, rb3_datacmp cmp, void
                 rb3_delete_head(found);
                 return found;
         }
-        return RB3_NULL;
+        return _RB3_NULL;
 }
 
-RB3_API RB3_NEVERINLINE
+_RB3_API _RB3_NEVERINLINE
 struct rb3_head *rb3_find_datacmp(struct rb3_tree *tree, rb3_datacmp cmp, void *data)
 {
         return rb3_find_in_subtree_datacmp(rb3_get_root(tree), cmp, data);
@@ -382,19 +382,19 @@ struct rb3_head *rb3_find_datacmp(struct rb3_tree *tree, rb3_datacmp cmp, void *
 
 /* find, insert, delete with rb3_cmp */
 
-RB3_API RB3_NEVERINLINE
+_RB3_API _RB3_NEVERINLINE
 struct rb3_head *rb3_insert(struct rb3_tree *tree, struct rb3_head *head, rb3_cmp cmp)
 {
         return rb3_insert_datacmp(tree, head, (rb3_datacmp) cmp, head);
 }
 
-RB3_API RB3_NEVERINLINE
+_RB3_API _RB3_NEVERINLINE
 struct rb3_head *rb3_delete(struct rb3_tree *tree, rb3_cmp cmp, struct rb3_head *head)
 {
         return rb3_delete_datacmp(tree, (rb3_datacmp) cmp, head);
 }
 
-RB3_API RB3_NEVERINLINE
+_RB3_API _RB3_NEVERINLINE
 struct rb3_head *rb3_find(struct rb3_tree *tree, rb3_cmp cmp, struct rb3_head *head)
 {
         return rb3_find_datacmp(tree, (rb3_datacmp) cmp, head);
@@ -402,7 +402,7 @@ struct rb3_head *rb3_find(struct rb3_tree *tree, rb3_cmp cmp, struct rb3_head *h
 
 /* */
 
-RB3_API RB3_NEVERINLINE RB3_COLD
+_RB3_API _RB3_NEVERINLINE _RB3_COLD
 void rb3_init(struct rb3_tree *tree)
 {
         /* We would really like to write
@@ -415,7 +415,7 @@ void rb3_init(struct rb3_tree *tree)
         tree->base.parent = 0;
 }
 
-RB3_API RB3_NEVERINLINE RB3_COLD
+_RB3_API _RB3_NEVERINLINE _RB3_COLD
 void rb3_exit(struct rb3_tree *tree)
 {
         /* No resources allocated */
