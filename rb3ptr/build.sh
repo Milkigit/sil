@@ -12,3 +12,6 @@ rm -rf build
 mkdir -p build/include
 python3 dist/gen-macros.py > build/include/rb3ptr.h
 cat bsd-shim.h > build/include/rb3ptr-bsd-shim.h
+
+# build/rb3ptr-impl.{c,h}
+sh dist/gen-impl.sh
