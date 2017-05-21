@@ -91,6 +91,22 @@ typedef int (*rb3_cmp)(struct rb3_head *a, struct rb3_head *b);
 typedef int (*rb3_datacmp)(struct rb3_head *head_in_tree, void *data);
 
 /**
+ * Test if given head is fake base of tree.
+ */
+_RB3_API_STATIC_INLINE
+int rb3_is_base(struct rb3_head *head);
+
+/**
+ * Get fake base of tree.
+ *
+ * Warning: the special base element is never embedded in a client payload
+ * structure. It's just a link to host the real root of the tree as its left
+ * child.
+ */
+_RB3_API_STATIC_INLINE
+struct rb3_head *rb3_get_base(struct rb3_tree *tree);
+
+/**
  * Get direction from parent to child by testing the direction
  *
  * Return RB3_LEFT or RB3_RIGHT, depending on whether this node is the left or
@@ -135,16 +151,6 @@ int rb3_has_child(struct rb3_head *head, int dir);
 _RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_child(struct rb3_head *head, int dir);
 
-/**
- * Get fake base of tree.
- *
- * Warning: the special base element is never embedded in a client payload
- * structure. It's just a link to host the real root of the tree as its left
- * child.
- */
-_RB3_API_STATIC_INLINE
-struct rb3_head *rb3_get_base(struct rb3_tree *tree);
-
 /*
  * ---------------------------------------------------------------------------
  * Inline implementations
@@ -155,6 +161,12 @@ _RB3_API_STATIC_INLINE
 int rb3_is_base(struct rb3_head *head)
 {
 	return !head->parent;
+}
+
+_RB3_API_STATIC_INLINE
+struct rb3_head *rb3_get_base(struct rb3_tree *tree)
+{
+        return &tree->base;
 }
 
 _RB3_API_STATIC_INLINE
@@ -179,10 +191,4 @@ _RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_child(struct rb3_head *head, int dir)
 {
         return (struct rb3_head *)((head->child[dir]) & ~3);
-}
-
-_RB3_API_STATIC_INLINE
-struct rb3_head *rb3_get_base(struct rb3_tree *tree)
-{
-        return &tree->base;
 }

@@ -12,7 +12,7 @@ The MACROS generate wrappers for more better type-safety and more convenient
 access with fixed comparison functions.
 .PP
 The BSD MACROS expose a BSD
-.I <sys/tree.h>
+.B <sys/tree.h>
 compatible interface.
 
 .SS BASIC FUNCTIONS
@@ -45,7 +45,27 @@ compatible interface.
 
 .SS NAVIGATION FUNCTIONS
 
+Note: Valid values for
+.I dir
+are
+.B RB3_LEFT
+and
+.B RB3_RIGHT
+(0 and 1).
+
 .BI "struct rb3_head *rb3_get_root(struct rb3_tree *" tree );
+
+.BI "struct rb3_head *rb3_get_base(struct rb3_tree *" tree );
+
+.BI "int rb3_is_base(struct rb3_head *" head );
+
+.BI "int rb3_has_child(struct rb3_head *" head ", int " dir );
+
+.BI "int rb3_get_parent_dir(struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_get_parent(struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_get_child(struct rb3_head *" head ", int " dir );
 
 .BI "struct rb3_head *rb3_get_prev_ancestor(struct rb3_head *" head );
 
@@ -67,6 +87,14 @@ compatible interface.
 
 
 .SS BSD MACROS
+
+These MACROS expose a BSD
+.B <sys/tree.h>
+compatible interface. Unfortunately,
+.BR RB_LEFT ()
+and
+.BR RB_RIGHT ()
+cannot be supported due to missing information in the signature.
 
 .BI RB_PROTOTYPE()
 
@@ -91,8 +119,6 @@ compatible interface.
 .BI RB_PREV( NAME ", " tree ", " elm )
 
 .BI RB_NEXT( NAME ", " tree ", " elm )
-
-.Sh Description
 
 .SH EXAMPLE
 .nf
