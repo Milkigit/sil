@@ -67,18 +67,18 @@ int main(void)
         struct foo *foo;
         size_t i;
 
-        footree_init(&tree);
+        RB3_INIT(footree, &tree);
         foo = xalloc(NUM_FOOS * sizeof (struct foo));
         for (i = 0; i < NUM_FOOS; i++)
                 foo[i].val = NUM_FOOS - (int) i;
         for (i = 0; i < NUM_FOOS; i++)
-                footree_insert(&tree, &foo[i]);
+                RB3_INSERT(footree, &tree, &foo[i]);
         for (iter = footree_get_min(&tree); iter != NULL; iter = footree_get_next(iter))
                 printf("iter %d\n", iter->val);
         for (i = 0; i < NUM_FOOS; i++)
-                footree_delete(&tree, &foo[i]);
+                RB3_DELETE(footree, &tree, &foo[i]);
         xfree(foo);
-        footree_exit(&tree);
+        RB3_EXIT(footree, &tree);
 
         return 0;
 }

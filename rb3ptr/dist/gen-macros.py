@@ -68,16 +68,6 @@ proxies = """
 #define RB3_GEN_NODECMP_PROTO_STATIC(BASENAME, SUFFIX, NODE_TYPE, GET_HEAD, GET_NODE, COMPARE_NODE)  \\
     _RB3_GEN_NODECMP_PROTO_REAL(_RB3_API_STATICIMPL, {args0}, COMPARE_NODE, {args1}, {args2}, {args3})
 
-
-#define RB3_FOREACH(BASENAME, TREE, NODE) \\
-    for (NODE = BASENAME##_get_min(TREE); \\
-        !!NODE; NODE = BASENAME##_get_next(NODE))
-
-#define RB3_FOREACH_SAFE(BASENAME, TREE, NODE, NODE1) \\
-    for (NODE = BASENAME##_get_min(TREE); \\
-        (!!NODE ? (NODE1 = BASENAME##_get_next(NODE), !!NODE) : !!NODE); \\
-        NODE = NODE1)
-
 /* (END stuff) */
 """.format(args0=cs(args0), args1=cs(args1), args2=cs(args2), args3=cs(args3))
 
