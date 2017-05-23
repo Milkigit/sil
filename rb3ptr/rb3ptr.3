@@ -77,13 +77,13 @@ and
 
 .SS MACROS
 
-.BI RB3_GENERATE_IMPL()
+.BI RB3_GEN_IMPL()
 
-.BI RB3_GENERATE_IMPL_STATIC()
+.BI RB3_GEN_IMPL_STATIC()
 
-.BI RB3_GENERATE_INLINE( NAME ", " NODETYPE ", " GET_HEAD ", " GET_NODE )
+.BI RB3_GEN_INLINE( NAME ", " NODETYPE ", " GET_HEAD ", " GET_NODE )
 
-.BI RB3_GENERATE_NODECMP( NAME ", " NODETYPE ", " GET_HEAD ", " GET_NODE ", " NODECMP )
+.BI RB3_GEN_NODECMP( NAME ", " NODETYPE ", " GET_HEAD ", " GET_NODE ", " NODECMP )
 
 
 .SS BSD MACROS
@@ -128,7 +128,7 @@ cannot be supported due to missing information in the signature.
  * Include the generic implementation. Alternatively, you can link with a
  * seperately compiled generic implementation
  */
-RB3_GENERATE_IMPL_STATIC();
+RB3_GEN_IMPL_STATIC();
 
 /*
  * Define a node datatype and a compare operation
