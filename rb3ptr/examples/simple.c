@@ -25,9 +25,9 @@ static struct foo *get_foo(struct rb3_head *head)
         return (struct foo *)((char *) head - offsetof(struct foo, head));
 }
 
-static int foohead_compare(struct rb3_head *a, struct rb3_head *b)
+static int foohead_compare(struct rb3_head *a, void *data)
 {
-        return foo_compare(get_foo(a), get_foo(b));
+        return foo_compare(get_foo(a), (struct foo *) data);
 }
 
 /****************
@@ -67,7 +67,7 @@ int main(void)
         for (i = 0; i < NUM_FOOS; i++)
                 foo[i].val = NUM_FOOS - (int) i;
         for (i = 0; i < NUM_FOOS; i++)
-                rb3_insert(&tree, &foo[i].head, foohead_compare);
+                rb3_insert(&tree, &foo[i].head, foohead_compare, &foo[i]);
         for (iter = rb3_get_min(&tree); iter != NULL; iter = rb3_get_next(iter))
                 printf("iter %d\n", get_foo(iter)->val);
         for (i = 0; i < NUM_FOOS; i++)

@@ -46,49 +46,15 @@ struct rb3_tree {
 };
 
 /**
- * User-provided comparison function. It must first cast (and offset) the
- * pointers to compare the client-side structures that embed `a` and `b`.
+ * User-provided comparison function. It is used during tree searches.
+ * At each visited node, the function is called with that node as first
+ * argument and some additional user-provided data.
  *
- * If a < b, returns some value < 0.
- * If a > b, returns some value > 0.
- * If a == b, returns 0.
- *
- * This function type is used by the implementation for deciding which child
- * direction to take to find insertion or deletion points in a tree.
- *
- * In some cases, non-strictly monotonic comparison functions (with regards to
- * the ordering of the nodes in a tree) make sense. An example is
- * rb3_find_first() which needs only a monotonic "predicate" to return the
- * first node in the tree that "compares" equal (i.e. where the "predicate"
- * returns 0).
+ * It should returns a value less than, equal to, or greater than, 0,
+ * depending on whether the node compares less than, equal to, or greater
+ * than, the user-provided data.
  */
-typedef int (*rb3_cmp)(struct rb3_head *a, struct rb3_head *b);
-
-/**
- * User-provided search function. This is a more general variant of rb3_cmp
- * that supports more specialized searches in a tree.
- *
- * If head_in_tree is "smaller" than data, returns some value < 0.
- * If head_in_tree is "greater" than data, returns some value > 0.
- * If head_in_tree is "equal" to data, returns 0.
- *
- * As stated above this is a generalization of rb3_cmp. Conversely, rb3_cmp is
- * a specialization of rb3_pred that expects another struct rb3_head pointer
- * as `data` argument.
- *
- * This function type is required for some complex applications where
- * additional context is needed to make decisions. For example, in Fortune's
- * algorithm, the order of any two given intersection points is parameterized
- * by the moving beachlines. (The client code must make sure that nodes are
- * deleted from the tree before their ordering with respect to other elements
- * in the tree changes (rendering the tree invalid)).
- *
- * Another use case of rb3_datacmp is looking for nodes in a tree without any
- * reference node at all. An obvious example is searching the first node in a
- * tree of 2D coordinates that has x-value greater than a given reference
- * value.
- */
-typedef int (*rb3_datacmp)(struct rb3_head *head_in_tree, void *data);
+typedef int (*rb3_cmp)(struct rb3_head *head, void *data);
 
 /**
  * Test if given head is fake base of tree.

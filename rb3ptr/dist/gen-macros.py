@@ -25,7 +25,7 @@ args0 = ['struct BASENAME', 'NODE_TYPE', 'GET_HEAD', 'GET_NODE']
 params1 = 'INNER_TREE OUTER_TREE'.split()
 args1 = 'BASENAME##_inner_tree BASENAME##_outer_tree'.split()
 
-params2 = 'init exit isempty get_min get_max get_prev get_next get_root has_child get_child get_parent get_prev_ancestor get_next_ancestor get_prev_descendant get_next_descendant insert_below delete_head get_parent_dir get_base get_containing_tree'.split()
+params2 = 'init exit isempty get_min get_max get_prev get_next get_root has_child get_child get_parent get_prev_ancestor get_next_ancestor get_prev_descendant get_next_descendant link_node unlink_node get_parent_dir get_base get_containing_tree'.split()
 args2 = ['BASENAME##_{}'.format(name) for name in params2]
 
 params3 = 'nodecmp find_in_subtree find_parent_in_subtree delete_in_subtree insert_in_subtree find delete insert'.split()

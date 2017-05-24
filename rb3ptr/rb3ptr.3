@@ -3,20 +3,20 @@
 rb3ptr \- Generic Red-black tree implementation and macros for typesafe access
 .SH SYNOPSIS
 
-The rb3ptr API is divided various sections for user convenience.
+The rb3ptr API is divided in multiple sections for user convenience.
 .P
 DATA DEFINITIONS contains essential structures and definitions.
 .P
-The BASIC FUNCTIONS operate on a generic Red-black tree implementation to
+BASIC FUNCTIONS operate on a generic Red-black tree implementation to
 provide an ordered container API.
 .PP
-The NAVIGATION FUNCTIONS expose additional functionality for navigation in a
-binary search tree.
+NAVIGATION FUNCTIONS expose additional functionality for navigation in a binary
+search tree.
 .PP
-The MACROS generate wrappers for more better type-safety and more convenient
-access with fixed comparison functions.
+MACROS generate wrappers for more better type-safety and more convenient access
+with fixed comparison functions.
 .PP
-The BSD MACROS expose a BSD
+BSD MACROS expose a BSD
 .B <sys/tree.h>
 compatible interface.
 
@@ -28,7 +28,6 @@ compatible interface.
 
 .BI "typedef int (*" rb3_cmp ")(struct rb3_head *, struct rb3_head *);"
 
-.BI "typedef int (*" rb3_datacmp ")(struct rb3_head *, void *);"
 
 .SS BASIC FUNCTIONS
 
@@ -46,19 +45,18 @@ compatible interface.
 
 .BI "struct rb3_head *rb3_get_next(struct rb3_head *" head );
 
-.BI "struct rb3_head *rb3_insert(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", struct rb3_head *" head );
+.BI "struct rb3_head *rb3_find(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", void *" data );
 
-.BI "struct rb3_head *rb3_find(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", struct rb3_head *" head );
+.BI "struct rb3_head *rb3_find_parent(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", void *" data ", struct rb3_head **" parent_out ", int *" dir );
 
-.BI "struct rb3_head *rb3_delete(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", struct rb3_head *" head );
+.BI "void rb3_link_node(struct rb3_head *" head ", struct rb3_head *" parent ", int " dir );
 
-.BI "struct rb3_head *rb3_insert_datacmp(struct rb3_tree *" tree ", struct rb3_datacmp " cmp ", struct rb3_head *" head );
+.BI "void rb3_unlink_node(struct rb3_head *" head );
 
-.BI "struct rb3_head *rb3_find_datacmp(struct rb3_tree *" tree ", struct rb3_datacmp " cmp ", struct rb3_head *" head );
+.BI "struct rb3_head *rb3_insert(struct rb3_tree *" tree ", struct rb3_head *" head ", struct rb3_cmp " cmp ", void *" data);
 
-.BI "struct rb3_head *rb3_delete_datacmp(struct rb3_tree *" tree ", struct rb3_datacmp " cmp ", struct rb3_head *" head );
+.BI "struct rb3_head *rb3_delete(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", void *" data );
 
-.BI "void rb3_delete_head(struct rb3_head *" head );
 
 .SS NAVIGATION FUNCTIONS
 
@@ -91,6 +89,7 @@ and
 .BI "struct rb3_head *rb3_get_prev_descendant(struct rb3_head *" head );
 
 .BI "struct rb3_head *rb3_get_next_descendant(struct rb3_head *" head );
+
 
 .SS MACROS
 
@@ -157,26 +156,17 @@ structures.
 
 .P
 .B rb3_cmp
-is the function type used to implement the ordering of nodes in a tree.
-It receives two 
-.B "struct rb3_head"
-pointers and returns an integer less than, equal to, or greater than 0,
-indicating whether the first node compares less than, equal to, or greater than
-the second node. This function is always user-provided. Typically it will use
-.BR offsetof "(3) or the"
+is the function type of user-provided comparisons to direct tree searches. At
+each visited node, the function is called with the node and a user-provided
+data as arguments. It should return an integer less than, equal to, or greater
+than 0, indicating whether the node in the tree compares less than, equal to,
+or greater than the user-provided data. This function is always user-provided.
+Typically it will make use
+.BR offsetof "(3) or the linux"
 .BR container_of ()
-macro from linux to get at the actual data in which the
-.BR rb3_head
+macro to get at the actual data in which the
+.BR "struct rb3_head" node
 is embedded.
-
-.P
-The
-.B rb3_datacmp
-function type is similar, but it receives a
-.B void *
-as second argument. This can be used to provide custom context to the
-comparison. Often that will be a pointer to a structure holding node data and
-some additional information.
 
 .P
 .BR rb3_init ()
@@ -210,6 +200,23 @@ can be used to get the next or previous node linked in the same tree (with
 respect to in-order traversal). If no such node exists, NULL is returned.
 
 .P
+.BR rb3_find ()
+finds a node in a tree. If no node comparing equal (i.e., the comparison
+function returns 0 given the visited node and the user-provided node) is found
+in the tree, NULL is returned.
+
+.P
+.BR rb3_find ()
+is similar to
+.BR rb3_find (),
+but when the search is unsuccessful, the suitable insertion point (for a node
+matching the search) is returned in the out-arguments. After that,
+.BR rb3_link_node ()
+can be used to add the node. (
+.BR rb3_insert ()
+can be used to do this in a single function call).
+
+.P
 .BR rb3_insert ()
 can be used to insert a new node into a tree at a suitable insertion point. It
 receives a tree, the new node to insert, and a
@@ -221,28 +228,21 @@ Otherwise, the to-be-inserted node is linked into the tree and NULL is
 returned.
 
 .P
-.BR rb3_find ()
-finds a node in a tree. If no node comparing equal (i.e., the comparison
-function returns 0 given the visited node and the user-provided node) is found
-in the tree, NULL is returned.
-
-.P
 .BR rb3_delete ()
-finds a node in a tree given a comparison function. If the node is found, it is
-unlinked and a pointer to it is returned. Otherwise, NULL is returned.
+does a node search in a tree given a comparison function and data. If a
+matching node is found, it is unlinked from the tree and a pointer to it is
+returned. Otherwise, NULL is returned.
 
 .P
-The functions
-.BR rb3_insert_datacmp "(), " rb3_find_datacmp "(), " rb3_delete_datacmp ()
-are similar to
-.BR rb3_insert "(), " rb3_find "(), " rb3_delete ()
-but receive a
-.BR rb3_datacmp
-comparison function.
+.BR rb3_link_node ()
+can be used to link a given node into a tree given an insertion point (parent
+node and its child direction). The appropriate insertion point can be found
+using
+.BR rb3_find_parent ().
 
 .P
-.BR rb3_delete_head ()
-can be used to remove a given node from a tree without any search. The node
+.BR rb3_unlink_node ()
+can be used to unlink a given node from a tree without any search. The node
 must be known to be linked in a tree.
 
 

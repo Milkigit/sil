@@ -1,10 +1,3 @@
-- probably rename rb3_head to rb3_node
-- revise find/insert/delete API. Probably something like:
-    struct rb3_head *rb3_find(struct rb3_tree *, rb3_datacmp, void *);
-    // is this needed at all?
-    struct rb3_head *rb3_find_insertion_point(struct rb3_tree *, rb3_datacmp, void *, struct rb3_head **, int *);
-    //
-    struct rb3_head *rb3_find_insert(struct rb3_tree *, struct rb3_head *, rb3_datacmp, void *);
-    struct rb3_head *rb3_unlink(struct rb3_head *);
-    // Probably we also want
-    int rb3_is_linked(struct rb3_head *);
+- maybe rename rb3_head to rb3_node or rb3_link
+- offer parameterised *_minmax() function and iteration macros with
+  parameterized direction, similar to BSD tree.h.

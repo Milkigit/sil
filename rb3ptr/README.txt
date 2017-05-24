@@ -18,6 +18,17 @@ library.
 
 Implementation notes can be found at http://jstimpfle.de/blah/rbtree/main.html
 
+Some Characteristics
+====================
+
+- Intrusively linked, no memory allocation performed
+- Not thread safe
+- Comparison function user-provided at each call. Flexible but dangerous.
+- So far, no story for "multi-maps" (multiple nodes in the same tree that
+  compare equal). A nice API for handling such situations is planned.
+- API Wrapper macros for convenience, a little type-safety, and inlined
+  comparison functions.
+
 Building the source
 ===================
 

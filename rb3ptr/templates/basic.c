@@ -65,59 +65,79 @@ _RB3_API
 struct rb3_head *rb3_get_next(struct rb3_head *head);
 
 /**
- * Insert `head` into `tree` using `cmp` to direct the search. At each visited
- * node in the tree `cmp` is called with that node and `head` as arguments (in
- * that order). If a node that compares equal is found, it is returned.
- * Otherwise, `head` is inserted into the tree and NULL is returned.
+ * Find a node in `tree` using `cmp` to direct the search. At each visited
+ * node in the tree `cmp` is called with that node and `data` as arguments.
+ * If a node that compares equal is found, it is returned. Otherwise, NULL is
+ * returned.
  *
  * Time complexity: O(log n)
  */
 _RB3_API
-struct rb3_head *rb3_insert(struct rb3_tree *tree, struct rb3_head *head, rb3_cmp cmp);
+struct rb3_head *rb3_find(struct rb3_tree *tree, rb3_cmp cmp, void *data);
 
 /**
- * Find `head` in `tree` using `cmp` to direct the search. At each visited
- * node in the tree `cmp` is called with that node and `head` as arguments (in
- * that order). If a node that compares equal is found, it is returned.
- * Otherwise, NULL is returned.
+ * Find a suitable insertion point for a new node in `tree` using `cmp` and
+ * `data` to direct the search. At each visited node in the tree `cmp` is
+ * called with that node and `data` as arguments. If a node that compares
+ * equal is found, it is returned. Otherwise, NULL is returned and the
+ * insertion point is returned as parent node and child direction in
+ * `parent_out` and `dir_out`.
  *
  * Time complexity: O(log n)
  */
 _RB3_API
-struct rb3_head *rb3_find(struct rb3_tree *tree, rb3_cmp cmp, struct rb3_head *head);
+struct rb3_head *rb3_find_parent(struct rb3_tree *tree, rb3_cmp cmp, void *data, struct rb3_head **parent_out, int *dir_out);
 
 /**
- * Delete `head` from `tree` using `cmp` to direct the search. At each visited
- * node in the tree `cmp` is called with that node and `head` as arguments (in
- * that order). If a node that compares equal is found, it is unlinked from
- * the tree and returned. Otherwise, NULL is returned.
+ * Link `node` into `tree` below another node in the given direction (RB3_LEFT
+ * or RB3_RIGHT). The new node must replace a leaf. You can use
+ * rb3_find_parent() to find the insertion point.
+ *
+ * `node` must not be linked into another tree when this function is called.
  *
  * Time complexity: O(log n)
  */
 _RB3_API
-struct rb3_head *rb3_delete(struct rb3_tree *tree, rb3_cmp cmp, struct rb3_head *head);
+void rb3_link_node(struct rb3_head *head, struct rb3_head *parent, int dir);
 
 /**
- * Like rb3_insert() but use a rb3_datacmp comparison function and `data` to
- * direct the search. Note in particular that `head` is not used during the
- * search phase.
+ * Unlink `node` from its current tree.
+ *
+ * Time complexity: O(log n)
  */
 _RB3_API
-struct rb3_head *rb3_insert_datacmp(struct rb3_tree *tree, struct rb3_head *head, rb3_datacmp datacmp, void *data);
+void rb3_unlink_node(struct rb3_head *head);
 
 /**
- * Like rb3_find() but use a rb3_datacmp comparison function and `data` to
- * direct the search.
+ * Insert `head` into `tree` using `cmp` and `data` to direct the search. At
+ * each visited node in the tree `cmp` is called with that node and `data` as
+ * arguments (in that order). If a node that compares equal is found, it is
+ * returned. Otherwise, `head` is inserted into the tree and NULL is
+ * returned.
+ *
+ * Time complexity: O(log n)
  */
 _RB3_API
-struct rb3_head *rb3_find_datacmp(struct rb3_tree *tree, rb3_datacmp cmp, void *data);
+struct rb3_head *rb3_insert(struct rb3_tree *tree, struct rb3_head *head, rb3_cmp cmp, void *data);
 
 /**
- * Like rb3_delete() but use a rb3_datacmp comparison function and `data` to
- * direct the search.
+ * Find and delete a node from `tree` using `cmp` to direct the search. At
+ * each visited node in the tree `cmp` is called with that node and `head` as
+ * arguments (in that order). If a node that compares equal is found, it is
+ * unlinked from the tree and returned. Otherwise, NULL is returned.
+ *
+ * Time complexity: O(log n)
  */
 _RB3_API
-struct rb3_head *rb3_delete_datacmp(struct rb3_tree *tree, rb3_datacmp cmp, void *data);
+struct rb3_head *rb3_delete(struct rb3_tree *tree, rb3_cmp cmp, void *data);
+
+/**
+ * Given a node that is known to be linked in _some_ tree, find that tree.
+ *
+ * This involves a little hackery with offsetof(3)
+ */
+_RB3_API
+struct rb3_tree *rb3_get_containing_tree(struct rb3_head *head);
 
 /*
  * Inline implementations

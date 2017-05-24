@@ -189,7 +189,7 @@ void rb3_insert_rebalance(struct rb3_head *head)
 }
 
 _RB3_API _RB3_NEVERINLINE
-void rb3_insert_below(struct rb3_head *head, struct rb3_head *parent, int dir)
+void rb3_link_node(struct rb3_head *head, struct rb3_head *parent, int dir)
 {
         _RB3_ASSERT(dir == RB3_LEFT || dir == RB3_RIGHT);
         _RB3_ASSERT(!rb3_has_child(parent, dir));
@@ -312,7 +312,7 @@ void rb3_delete_internal(struct rb3_head *head)
 }
 
 _RB3_API _RB3_NEVERINLINE
-void rb3_delete_head(struct rb3_head *head)
+void rb3_unlink_node(struct rb3_head *head)
 {
         if (rb3_has_child(head, RB3_LEFT) && rb3_has_child(head, RB3_RIGHT))
                 rb3_delete_internal(head);
@@ -332,13 +332,13 @@ void rb3_delete_head(struct rb3_head *head)
 /* node-find implementations using code from inline header functions */
 
 _RB3_API _RB3_NEVERINLINE
-struct rb3_head *rb3_find_in_subtree_datacmp(struct rb3_head *subtree, rb3_datacmp cmp, void *data)
+struct rb3_head *rb3_find_in_subtree(struct rb3_head *subtree, rb3_cmp cmp, void *data)
 {
         return rb3_INLINE_find_in_subtree(subtree, cmp, data);
 }
 
 _RB3_API _RB3_NEVERINLINE
-struct rb3_head *rb3_find_parent_in_subtree_datacmp(struct rb3_head *parent, int dir, rb3_datacmp cmp, void *data, struct rb3_head **parent_out, int *dir_out)
+struct rb3_head *rb3_find_parent_in_subtree(struct rb3_head *parent, int dir, rb3_cmp cmp, void *data, struct rb3_head **parent_out, int *dir_out)
 {
         return rb3_INLINE_find_parent_in_subtree(parent, dir, cmp, data, parent_out, dir_out);
 }
@@ -346,7 +346,7 @@ struct rb3_head *rb3_find_parent_in_subtree_datacmp(struct rb3_head *parent, int
 /* find, insert, delete with rb3_datacmp */
 
 _RB3_API _RB3_NEVERINLINE
-struct rb3_head *rb3_insert_datacmp(struct rb3_tree *tree, struct rb3_head *head, rb3_datacmp cmp, void *data)
+struct rb3_head *rb3_insert(struct rb3_tree *tree, struct rb3_head *head, rb3_cmp cmp, void *data)
 {
         struct rb3_head *found;
         struct rb3_head *parent;
@@ -354,50 +354,36 @@ struct rb3_head *rb3_insert_datacmp(struct rb3_tree *tree, struct rb3_head *head
 
         parent = rb3_get_base(tree);
         dir = RB3_LEFT;
-        found = rb3_find_parent_in_subtree_datacmp(parent, dir, cmp, data, &parent, &dir);
+        found = rb3_find_parent_in_subtree(parent, dir, cmp, data, &parent, &dir);
         if (found)
                 return found;
-        rb3_insert_below(head, parent, dir);
+        rb3_link_node(head, parent, dir);
         return _RB3_NULL;
 }
 
 _RB3_API _RB3_NEVERINLINE
-struct rb3_head *rb3_delete_datacmp(struct rb3_tree *tree, rb3_datacmp cmp, void *data)
+struct rb3_head *rb3_delete(struct rb3_tree *tree, rb3_cmp cmp, void *data)
 {
         struct rb3_head *found;
         
-        found = rb3_find_in_subtree_datacmp(rb3_get_root(tree), cmp, data);
+        found = rb3_find_in_subtree(rb3_get_root(tree), cmp, data);
         if (found) {
-                rb3_delete_head(found);
+                rb3_unlink_node(found);
                 return found;
         }
         return _RB3_NULL;
 }
 
 _RB3_API _RB3_NEVERINLINE
-struct rb3_head *rb3_find_datacmp(struct rb3_tree *tree, rb3_datacmp cmp, void *data)
+struct rb3_head *rb3_find(struct rb3_tree *tree, rb3_cmp cmp, void *data)
 {
-        return rb3_find_in_subtree_datacmp(rb3_get_root(tree), cmp, data);
-}
-
-/* find, insert, delete with rb3_cmp */
-
-_RB3_API _RB3_NEVERINLINE
-struct rb3_head *rb3_insert(struct rb3_tree *tree, struct rb3_head *head, rb3_cmp cmp)
-{
-        return rb3_insert_datacmp(tree, head, (rb3_datacmp) cmp, head);
+        return rb3_find_in_subtree(rb3_get_root(tree), cmp, data);
 }
 
 _RB3_API _RB3_NEVERINLINE
-struct rb3_head *rb3_delete(struct rb3_tree *tree, rb3_cmp cmp, struct rb3_head *head)
+struct rb3_head *rb3_find_parent(struct rb3_tree *tree, rb3_cmp cmp, void *data, struct rb3_head **parent_out, int *dir_out)
 {
-        return rb3_delete_datacmp(tree, (rb3_datacmp) cmp, head);
-}
-
-_RB3_API _RB3_NEVERINLINE
-struct rb3_head *rb3_find(struct rb3_tree *tree, rb3_cmp cmp, struct rb3_head *head)
-{
-        return rb3_find_datacmp(tree, (rb3_datacmp) cmp, head);
+        return rb3_find_parent_in_subtree(rb3_get_root(tree), RB3_LEFT, cmp, data, parent_out, dir_out);
 }
 
 /* */

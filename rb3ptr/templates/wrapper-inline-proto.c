@@ -52,10 +52,16 @@ NODE_TYPE *get_next(NODE_TYPE *node)
         return GET_NODE(rb3_get_next(GET_HEAD(node)));
 }
 
+/*
+ * Delete a node that is known to be linked in a tree.
+ *
+ * This is deletion with a refined equivalence relation where nodes are only
+ * equal iff their memory addresses are identical.
+ */
 _RB3_API_STATIC_INLINE
-NODE_TYPE *get_root(OUTER_TREE_TYPE *tree)
+void unlink_node(NODE_TYPE *node)
 {
-        return GET_NODE(rb3_get_root(INNER_TREE(tree)));
+        rb3_unlink_node(GET_HEAD(node));
 }
 
 /*
@@ -63,6 +69,12 @@ NODE_TYPE *get_root(OUTER_TREE_TYPE *tree)
  * Binary Search Tree stuff
  * --------------------------
  */
+
+_RB3_API_STATIC_INLINE
+NODE_TYPE *get_root(OUTER_TREE_TYPE *tree)
+{
+        return GET_NODE(rb3_get_root(INNER_TREE(tree)));
+}
 
 _RB3_API_STATIC_INLINE
 int has_child(NODE_TYPE *node, int dir)
@@ -109,18 +121,6 @@ _RB3_API_STATIC_INLINE
 NODE_TYPE *get_next_descendant(NODE_TYPE *node)
 {
         return GET_NODE(rb3_get_next_descendant(GET_HEAD(node)));
-}
-
-/*
- * Delete a node that is known to be linked in a tree.
- *
- * This is deletion with a refined equivalence relation where nodes are only
- * equal iff their memory addresses are identical.
- */
-_RB3_API_STATIC_INLINE
-void delete_head(NODE_TYPE *node)
-{
-        rb3_delete_head(GET_HEAD(node));
 }
 
 _RB3_API_STATIC_INLINE
