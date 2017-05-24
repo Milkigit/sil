@@ -2,6 +2,11 @@
 .SH NAME
 rb3ptr \- Generic Red-black tree implementation and macros for typesafe access
 .SH SYNOPSIS
+
+The rb3ptr API is divided various sections for user convenience.
+.P
+DATA DEFINITIONS contains essential structures and definitions.
+.P
 The BASIC FUNCTIONS operate on a generic Red-black tree implementation to
 provide an ordered container API.
 .PP
@@ -14,6 +19,16 @@ access with fixed comparison functions.
 The BSD MACROS expose a BSD
 .B <sys/tree.h>
 compatible interface.
+
+.SS DATA DEFINITIONS
+
+.BI "struct rb3_tree;"
+
+.BI "struct rb3_head;"
+
+.BI "typedef int (*" rb3_cmp ")(struct rb3_head *, struct rb3_head *);"
+
+.BI "typedef int (*" rb3_datacmp ")(struct rb3_head *, void *);"
 
 .SS BASIC FUNCTIONS
 
@@ -42,6 +57,194 @@ compatible interface.
 .BI "struct rb3_head *rb3_find_datacmp(struct rb3_tree *" tree ", struct rb3_datacmp " cmp ", struct rb3_head *" head );
 
 .BI "struct rb3_head *rb3_delete_datacmp(struct rb3_tree *" tree ", struct rb3_datacmp " cmp ", struct rb3_head *" head );
+
+.BI "void rb3_delete_head(struct rb3_head *" head );
+
+.SS NAVIGATION FUNCTIONS
+
+Note: Valid values for
+.I dir
+are
+.B RB3_LEFT
+and
+.B RB3_RIGHT
+(0 and 1).
+
+.BI "struct rb3_head *rb3_get_root(struct rb3_tree *" tree );
+
+.BI "struct rb3_head *rb3_get_base(struct rb3_tree *" tree );
+
+.BI "int rb3_is_base(struct rb3_head *" head );
+
+.BI "int rb3_has_child(struct rb3_head *" head ", int " dir );
+
+.BI "int rb3_get_parent_dir(struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_get_parent(struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_get_child(struct rb3_head *" head ", int " dir );
+
+.BI "struct rb3_head *rb3_get_prev_ancestor(struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_get_next_ancestor(struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_get_prev_descendant(struct rb3_head *" head );
+
+.BI "struct rb3_head *rb3_get_next_descendant(struct rb3_head *" head );
+
+.SS MACROS
+
+.BI RB3_GEN_IMPL()
+
+.BI RB3_GEN_IMPL_STATIC()
+
+.BI RB3_GEN_INLINE( NAME ", " NODETYPE ", " GET_HEAD ", " GET_NODE )
+
+.BI RB3_GEN_NODECMP( NAME ", " NODETYPE ", " GET_HEAD ", " GET_NODE ", " NODECMP )
+
+
+.SS BSD MACROS
+
+These MACROS expose a BSD
+.B <sys/tree.h>
+compatible interface. Unfortunately,
+.BR RB_LEFT ()
+and
+.BR RB_RIGHT ()
+cannot be supported due to missing information in the signature.
+
+.BI RB_PROTOTYPE()
+
+.BI RB_PROTOTYPE_STATIC()
+
+.BI RB_GENERATE()
+
+.BI RB_GENERATE_STATIC()
+
+.BI RB_INIT( tree )
+
+.BI RB_INSERT( NAME ", " tree ", " elm )
+
+.BI RB_FIND( NAME ", " tree ", " elm )
+
+.BI RB_REMOVE( NAME ", " tree ", " elm )
+
+.BI RB_MIN( NAME ", " tree )
+
+.BI RB_MAX( NAME ", " tree )
+
+.BI RB_PREV( NAME ", " tree ", " elm )
+
+.BI RB_NEXT( NAME ", " tree ", " elm )
+
+
+.SH DOCUMENTATION
+
+This section contains explanations for the structures and prototypes listed
+above.
+
+.P
+.B "struct rb3_tree"
+is the basic tree type. It holds the root link for one red-black tree in a
+running program.
+
+.P
+.B "struct rb3_head"
+is the linking information for a node in the tree. Data that should be linked
+in a tree must contain such a structure. The tree implementation does not care
+about the actual data, but simply maintains the links between the link
+structures.
+
+.P
+.B rb3_cmp
+is the function type used to implement the ordering of nodes in a tree.
+It receives two 
+.B "struct rb3_head"
+pointers and returns an integer less than, equal to, or greater than 0,
+indicating whether the first node compares less than, equal to, or greater than
+the second node. This function is always user-provided. Typically it will use
+.BR offsetof "(3) or the"
+.BR container_of ()
+macro from linux to get at the actual data in which the
+.BR rb3_head
+is embedded.
+
+.P
+The
+.B rb3_datacmp
+function type is similar, but it receives a
+.B void *
+as second argument. This can be used to provide custom context to the
+comparison. Often that will be a pointer to a structure holding node data and
+some additional information.
+
+.P
+.BR rb3_init ()
+can be used to initialize a
+.B struct rb3_tree.
+Zeroing out the structure (e.g., with
+.BR memset()
+or static initialization) is also believed to work.
+
+.P
+.BR rb3_exit ()
+can be used to free the resources associated with a tree. There are currently
+no such resources, and it should also be ok to zero it out. Usage of this
+function is recommended for future-proofness and also for reasons of symmetry.
+
+.P
+.BR rb3_isempty ()
+can be used to test if a tree does not contain any nodes. This of course is
+true after initialization.
+
+.P
+.BR rb3_get_min "() and"
+.BR rb3_get_max ()
+can be used to get the leftmost / rightmost element linked in a tree. If the
+tree is empty, NULL is returned.
+
+.P
+.BR rb3_get_prev "() and"
+.BR rb3_get_next ()
+can be used to get the next or previous node linked in the same tree (with
+respect to in-order traversal). If no such node exists, NULL is returned.
+
+.P
+.BR rb3_insert ()
+can be used to insert a new node into a tree at a suitable insertion point. It
+receives a tree, the new node to insert, and a
+.B rb3_cmp
+function implementing the node ordering to direct the search. If a node
+comparing equal (i.e., the comparison function returns 0 given the visited node
+and the user-provided node) is found in the tree, that node is returned.
+Otherwise, the to-be-inserted node is linked into the tree and NULL is
+returned.
+
+.P
+.BR rb3_find ()
+finds a node in a tree. If no node comparing equal (i.e., the comparison
+function returns 0 given the visited node and the user-provided node) is found
+in the tree, NULL is returned.
+
+.P
+.BR rb3_delete ()
+finds a node in a tree given a comparison function. If the node is found, it is
+unlinked and a pointer to it is returned. Otherwise, NULL is returned.
+
+.P
+The functions
+.BR rb3_insert_datacmp "(), " rb3_find_datacmp "(), " rb3_delete_datacmp ()
+are similar to
+.BR rb3_insert "(), " rb3_find "(), " rb3_delete ()
+but receive a
+.BR rb3_datacmp
+comparison function.
+
+.P
+.BR rb3_delete_head ()
+can be used to remove a given node from a tree without any search. The node
+must be known to be linked in a tree.
+
 
 .SS NAVIGATION FUNCTIONS
 
