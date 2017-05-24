@@ -73,7 +73,7 @@ int main(void)
                 foo[i].val = NUM_FOOS - (int) i;
         for (i = 0; i < NUM_FOOS; i++)
                 RB3_INSERT(footree, &tree, &foo[i]);
-        for (iter = footree_get_min(&tree); iter != NULL; iter = footree_get_next(iter))
+        RB3_FOREACH(footree, &tree, iter)
                 printf("iter %d\n", iter->val);
         for (i = 0; i < NUM_FOOS; i++)
                 RB3_DELETE(footree, &tree, &foo[i]);

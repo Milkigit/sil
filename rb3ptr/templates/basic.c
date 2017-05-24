@@ -35,7 +35,7 @@ int rb3_isempty(struct rb3_tree *tree);
  *
  * Time complexity: O(log n)
  */
-_RB3_API
+_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_min(struct rb3_tree *tree);
 
 /**
@@ -43,7 +43,7 @@ struct rb3_head *rb3_get_min(struct rb3_tree *tree);
  *
  * Time complexity: O(log n)
  */
-_RB3_API
+_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_max(struct rb3_tree *tree);
 
 /**
@@ -52,7 +52,7 @@ struct rb3_head *rb3_get_max(struct rb3_tree *tree);
  *
  * Time complexity: O(log n), amortized over sequential scan: O(1)
  */
-_RB3_API
+_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_prev(struct rb3_head *head);
 
 /**
@@ -61,8 +61,25 @@ struct rb3_head *rb3_get_prev(struct rb3_head *head);
  *
  * Time complexity: O(log n), amortized over sequential scan: O(1)
  */
-_RB3_API
+_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_next(struct rb3_head *head);
+
+/**
+ * Get minimum or maximum, depending on the value of `dir` (RB3_LEFT or
+ * RB3_RIGHT)
+ *
+ * Time complexity: O(log n)
+ */
+_RB3_API
+struct rb3_head *rb3_get_minmax(struct rb3_tree *tree, int dir);
+
+/**
+ * Get previous or next in-order node, depending on the value of `dir`.
+ *
+ * Time complexity: O(log n), amortized over sequential scan: O(1)
+ */
+_RB3_API
+struct rb3_head *rb3_get_prevnext(struct rb3_head *head, int dir);
 
 /**
  * Find a node in `tree` using `cmp` to direct the search. At each visited
@@ -139,6 +156,7 @@ struct rb3_head *rb3_delete(struct rb3_tree *tree, rb3_cmp cmp, void *data);
 _RB3_API
 struct rb3_tree *rb3_get_containing_tree(struct rb3_head *head);
 
+
 /*
  * Inline implementations
  */
@@ -147,4 +165,28 @@ _RB3_API_STATIC_INLINE
 int rb3_isempty(struct rb3_tree *tree)
 {
         return !rb3_has_child(rb3_get_base(tree), RB3_LEFT);
+}
+
+_RB3_API_STATIC_INLINE
+struct rb3_head *rb3_get_min(struct rb3_tree *tree)
+{
+        return rb3_get_minmax(tree, RB3_LEFT);
+}
+
+_RB3_API_STATIC_INLINE
+struct rb3_head *rb3_get_max(struct rb3_tree *tree)
+{
+        return rb3_get_minmax(tree, RB3_RIGHT);
+}
+
+_RB3_API_STATIC_INLINE
+struct rb3_head *rb3_get_prev(struct rb3_head *head)
+{
+        return rb3_get_prevnext(head, RB3_LEFT);
+}
+
+_RB3_API_STATIC_INLINE
+struct rb3_head *rb3_get_next(struct rb3_head *head)
+{
+        return rb3_get_prevnext(head, RB3_RIGHT);
 }

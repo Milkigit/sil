@@ -45,6 +45,10 @@ compatible interface.
 
 .BI "struct rb3_head *rb3_get_next(struct rb3_head *" head );
 
+.BI "struct rb3_head *rb3_get_minmax(struct rb3_tree *" tree ", int " dir );
+
+.BI "struct rb3_head *rb3_get_prevnext(struct rb3_head *" head ", int " dir );
+
 .BI "struct rb3_head *rb3_find(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", void *" data );
 
 .BI "struct rb3_head *rb3_find_parent(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", void *" data ", struct rb3_head **" parent_out ", int *" dir );
@@ -194,10 +198,18 @@ can be used to get the leftmost / rightmost element linked in a tree. If the
 tree is empty, NULL is returned.
 
 .P
-.BR rb3_get_prev "() and"
-.BR rb3_get_next ()
+.BR rb3_get_prev "() and " rb3_get_next ()
 can be used to get the next or previous node linked in the same tree (with
 respect to in-order traversal). If no such node exists, NULL is returned.
+
+.P
+The functions
+.BR rb3_get_minmax "() and " rb3_get_prevnext ()
+can be used instead of
+.BR rb3_get_min "(), " rb3_get_max "(), " rb3_get_prev "(), and " rb3_next () .
+They take the direction as runtime parameter
+.RB ( RB3_LEFT " or " RB3_RIGHT ).
+
 
 .P
 .BR rb3_find ()
@@ -219,7 +231,7 @@ can be used to do this in a single function call).
 .P
 .BR rb3_insert ()
 can be used to insert a new node into a tree at a suitable insertion point. It
-receives a tree, the new node to insert, and a
+takes a tree, the new node to insert, and a
 .B rb3_cmp
 function implementing the node ordering to direct the search. If a node
 comparing equal (i.e., the comparison function returns 0 given the visited node

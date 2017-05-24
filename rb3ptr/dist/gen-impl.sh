@@ -19,7 +19,7 @@ cat <<EOF
 #define _RB3_NEVERINLINE __attribute__((noinline))
 EOF
 
-for i in defs.c types.c basic.c internal.c navigate.c ; do
+for i in defs.c types.c internal.c navigate.c basic.c ; do
 	cat templates/"$i"
 done
 } > build/rb3ptr-impl.h

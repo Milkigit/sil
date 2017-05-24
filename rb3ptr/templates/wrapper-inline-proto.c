@@ -52,6 +52,18 @@ NODE_TYPE *get_next(NODE_TYPE *node)
         return GET_NODE(rb3_get_next(GET_HEAD(node)));
 }
 
+_RB3_API_STATIC_INLINE
+NODE_TYPE *get_minmax(OUTER_TREE_TYPE *tree, int dir)
+{
+        return GET_NODE(rb3_get_minmax(INNER_TREE(tree), dir));
+}
+
+_RB3_API_STATIC_INLINE
+NODE_TYPE *get_prevnext(NODE_TYPE *node, int dir)
+{
+        return GET_NODE(rb3_get_prevnext(GET_HEAD(node), dir));
+}
+
 /*
  * Delete a node that is known to be linked in a tree.
  *

@@ -50,11 +50,23 @@ struct BASENAME {  \
 
 /* iteration macros */
 
+#define RB3_FOREACH_DIR(BASENAME, TREE, NODE, DIR) \
+    for (NODE = BASENAME##_get_minmax(TREE, !(DIR)); \
+        !!NODE; NODE = BASENAME##_get_prevnext(NODE, (DIR)))
+
+#define RB3_FOREACH_SAFE_DIR(BASENAME, TREE, NODE, NODE1) \
+    for (NODE = BASENAME##_get_minmax(TREE, !(DIR)); \
+        (!!NODE ? (NODE1 = BASENAME##_get_prevnext(NODE, (DIR)), !!NODE) : !!NODE); \
+        NODE = NODE1)
+
 #define RB3_FOREACH(BASENAME, TREE, NODE) \
-    for (NODE = BASENAME##_get_min(TREE); \
-        !!NODE; NODE = BASENAME##_get_next(NODE))
+        RB3_FOREACH_DIR(BASENAME, (TREE), (NODE), RB3_RIGHT)
 
 #define RB3_FOREACH_SAFE(BASENAME, TREE, NODE, NODE1) \
-    for (NODE = BASENAME##_get_min(TREE); \
-        (!!NODE ? (NODE1 = BASENAME##_get_next(NODE), !!NODE) : !!NODE); \
-        NODE = NODE1)
+        RB3_FOREACH_SAFE_DIR(BASENAME, (TREE), (NODE), (NODE1), RB3_RIGHT)
+
+#define RB3_FOREACH_REVERSE(BASENAME, TREE, NODE) \
+        RB3_FOREACH_DIR(BASENAME, (TREE), (NODE), RB3_LEFT)
+
+#define RB3_FOREACH_REVERSE_SAFE(BASENAME, TREE, NODE, NODE1) \
+        RB3_FOREACH_SAFE_DIR(BASENAME, (TREE), (NODE), (NODE1), RB3_LEFT)
