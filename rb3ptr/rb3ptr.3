@@ -1,64 +1,65 @@
-.TH rb3ptr 3 "May 20, 2017"
+.TH rb3ptr 3 "May 25, 2017"
 .SH NAME
 rb3ptr \- Generic Red-black tree implementation and macros for typesafe access
 .SH SYNOPSIS
 
-The rb3ptr API is divided in multiple sections for user convenience.
-.P
-DATA DEFINITIONS contains essential structures and definitions.
-.P
-BASIC FUNCTIONS operate on a generic Red-black tree implementation to
-provide an ordered container API.
-.PP
-NAVIGATION FUNCTIONS expose additional functionality for navigation in a binary
-search tree.
-.PP
-MACROS generate wrappers for more better type-safety and more convenient access
-with fixed comparison functions.
-.PP
-BSD MACROS expose a BSD
-.B <sys/tree.h>
-compatible interface.
+The rb3ptr API is split into multiple sections.
 
-.SS DATA DEFINITIONS
+DATATYPES contains essential structures and definitions.
+.LP
+BASIC FUNCTIONS has operations on the generic Red-black tree implementation
+that provide an ordered container API.
+.LP
+NAVIGATION FUNCTIONS contains additional functionality for navigation in a
+binary search tree.
+.LP
+MACROS explains the type-specific wrappers for better type-safety and more
+convenient access with fixed comparison functions.
+.LP
+BSD MACROS lists functionality to emulate parts of the BSD
+.I <sys/tree.h>
+API.
+
+
+.SS DATATYPES
 
 .BI "struct rb3_tree;"
-
+.LP
 .BI "struct rb3_head;"
-
-.BI "typedef int (*" rb3_cmp ")(struct rb3_head *, struct rb3_head *);"
+.LP
+.BI "typedef int (*rb3_cmp)(struct rb3_head *" head ", void *" data);
 
 
 .SS BASIC FUNCTIONS
 
 .BI "void rb3_init(struct rb3_tree *" tree );
-
+.LP
 .BI "void rb3_exit(struct rb3_tree *" tree );
-
+.LP
 .BI "int rb3_isempty(struct rb3_tree *" tree );
-
+.LP
 .BI "struct rb3_head *rb3_get_min(struct rb3_tree *" tree );
-
+.LP
 .BI "struct rb3_head *rb3_get_max(struct rb3_tree *" tree );
-
+.LP
 .BI "struct rb3_head *rb3_get_prev(struct rb3_head *" head );
-
+.LP
 .BI "struct rb3_head *rb3_get_next(struct rb3_head *" head );
-
+.LP
 .BI "struct rb3_head *rb3_get_minmax(struct rb3_tree *" tree ", int " dir );
-
+.LP
 .BI "struct rb3_head *rb3_get_prevnext(struct rb3_head *" head ", int " dir );
-
+.LP
 .BI "struct rb3_head *rb3_find(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", void *" data );
-
-.BI "struct rb3_head *rb3_find_parent(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", void *" data ", struct rb3_head **" parent_out ", int *" dir );
-
+.LP
+.BI "struct rb3_head *rb3_find_parent(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", void *" data ", struct rb3_head **" parent_out ", int *" dir_out );
+.LP
 .BI "void rb3_link_node(struct rb3_head *" head ", struct rb3_head *" parent ", int " dir );
-
+.LP
 .BI "void rb3_unlink_node(struct rb3_head *" head );
-
+.LP
 .BI "struct rb3_head *rb3_insert(struct rb3_tree *" tree ", struct rb3_head *" head ", struct rb3_cmp " cmp ", void *" data);
-
+.LP
 .BI "struct rb3_head *rb3_delete(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", void *" data );
 
 
@@ -73,43 +74,59 @@ and
 (0 and 1).
 
 .BI "struct rb3_head *rb3_get_root(struct rb3_tree *" tree );
-
+.LP
 .BI "struct rb3_head *rb3_get_base(struct rb3_tree *" tree );
-
+.LP
 .BI "int rb3_is_base(struct rb3_head *" head );
-
-.BI "int rb3_has_child(struct rb3_head *" head ", int " dir );
-
+.LP
 .BI "int rb3_get_parent_dir(struct rb3_head *" head );
-
+.LP
+.BI "int rb3_has_child(struct rb3_head *" head ", int " dir );
+.LP
 .BI "struct rb3_head *rb3_get_parent(struct rb3_head *" head );
-
+.LP
 .BI "struct rb3_head *rb3_get_child(struct rb3_head *" head ", int " dir );
-
+.LP
 .BI "struct rb3_head *rb3_get_prev_ancestor(struct rb3_head *" head );
-
+.LP
 .BI "struct rb3_head *rb3_get_next_ancestor(struct rb3_head *" head );
-
+.LP
 .BI "struct rb3_head *rb3_get_prev_descendant(struct rb3_head *" head );
-
+.LP
 .BI "struct rb3_head *rb3_get_next_descendant(struct rb3_head *" head );
+.LP
+.BI "struct rb3_head *rb3_get_prevnext_ancestor(struct rb3_head *" head ", int " dir );
+.LP
+.BI "struct rb3_head *rb3_get_prevnext_descendant(struct rb3_head *" head  ", int " dir );
 
 
 .SS MACROS
 
 .BI RB3_GEN_IMPL()
-
+.LP
 .BI RB3_GEN_IMPL_STATIC()
-
+.LP
 .BI RB3_GEN_INLINE( NAME ", " NODETYPE ", " GET_HEAD ", " GET_NODE )
-
+.LP
 .BI RB3_GEN_NODECMP( NAME ", " NODETYPE ", " GET_HEAD ", " GET_NODE ", " NODECMP )
+.LP
+.BI RB3_FOREACH( NAME ", " TREE ", " NODE );
+.LP
+.BI RB3_FOREACH_REVERSE( NAME ", " TREE ", " NODE );
+.LP
+.BI RB3_FOREACH_DIR( NAME ", " TREE ", " NODE );
+.LP
+.BI RB3_FOREACH_SAFE( NAME ", " TREE ", " NODE ", " TMPNODE );
+.LP
+.BI RB3_FOREACH_REVERSE_SAFE( NAME ", " TREE ", " NODE ", " TMPNODE );
+.LP
+.BI RB3_FOREACH_DIR_SAFE( NAME ", " TREE ", " NODE ", " TMPNODE );
 
 
 .SS BSD MACROS
 
 These MACROS expose a BSD
-.B <sys/tree.h>
+.I <sys/tree.h>
 compatible interface. Unfortunately,
 .BR RB_LEFT ()
 and
@@ -117,27 +134,27 @@ and
 cannot be supported due to missing information in the signature.
 
 .BI RB_PROTOTYPE()
-
+.LP
 .BI RB_PROTOTYPE_STATIC()
-
+.LP
 .BI RB_GENERATE()
-
+.LP
 .BI RB_GENERATE_STATIC()
-
+.LP
 .BI RB_INIT( tree )
-
+.LP
 .BI RB_INSERT( NAME ", " tree ", " elm )
-
+.LP
 .BI RB_FIND( NAME ", " tree ", " elm )
-
+.LP
 .BI RB_REMOVE( NAME ", " tree ", " elm )
-
+.LP
 .BI RB_MIN( NAME ", " tree )
-
+.LP
 .BI RB_MAX( NAME ", " tree )
-
+.LP
 .BI RB_PREV( NAME ", " tree ", " elm )
-
+.LP
 .BI RB_NEXT( NAME ", " tree ", " elm )
 
 
@@ -146,19 +163,18 @@ cannot be supported due to missing information in the signature.
 This section contains explanations for the structures and prototypes listed
 above.
 
-.P
+.SS DATATYPES
+
 .B "struct rb3_tree"
 is the basic tree type. It holds the root link for one red-black tree in a
 running program.
 
-.P
 .B "struct rb3_head"
 is the linking information for a node in the tree. Data that should be linked
 in a tree must contain such a structure. The tree implementation does not care
 about the actual data, but simply maintains the links between the link
 structures.
 
-.P
 .B rb3_cmp
 is the function type of user-provided comparisons to direct tree searches. At
 each visited node, the function is called with the node and a user-provided
@@ -172,38 +188,33 @@ macro to get at the actual data in which the
 .BR "struct rb3_head" node
 is embedded.
 
-.P
+
+.SS BASIC FUNCTIONS
+
 .BR rb3_init ()
-can be used to initialize a
+initializes a
 .B struct rb3_tree.
 Zeroing out the structure (e.g., with
 .BR memset()
 or static initialization) is also believed to work.
 
-.P
 .BR rb3_exit ()
-can be used to free the resources associated with a tree. There are currently
-no such resources, and it should also be ok to zero it out. Usage of this
-function is recommended for future-proofness and also for reasons of symmetry.
+frees the resources associated with a tree. There are currently no such
+resources, and it should also be ok to zero it out. Usage of this function is
+recommended for future-proofness and also for reasons of symmetry.
 
-.P
 .BR rb3_isempty ()
-can be used to test if a tree does not contain any nodes. This of course is
-true after initialization.
+tests if a tree does not contain any nodes. This of course is true after
+initialization.
 
-.P
-.BR rb3_get_min "() and"
-.BR rb3_get_max ()
-can be used to get the leftmost / rightmost element linked in a tree. If the
-tree is empty, NULL is returned.
+.BR rb3_get_min "() and " rb3_get_max ()
+return the leftmost / rightmost element linked in a tree. If the tree is empty,
+NULL is returned.
 
-.P
 .BR rb3_get_prev "() and " rb3_get_next ()
-can be used to get the next or previous node linked in the same tree (with
-respect to in-order traversal). If no such node exists, NULL is returned.
+return the previous / next node linked in the same tree (with respect to
+in-order traversal). If no such node exists, NULL is returned.
 
-.P
-The functions
 .BR rb3_get_minmax "() and " rb3_get_prevnext ()
 can be used instead of
 .BR rb3_get_min "(), " rb3_get_max "(), " rb3_get_prev "(), and " rb3_next () .
@@ -211,24 +222,31 @@ They take the direction as runtime parameter
 .RB ( RB3_LEFT " or " RB3_RIGHT ).
 
 
-.P
 .BR rb3_find ()
 finds a node in a tree. If no node comparing equal (i.e., the comparison
-function returns 0 given the visited node and the user-provided node) is found
+function returns 0 given the visited node and the user-provided data) is found
 in the tree, NULL is returned.
 
-.P
-.BR rb3_find ()
+.BR rb3_find_parent ()
 is similar to
 .BR rb3_find (),
-but when the search is unsuccessful, the suitable insertion point (for a node
-matching the search) is returned in the out-arguments. After that,
+but when the search is unsuccessful, the appropriate insertion point for a node
+matching the search is returned in the out-arguments.
 .BR rb3_link_node ()
-can be used to add the node. (
-.BR rb3_insert ()
-can be used to do this in a single function call).
+can then be used to add the node.
+.RB ( rb3_insert ()
+combines these two operations in a single function call).
 
-.P
+.BR rb3_link_node ()
+can be used to link a given node into a tree given an insertion point (parent
+node and its child direction). The appropriate insertion point can be found
+using
+.BR rb3_find_parent ().
+
+.BR rb3_unlink_node ()
+can be used to unlink a given node from a tree without any search. The node
+must be known to be linked in a tree.
+
 .BR rb3_insert ()
 can be used to insert a new node into a tree at a suitable insertion point. It
 takes a tree, the new node to insert, and a
@@ -239,103 +257,129 @@ and the user-provided node) is found in the tree, that node is returned.
 Otherwise, the to-be-inserted node is linked into the tree and NULL is
 returned.
 
-.P
 .BR rb3_delete ()
 does a node search in a tree given a comparison function and data. If a
 matching node is found, it is unlinked from the tree and a pointer to it is
 returned. Otherwise, NULL is returned.
 
-.P
-.BR rb3_link_node ()
-can be used to link a given node into a tree given an insertion point (parent
-node and its child direction). The appropriate insertion point can be found
-using
-.BR rb3_find_parent ().
-
-.P
-.BR rb3_unlink_node ()
-can be used to unlink a given node from a tree without any search. The node
-must be known to be linked in a tree.
-
 
 .SS NAVIGATION FUNCTIONS
 
-Note: Valid values for
-.I dir
-are
-.B RB3_LEFT
-and
-.B RB3_RIGHT
-(0 and 1).
+.BR rb3_get_root ()
+returns the root node in the tree, or NULL if the tree is empty.
 
-.BI "struct rb3_head *rb3_get_root(struct rb3_tree *" tree );
+.BR rb3_get_base ()
+returns the base head of the tree, which always exists. If the tree is
+nonempty, the root node is linked as left child of the base node. This is an
+implementation detail and need not be relied upon in most situations.
 
-.BI "struct rb3_head *rb3_get_base(struct rb3_tree *" tree );
+.BR rb3_get_parent_dir ()
+returns RB3_LEFT or RB3_RIGHT depending on whether the given link node is the
+left or right child of its parent. This is a single bitwise operation on the
+link structure, so is more efficient than testing both childs of the parent's
+link structure.
 
-.BI "int rb3_is_base(struct rb3_head *" head );
+.BR rb3_has_child ()
+tests whether the given link has a child in the given direction.
 
-.BI "int rb3_has_child(struct rb3_head *" head ", int " dir );
+.BR rb3_get_parent ()
+returns the parent link structure of the given node. If the given node is the
+root node, the base head is returned. If this is not what you want, test if the
+return value has itself a parent. (The base head is the only head that has no
+parent).
 
-.BI "int rb3_get_parent_dir(struct rb3_head *" head );
+.BR rb3_get_child ()
+returns the left or right child of the given node, depending on the given
+direction value
+.RB ( RB3_LEFT " or " RB3_RIGHT )
 
-.BI "struct rb3_head *rb3_get_parent(struct rb3_head *" head );
+.BR rb3_get_prev_ancestor ()
+returns the nearest left ancestor of the given head link structure. If none
+exists, NULL is returned.
 
-.BI "struct rb3_head *rb3_get_child(struct rb3_head *" head ", int " dir );
+.BR rb3_get_next_ancestor ()
+returns the nearest right ancestor of the given head link structure. If none
+exists, NULL is returned.
 
-.BI "struct rb3_head *rb3_get_prev_ancestor(struct rb3_head *" head );
+.BR rb3_get_prev_descendant ()
+returns the nearest left descendant of the given head link structure. If none
+exists, NULL is returned.
 
-.BI "struct rb3_head *rb3_get_next_ancestor(struct rb3_head *" head );
+.BR rb3_get_next_descendant ()
+returns the nearest right descendant of the given head link structure. If none
+exists, NULL is returned.
 
-.BI "struct rb3_head *rb3_get_prev_descendant(struct rb3_head *" head );
+.BR rb3_get_prevnext_ancestor ()
+returns the nearest left or right ancestor (depending on the given direction)
+of the given head link structure. If none exists, NULL is returned.
 
-.BI "struct rb3_head *rb3_get_next_descendant(struct rb3_head *" head );
+.BR rb3_get_prevnext_descendant ()
+returns the nearest left or right descendant (depending on the given direction)
+of the given head link structure. If none exists, NULL is returned.
+
 
 .SS MACROS
 
-.BI RB3_GEN_IMPL()
+.BR RB3_GEN_IMPL ()
+evaluates to a complete implementation of the rb3ptr API with
+.I extern
+linkage. Use this only if you can't use a separately compiled rb3ptr libray.
+Macros are hard to debug.
 
-.BI RB3_GEN_IMPL_STATIC()
+.BR RB3_GEN_IMPL_STATIC ()
+evaluates to a complete implementation of the rb3ptr API with
+.I static
+linkage. Use this only if no other file in the same projects need rb3ptr's
+functionality.
 
-.BI RB3_GEN_INLINE( NAME ", " NODETYPE ", " GET_HEAD ", " GET_NODE )
+.BR RB3_GEN_INLINE ()
+evaluates to an implementation of the non-comparison-related functionality of
+rb3ptr wrapped for a specific datatype.
+.I NAME
+should be a prefix for these functions, such as for example
+.IR footree .
+.I NODETYPE
+should be the node type managed by this set of generated functions, such as
+for example
+.IR struct foo
+(see the example below).
+.I GET_HEAD " and " GET_NODE
+should be macros or functions for the generated implementation's use to
+retrieve the embedded link structure from a node, or vice versa.
 
-.BI RB3_GEN_NODECMP( NAME ", " NODETYPE ", " GET_HEAD ", " GET_NODE ", " NODECMP )
+.BR RB3_GEN_NODECMP ()
+TODO
+
+.BR RB3_FOREACH ()
+is a for-loop iteration macro.
+.I NAME
+should be the prefix used in
+.IR RB3_GEN_INLINE ().
+.I TREE
+should be a tree of the generated type
+.RB ( "struct NAME" ).
+.I NODE
+should by a value of type
+.IR "NODETYPE *" .
+It is used as iteration variable.
+
+
+.BR RB3_FOREACH_REVERSE ()
+.BR RB3_FOREACH_DIR ()
+.BR RB3_FOREACH_SAFE ()
+.BR RB3_FOREACH_REVERSE_SAFE ()
+.BR RB3_FOREACH_DIR_SAFE ()
+TODO
 
 
 .SS BSD MACROS
 
-These MACROS expose a BSD
-.B <sys/tree.h>
-compatible interface. Unfortunately,
-.BR RB_LEFT ()
-and
-.BR RB_RIGHT ()
-cannot be supported due to missing information in the signature.
+For documentation of the BSD macros please refer to
+.BR tree (3)
 
-.BI RB_PROTOTYPE()
-
-.BI RB_PROTOTYPE_STATIC()
-
-.BI RB_GENERATE()
-
-.BI RB_GENERATE_STATIC()
-
-.BI RB_INIT( tree )
-
-.BI RB_INSERT( NAME ", " tree ", " elm )
-
-.BI RB_FIND( NAME ", " tree ", " elm )
-
-.BI RB_REMOVE( NAME ", " tree ", " elm )
-
-.BI RB_MIN( NAME ", " tree )
-
-.BI RB_MAX( NAME ", " tree )
-
-.BI RB_PREV( NAME ", " tree ", " elm )
-
-.BI RB_NEXT( NAME ", " tree ", " elm )
 
 .SH EXAMPLE
+
 .nf
 #include <rb3ptr.h>
 
@@ -349,7 +393,7 @@ RB3_GEN_IMPL_STATIC();
  * Define a node datatype and a compare operation
  */
 struct foo {
-	/* the node type must include a rb3_head struct. */
+	/* the node type must include a struct rb3_head. */
 	struct rb3_head head;
 	int val;
 }
@@ -380,5 +424,4 @@ void testoperations(void)
 		footree_delete(&tree, &foo[i]);
 	footree_exit(&tree);
 }
-
 .fi
