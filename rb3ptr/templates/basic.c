@@ -106,24 +106,31 @@ _RB3_API
 struct rb3_head *rb3_find_parent(struct rb3_tree *tree, rb3_cmp cmp, void *data, struct rb3_head **parent_out, int *dir_out);
 
 /**
- * Link `node` into `tree` below another node in the given direction (RB3_LEFT
+ * Link `head` into `tree` below another node in the given direction (RB3_LEFT
  * or RB3_RIGHT). The new node must replace a leaf. You can use
  * rb3_find_parent() to find the insertion point.
  *
- * `node` must not be linked into another tree when this function is called.
+ * `head` must not be linked into another tree when this function is called.
  *
  * Time complexity: O(log n)
  */
 _RB3_API
-void rb3_link_node(struct rb3_head *head, struct rb3_head *parent, int dir);
+void rb3_link_and_rebalance(struct rb3_head *head, struct rb3_head *parent, int dir);
 
 /**
- * Unlink `node` from its current tree.
+ * Unlink `head` from its current tree.
  *
  * Time complexity: O(log n)
  */
 _RB3_API
-void rb3_unlink_node(struct rb3_head *head);
+void rb3_unlink_and_rebalance(struct rb3_head *head);
+
+/**
+ * Replace `head` with `newhead`. `head` must be linked in a tree and
+ * `newhead` must not be linked in a tree.
+ */
+_RB3_API
+void rb3_replace(struct rb3_head *head, struct rb3_head *newhead);
 
 /**
  * Insert `head` into `tree` using `cmp` and `data` to direct the search. At

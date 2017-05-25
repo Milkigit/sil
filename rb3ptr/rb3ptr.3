@@ -54,9 +54,9 @@ API.
 .LP
 .BI "struct rb3_head *rb3_find_parent(struct rb3_tree *" tree ", struct rb3_cmp " cmp ", void *" data ", struct rb3_head **" parent_out ", int *" dir_out );
 .LP
-.BI "void rb3_link_node(struct rb3_head *" head ", struct rb3_head *" parent ", int " dir );
+.BI "void rb3_link_and_rebalance(struct rb3_head *" head ", struct rb3_head *" parent ", int " dir );
 .LP
-.BI "void rb3_unlink_node(struct rb3_head *" head );
+.BI "void rb3_unlink_and_rebalance(struct rb3_head *" head );
 .LP
 .BI "struct rb3_head *rb3_insert(struct rb3_tree *" tree ", struct rb3_head *" head ", struct rb3_cmp " cmp ", void *" data);
 .LP
@@ -79,6 +79,8 @@ and
 .LP
 .BI "int rb3_is_base(struct rb3_head *" head );
 .LP
+.BI "int rb3_is_node_linked(struct rb3_head *" head );
+.LP
 .BI "int rb3_get_parent_dir(struct rb3_head *" head );
 .LP
 .BI "int rb3_has_child(struct rb3_head *" head ", int " dir );
@@ -97,7 +99,7 @@ and
 .LP
 .BI "struct rb3_head *rb3_get_prevnext_ancestor(struct rb3_head *" head ", int " dir );
 .LP
-.BI "struct rb3_head *rb3_get_prevnext_descendant(struct rb3_head *" head  ", int " dir );
+.BI "struct rb3_head *rb3_get_prevnext_descendant(struct rb3_head *" head ", int " dir );
 
 
 .SS MACROS
@@ -182,11 +184,10 @@ data as arguments. It should return an integer less than, equal to, or greater
 than 0, indicating whether the node in the tree compares less than, equal to,
 or greater than the user-provided data. This function is always user-provided.
 Typically it will make use
-.BR offsetof "(3) or the linux"
-.BR container_of ()
+.BR offsetof "(3) or the linux " container_of ()
 macro to get at the actual data in which the
-.BR "struct rb3_head" node
-is embedded.
+.B struct rb3_head
+node is embedded.
 
 
 .SS BASIC FUNCTIONS
@@ -232,18 +233,18 @@ is similar to
 .BR rb3_find (),
 but when the search is unsuccessful, the appropriate insertion point for a node
 matching the search is returned in the out-arguments.
-.BR rb3_link_node ()
+.BR rb3_link_and_rebalance ()
 can then be used to add the node.
 .RB ( rb3_insert ()
 combines these two operations in a single function call).
 
-.BR rb3_link_node ()
+.BR rb3_link_and_rebalance ()
 can be used to link a given node into a tree given an insertion point (parent
 node and its child direction). The appropriate insertion point can be found
 using
 .BR rb3_find_parent ().
 
-.BR rb3_unlink_node ()
+.BR rb3_unlink_and_rebalance ()
 can be used to unlink a given node from a tree without any search. The node
 must be known to be linked in a tree.
 
@@ -272,6 +273,16 @@ returns the root node in the tree, or NULL if the tree is empty.
 returns the base head of the tree, which always exists. If the tree is
 nonempty, the root node is linked as left child of the base node. This is an
 implementation detail and need not be relied upon in most situations.
+
+.BR rb3_is_base ()
+tests whether a link structure is the base node in a tree. This only can distinguish the base node of a tree that was initialized with
+.BR rb3_init (),
+from non-base nodes that are zeroed or properly linked in a tree.
+
+.BR rb3_is_node_linked ()
+tests whether the given non-base node is linked in a (any) tree. This can only
+distinguish nodes that are properly linked in a tree from unlinked or zeroed
+nodes.
 
 .BR rb3_get_parent_dir ()
 returns RB3_LEFT or RB3_RIGHT depending on whether the given link node is the

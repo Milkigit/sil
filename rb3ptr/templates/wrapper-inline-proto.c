@@ -71,9 +71,9 @@ NODE_TYPE *get_prevnext(NODE_TYPE *node, int dir)
  * equal iff their memory addresses are identical.
  */
 _RB3_API_STATIC_INLINE
-void unlink_node(NODE_TYPE *node)
+void unlink_and_rebalance(NODE_TYPE *node)
 {
-        rb3_unlink_node(GET_HEAD(node));
+        rb3_unlink_and_rebalance(GET_HEAD(node));
 }
 
 /*

@@ -24,7 +24,7 @@ struct BASENAME {  \
         BASENAME##_exit(tree)
 
 #define RB3_DELETE_NODE(BASENAME, tree, elm) \
-        BASENAME##_unlink_node(elm)
+        BASENAME##_unlink_and_rebalance(elm)
 
 #define RB3_MIN(BASENAME, tree) \
         BASENAME##_get_min(tree)

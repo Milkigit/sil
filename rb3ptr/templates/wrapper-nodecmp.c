@@ -38,7 +38,7 @@ NODE_TYPE *delete(OUTER_TREE_TYPE *tree, NODE_TYPE *node)
 
         found = find_in_subtree(get_root(tree), node);
         if (found)
-                rb3_unlink_node(GET_HEAD(found));
+                rb3_unlink_and_rebalance(GET_HEAD(found));
         return found;
 }
 
@@ -51,6 +51,6 @@ NODE_TYPE *insert(OUTER_TREE_TYPE *tree, NODE_TYPE *node)
 
         found = find_parent_in_subtree(&INNER_TREE(tree)->base, RB3_LEFT, node, &parent, &dir);
         if (!found)
-                rb3_link_node(GET_HEAD(node), parent, dir);
+                rb3_link_and_rebalance(GET_HEAD(node), parent, dir);
         return found;
 }

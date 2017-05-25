@@ -57,12 +57,6 @@ struct rb3_tree {
 typedef int (*rb3_cmp)(struct rb3_head *head, void *data);
 
 /**
- * Test if given head is fake base of tree.
- */
-_RB3_API_STATIC_INLINE
-int rb3_is_base(struct rb3_head *head);
-
-/**
  * Get fake base of tree.
  *
  * Warning: the special base element is never embedded in a client payload
@@ -73,7 +67,21 @@ _RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_base(struct rb3_tree *tree);
 
 /**
- * Get direction from parent to child by testing the direction
+ * Test if given head is fake base of tree.
+ */
+_RB3_API_STATIC_INLINE
+int rb3_is_base(struct rb3_head *head);
+
+/**
+ * Check if a non-base head is linked in a (any) tree.
+ *
+ * Time complexity: O(1)
+ */
+_RB3_API_STATIC_INLINE
+int rb3_is_node_linked(struct rb3_head *head);
+
+/**
+ * Get direction from parent to child by testing the direction.
  *
  * Return RB3_LEFT or RB3_RIGHT, depending on whether this node is the left or
  * right child of its parent node. If the given node is the root node,
@@ -98,7 +106,7 @@ _RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_parent(struct rb3_head *head);
 
 /*
- * Test if a (left or right) child exists
+ * Test if a (left or right) child exists.
  *
  * This is slightly more efficient than calling rb3_get_child() and comparing
  * to NULL.
@@ -124,15 +132,30 @@ struct rb3_head *rb3_get_child(struct rb3_head *head, int dir);
  */
 
 _RB3_API_STATIC_INLINE
-int rb3_is_base(struct rb3_head *head)
-{
-	return !head->parent;
-}
-
-_RB3_API_STATIC_INLINE
 struct rb3_head *rb3_get_base(struct rb3_tree *tree)
 {
         return &tree->base;
+}
+
+_RB3_API_STATIC_INLINE
+int rb3_is_base(struct rb3_head *head)
+{
+        /*
+         * We could check for the parent pointer being null, but by having
+         * a special sentinel right child value instead, we can make this
+         * function distinguish the base from unlinked pointers as well.
+         *
+         * A side effect is that this breaks programs with trees that are not
+         * initialized with rb3_init(), which could be a good or a bad thing,
+         * I don't know.
+         */
+	return head->child[RB3_RIGHT] == 3;
+}
+
+_RB3_API_STATIC_INLINE
+int rb3_is_node_linked(struct rb3_head *head)
+{
+        return head->parent != 0;
 }
 
 _RB3_API_STATIC_INLINE
