@@ -59,10 +59,10 @@ SYNOPSIS
        struct  rb3_head *rb3_find_parent(struct rb3_tree *tree, struct rb3_cmp
        cmp, void *data, struct rb3_head **parent_out, int *dir_out);
 
-       void rb3_link_node(struct rb3_head *head, struct rb3_head *parent,  int
-       dir);
+       void  rb3_link_and_rebalance(struct  rb3_head  *head,  struct  rb3_head
+       *parent, int dir);
 
-       void rb3_unlink_node(struct rb3_head *head);
+       void rb3_unlink_and_rebalance(struct rb3_head *head);
 
        struct  rb3_head  *rb3_insert(struct  rb3_tree  *tree,  struct rb3_head
        *head, struct rb3_cmp cmp, void *data);
@@ -80,6 +80,8 @@ SYNOPSIS
        struct rb3_head *rb3_get_base(struct rb3_tree *tree);
 
        int rb3_is_base(struct rb3_head *head);
+
+       int rb3_is_node_linked(struct rb3_head *head);
 
        int rb3_get_parent_dir(struct rb3_head *head);
 
@@ -180,7 +182,7 @@ DOCUMENTATION
        the tree compares less than, equal to, or greater  than	the  user-pro‐
        vided  data.  This function is always user-provided.  Typically it will
        make use offsetof(3) or the linux container_of() macro to  get  at  the
-       actual data in which the struct rb3_headnode is embedded.
+       actual data in which the struct rb3_head node is embedded.
 
 
 
@@ -215,16 +217,16 @@ DOCUMENTATION
 
        rb3_find_parent() is similar to rb3_find(),  but  when  the  search  is
        unsuccessful,  the  appropriate insertion point for a node matching the
-       search is returned in the out-arguments.  rb3_link_node() can  then  be
-       used to add the node.  (rb3_insert() combines these two operations in a
-       single function call).
+       search is returned in the out-arguments.  rb3_link_and_rebalance()  can
+       then  be used to add the node.  (rb3_insert() combines these two opera‐
+       tions in a single function call).
 
-       rb3_link_node() can be used to link a given node into a tree  given  an
-       insertion  point (parent node and its child direction). The appropriate
-       insertion point can be found using rb3_find_parent().
+       rb3_link_and_rebalance() can be used to link a given node into  a  tree
+       given  an  insertion  point  (parent node and its child direction). The
+       appropriate insertion point can be found using rb3_find_parent().
 
-       rb3_unlink_node() can be used to unlink a given node from a tree  with‐
-       out any search. The node must be known to be linked in a tree.
+       rb3_unlink_and_rebalance() can be used to unlink a given  node  from  a
+       tree without any search. The node must be known to be linked in a tree.
 
        rb3_insert() can be used to insert a new node into a tree at a suitable
        insertion point. It takes a tree, the new node to insert, and a rb3_cmp
@@ -249,67 +251,76 @@ DOCUMENTATION
        base node. This is an implementation detail and need not be relied upon
        in most situations.
 
+       rb3_is_base()  tests  whether  a  link  structure is the base node in a
+       tree. This only can distinguish the base node of a tree that  was  ini‐
+       tialized  with rb3_init(), from non-base nodes that are zeroed or prop‐
+       erly linked in a tree.
+
+       rb3_is_node_linked() tests whether the given non-base node is linked in
+       a  (any) tree. This can only distinguish nodes that are properly linked
+       in a tree from unlinked or zeroed nodes.
+
        rb3_get_parent_dir() returns RB3_LEFT or RB3_RIGHT depending on whether
        the given link node is the left or right child of its parent. This is a
-       single  bitwise	operation  on the link structure, so is more efficient
+       single bitwise operation on the link structure, so  is  more  efficient
        than testing both childs of the parent's link structure.
 
-       rb3_has_child() tests whether the given link has a child in  the  given
+       rb3_has_child()	tests  whether the given link has a child in the given
        direction.
 
-       rb3_get_parent()  returns  the parent link structure of the given node.
-       If the given node is the root node, the base head is returned. If  this
-       is  not	what  you  want, test if the return value has itself a parent.
+       rb3_get_parent() returns the parent link structure of the  given  node.
+       If  the given node is the root node, the base head is returned. If this
+       is not what you want, test if the return value  has  itself  a  parent.
        (The base head is the only head that has no parent).
 
-       rb3_get_child() returns the left or right  child  of  the  given  node,
+       rb3_get_child()	returns  the  left  or	right child of the given node,
        depending on the given direction value (RB3_LEFT or RB3_RIGHT)
 
-       rb3_get_prev_ancestor()	returns the nearest left ancestor of the given
+       rb3_get_prev_ancestor() returns the nearest left ancestor of the  given
        head link structure. If none exists, NULL is returned.
 
        rb3_get_next_ancestor() returns the nearest right ancestor of the given
        head link structure. If none exists, NULL is returned.
 
-       rb3_get_prev_descendant()  returns  the	nearest left descendant of the
+       rb3_get_prev_descendant() returns the nearest left  descendant  of  the
        given head link structure. If none exists, NULL is returned.
 
-       rb3_get_next_descendant() returns the nearest right descendant  of  the
+       rb3_get_next_descendant()  returns  the nearest right descendant of the
        given head link structure. If none exists, NULL is returned.
 
-       rb3_get_prevnext_ancestor()  returns the nearest left or right ancestor
+       rb3_get_prevnext_ancestor() returns the nearest left or right  ancestor
        (depending on the given direction) of the given head link structure. If
        none exists, NULL is returned.
 
        rb3_get_prevnext_descendant() returns the nearest left or right descen‐
-       dant (depending on the given direction) of the given head  link	struc‐
+       dant  (depending  on the given direction) of the given head link struc‐
        ture. If none exists, NULL is returned.
 
 
 
    MACROS
        RB3_GEN_IMPL() evaluates to a complete implementation of the rb3ptr API
-       with extern linkage. Use this only if you can't use a  separately  com‐
+       with  extern  linkage. Use this only if you can't use a separately com‐
        piled rb3ptr libray.  Macros are hard to debug.
 
-       RB3_GEN_IMPL_STATIC()  evaluates  to  a	complete implementation of the
-       rb3ptr API with static linkage. Use this only if no other file  in  the
+       RB3_GEN_IMPL_STATIC() evaluates to a  complete  implementation  of  the
+       rb3ptr  API  with static linkage. Use this only if no other file in the
        same projects need rb3ptr's functionality.
 
-       RB3_GEN_INLINE()  evaluates to an implementation of the non-comparison-
-       related functionality of rb3ptr wrapped for a specific datatype.   NAME
-       should  be  a  prefix for these functions, such as for example footree.
+       RB3_GEN_INLINE() evaluates to an implementation of the  non-comparison-
+       related	functionality of rb3ptr wrapped for a specific datatype.  NAME
+       should be a prefix for these functions, such as	for  example  footree.
        NODETYPE should be the node type managed by this set of generated func‐
        tions, such as for example structfoo (see the example below).  GET_HEAD
        and  GET_NODE should be macros or functions for the generated implemen‐
-       tation's  use  to  retrieve the embedded link structure from a node, or
+       tation's use to retrieve the embedded link structure from  a  node,  or
        vice versa.
 
        RB3_GEN_NODECMP() TODO
 
        RB3_FOREACH() is a for-loop iteration macro.  NAME should be the prefix
-       used  in RB3_GEN_INLINE().  TREE should be a tree of the generated type
-       (struct NAME).  NODE should by a value of type NODETYPE *.  It is  used
+       used in RB3_GEN_INLINE().  TREE should be a tree of the generated  type
+       (struct	NAME).	NODE should by a value of type NODETYPE *.  It is used
        as iteration variable.
 
 
