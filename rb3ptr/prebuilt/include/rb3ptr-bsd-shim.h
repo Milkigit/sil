@@ -28,10 +28,7 @@
         RB3_GEN_TREE_DEFINITION(NAME)
 
 #define RB_INIT(t) \
-        rb3_init(&(t)->tree)
-
-#define RB_EXIT(t) \
-        rb3_exit(&(t)->tree)
+        rb3_reset_tree(&(t)->tree)
 
 #define RB_INSERT(NAME, tree, elm) \
         NAME##_insert(tree, elm)

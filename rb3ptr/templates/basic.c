@@ -13,14 +13,7 @@
  * Time complexity: O(1)
  */
 _RB3_API
-void rb3_init(struct rb3_tree *tree);
-
-/**
- * Free resources allocated by an rb3_tree (currently none, but this could
- * change).
- */
-_RB3_API
-void rb3_exit(struct rb3_tree *tree);
+void rb3_reset_tree(struct rb3_tree *tree);
 
 /**
  * Check if tree is empty.

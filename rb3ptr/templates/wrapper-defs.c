@@ -17,11 +17,8 @@ struct BASENAME {  \
  * and so on.
  */
 
-#define RB3_INIT(BASENAME, tree) \
-        BASENAME##_init(tree)
-
-#define RB3_EXIT(BASENAME, tree) \
-        BASENAME##_exit(tree)
+#define RB3_RESET_TREE(BASENAME, tree) \
+        BASENAME##_reset_tree(tree)
 
 #define RB3_DELETE_NODE(BASENAME, tree, elm) \
         BASENAME##_unlink_and_rebalance(elm)

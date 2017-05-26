@@ -72,7 +72,6 @@ int main(void)
         for (i = 0; i < NUM_FOOS; i++)
                 RB_REMOVE(footree, &tree, &foo[i]);
         xfree(foo);
-        RB_EXIT(&tree);
 
         return 0;
 }

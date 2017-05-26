@@ -11,15 +11,9 @@ OUTER_TREE_TYPE *OUTER_TREE(struct rb3_tree *tree)
 }
 
 _RB3_API_STATIC_INLINE
-void init(OUTER_TREE_TYPE *tree)
+void reset_tree(OUTER_TREE_TYPE *tree)
 {
-        rb3_init(INNER_TREE(tree));
-}
-
-_RB3_API_STATIC_INLINE
-void exit(OUTER_TREE_TYPE *tree)
-{
-        rb3_exit(INNER_TREE(tree));
+        rb3_reset_tree(INNER_TREE(tree));
 }
 
 _RB3_API_STATIC_INLINE

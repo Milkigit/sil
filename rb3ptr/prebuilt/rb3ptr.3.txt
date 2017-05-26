@@ -35,9 +35,7 @@ SYNOPSIS
 
 
    BASIC FUNCTIONS
-       void rb3_init(struct rb3_tree *tree);
-
-       void rb3_exit(struct rb3_tree *tree);
+       void rb3_reset_tree(struct rb3_tree *tree);
 
        int rb3_isempty(struct rb3_tree *tree);
 
@@ -63,6 +61,8 @@ SYNOPSIS
        *parent, int dir);
 
        void rb3_unlink_and_rebalance(struct rb3_head *head);
+
+       void rb3_replace(struct rb3_head *head, struct rb3_head *newhead);
 
        struct  rb3_head  *rb3_insert(struct  rb3_tree  *tree,  struct rb3_head
        *head, struct rb3_cmp cmp, void *data);
@@ -175,26 +175,22 @@ DOCUMENTATION
        implementation  does  not  care about the actual data, but simply main‐
        tains the links between the link structures.
 
-       rb3_cmp is the function type of	user-provided  comparisons  to	direct
-       tree  searches.	At  each visited node, the function is called with the
-       node and a user-provided data as arguments. It should return an integer
-       less  than, equal to, or greater than 0, indicating whether the node in
-       the tree compares less than, equal to, or greater  than	the  user-pro‐
-       vided  data.  This function is always user-provided.  Typically it will
-       make use offsetof(3) or the linux container_of() macro to  get  at  the
-       actual data in which the struct rb3_head node is embedded.
+       rb3_cmp is the function type of comparisons to direct tree searches. At
+       each visited node, the function is called with the node and a user-pro‐
+       vided data as arguments. It should return an integer less  than,  equal
+       to, or greater than 0, indicating whether the node in the tree compares
+       less than, equal to, or greater than the user-provided data. This func‐
+       tion is always user-provided.  Typically it will use offsetof(3) or the
+       linux container_of() macro to get at  the  actual  data	in  which  the
+       struct rb3_head node is embedded.
 
 
 
    BASIC FUNCTIONS
-       rb3_init()  initializes	a  struct rb3_tree.  Zeroing out the structure
-       (e.g., with memset() or static  initialization)	is  also  believed  to
-       work.
-
-       rb3_exit()  frees  the resources associated with a tree. There are cur‐
-       rently no such resources, and it should also be	ok  to	zero  it  out.
-       Usage of this function is recommended for future-proofness and also for
-       reasons of symmetry.
+       rb3_reset_tree() initializes a struct rb3_tree for subsequent use. Note
+       that zeroing the structure (e.g., with memset() or  static  initializa‐
+       tion)  will not do the work. There are no resources allocated, so there
+       is no matching "destructor" routine.
 
        rb3_isempty() tests if a tree does  not	contain  any  nodes.  This  of
        course is true after initialization.
@@ -228,99 +224,103 @@ DOCUMENTATION
        rb3_unlink_and_rebalance() can be used to unlink a given  node  from  a
        tree without any search. The node must be known to be linked in a tree.
 
+       rb3_replace()  unlinks  a  node and puts another one in its place. This
+       operation is constant-time; no rebalancing is required.
+
        rb3_insert() can be used to insert a new node into a tree at a suitable
        insertion point. It takes a tree, the new node to insert, and a rb3_cmp
        function implementing the node ordering to direct the search. If a node
        comparing equal (i.e., the comparison function returns 0 given the vis‐
-       ited  node  and the user-provided node) is found in the tree, that node
-       is returned.  Otherwise, the to-be-inserted node  is  linked  into  the
+       ited node and the user-provided node) is found in the tree,  that  node
+       is  returned.   Otherwise,  the	to-be-inserted node is linked into the
        tree and NULL is returned.
 
-       rb3_delete()  does  a node search in a tree given a comparison function
+       rb3_delete() does a node search in a tree given a  comparison  function
        and data. If a matching node is found, it is unlinked from the tree and
-       a pointer to it is returned. Otherwise, NULL is returned.
-
+       a pointer to it is returned. Otherwise, NULL is returned. Note that the
+       node  is not cleared (zeroed), so if you want .BR rb3_is_node_linked ()
+       to work after the function returns, you should clear the node manually.
 
 
    NAVIGATION FUNCTIONS
-       rb3_get_root()  returns	the root node in the tree, or NULL if the tree
+       rb3_get_root() returns the root node in the tree, or NULL if  the  tree
        is empty.
 
-       rb3_get_base() returns the base head of the tree, which always  exists.
-       If  the	tree is nonempty, the root node is linked as left child of the
+       rb3_get_base()  returns the base head of the tree, which always exists.
+       If the tree is nonempty, the root node is linked as left child  of  the
        base node. This is an implementation detail and need not be relied upon
        in most situations.
 
-       rb3_is_base()  tests  whether  a  link  structure is the base node in a
-       tree. This only can distinguish the base node of a tree that  was  ini‐
-       tialized  with rb3_init(), from non-base nodes that are zeroed or prop‐
-       erly linked in a tree.
+       rb3_is_base() tests whether a link structure is	the  base  node  in  a
+       tree.  This  only can distinguish the base node of a tree that was ini‐
+       tialized with rb3_reset_tree(), from non-base nodes  that  are  cleared
+       (zeroed) or properly linked in a tree.
 
        rb3_is_node_linked() tests whether the given non-base node is linked in
-       a  (any) tree. This can only distinguish nodes that are properly linked
-       in a tree from unlinked or zeroed nodes.
+       a (any) tree. This can only distinguish nodes that are properly	linked
+       in a tree from unlinked (zeroed) nodes.
 
        rb3_get_parent_dir() returns RB3_LEFT or RB3_RIGHT depending on whether
        the given link node is the left or right child of its parent. This is a
-       single bitwise operation on the link structure, so  is  more  efficient
+       single  bitwise	operation  on the link structure, so is more efficient
        than testing both childs of the parent's link structure.
 
-       rb3_has_child()	tests  whether the given link has a child in the given
+       rb3_has_child() tests whether the given link has a child in  the  given
        direction.
 
-       rb3_get_parent() returns the parent link structure of the  given  node.
-       If  the given node is the root node, the base head is returned. If this
-       is not what you want, test if the return value  has  itself  a  parent.
+       rb3_get_parent()  returns  the parent link structure of the given node.
+       If the given node is the root node, the base head is returned. If  this
+       is  not	what  you  want, test if the return value has itself a parent.
        (The base head is the only head that has no parent).
 
-       rb3_get_child()	returns  the  left  or	right child of the given node,
+       rb3_get_child() returns the left or right  child  of  the  given  node,
        depending on the given direction value (RB3_LEFT or RB3_RIGHT)
 
-       rb3_get_prev_ancestor() returns the nearest left ancestor of the  given
+       rb3_get_prev_ancestor()	returns the nearest left ancestor of the given
        head link structure. If none exists, NULL is returned.
 
        rb3_get_next_ancestor() returns the nearest right ancestor of the given
        head link structure. If none exists, NULL is returned.
 
-       rb3_get_prev_descendant() returns the nearest left  descendant  of  the
+       rb3_get_prev_descendant()  returns  the	nearest left descendant of the
        given head link structure. If none exists, NULL is returned.
 
-       rb3_get_next_descendant()  returns  the nearest right descendant of the
+       rb3_get_next_descendant() returns the nearest right descendant  of  the
        given head link structure. If none exists, NULL is returned.
 
-       rb3_get_prevnext_ancestor() returns the nearest left or right  ancestor
+       rb3_get_prevnext_ancestor()  returns the nearest left or right ancestor
        (depending on the given direction) of the given head link structure. If
        none exists, NULL is returned.
 
        rb3_get_prevnext_descendant() returns the nearest left or right descen‐
-       dant  (depending  on the given direction) of the given head link struc‐
+       dant (depending on the given direction) of the given head  link	struc‐
        ture. If none exists, NULL is returned.
 
 
 
    MACROS
        RB3_GEN_IMPL() evaluates to a complete implementation of the rb3ptr API
-       with  extern  linkage. Use this only if you can't use a separately com‐
+       with extern linkage. Use this only if you can't use a  separately  com‐
        piled rb3ptr libray.  Macros are hard to debug.
 
-       RB3_GEN_IMPL_STATIC() evaluates to a  complete  implementation  of  the
-       rb3ptr  API  with static linkage. Use this only if no other file in the
+       RB3_GEN_IMPL_STATIC()  evaluates  to  a	complete implementation of the
+       rb3ptr API with static linkage. Use this only if no other file  in  the
        same projects need rb3ptr's functionality.
 
-       RB3_GEN_INLINE() evaluates to an implementation of the  non-comparison-
-       related	functionality of rb3ptr wrapped for a specific datatype.  NAME
-       should be a prefix for these functions, such as	for  example  footree.
+       RB3_GEN_INLINE()  evaluates to an implementation of the non-comparison-
+       related functionality of rb3ptr wrapped for a specific datatype.   NAME
+       should  be  a  prefix for these functions, such as for example footree.
        NODETYPE should be the node type managed by this set of generated func‐
        tions, such as for example structfoo (see the example below).  GET_HEAD
        and  GET_NODE should be macros or functions for the generated implemen‐
-       tation's use to retrieve the embedded link structure from  a  node,  or
+       tation's  use  to  retrieve the embedded link structure from a node, or
        vice versa.
 
        RB3_GEN_NODECMP() TODO
 
        RB3_FOREACH() is a for-loop iteration macro.  NAME should be the prefix
-       used in RB3_GEN_INLINE().  TREE should be a tree of the generated  type
-       (struct	NAME).	NODE should by a value of type NODETYPE *.  It is used
+       used  in RB3_GEN_INLINE().  TREE should be a tree of the generated type
+       (struct NAME).  NODE should by a value of type NODETYPE *.  It is  used
        as iteration variable.
 
 
@@ -335,6 +335,9 @@ DOCUMENTATION
 
 
 EXAMPLE
+       #include <stddef.h>
+       #include <stdlib.h>
+       #include <stdio.h>
        #include <rb3ptr.h>
 
        /*
@@ -347,36 +350,47 @@ EXAMPLE
 	* Define a node datatype and a compare operation
 	*/
        struct foo {
-	    /* the node type must include a struct rb3_head. */
-	    struct rb3_head head;
-	    int val;
-       }
+	       /* the node type must include a struct rb3_head. */
+	       struct rb3_head head;
+	       int val;
+       };
 
-       int compare(struct foo *a, struct foo *b)
+       int foo_compare(struct foo *a, struct foo *b)
        {
-	    return (a->val > b->val) - (a->val < b->val);
+	       return (a->val > b->val) - (a->val < b->val);
        }
 
-       RB3_GEN_INLINE_PROTO_STATIC(footree, struct foo, head);
-       RB3_GEN_NODECMP_PROTO_STATIC(footree, struct foo, head, compare);
+       struct rb3_head *get_head(struct foo *foo)
+       {
+	       return &foo->head;
+       }
+
+       struct foo *get_foo(struct rb3_head *head)
+       {
+	       return (struct foo *)((char *) head - offsetof(struct foo, head));
+       }
+
+       RB3_GEN_TREE_DEFINITION(footree);
+       RB3_GEN_INLINE_PROTO_STATIC(footree, struct foo, get_head, get_foo);
+       RB3_GEN_NODECMP_PROTO_STATIC(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, foo_compare);
+       RB3_GEN_NODECMP_STATIC(footree, /* no suffix for these compare functions */, struct foo, get_head, get_foo, foo_compare);
 
        void testoperations(void)
        {
-	    struct footree tree;
-	    struct foo *iter;
-	    struct foo foo[42];
-	    size_t i;
+	       struct footree tree;
+	       struct foo *iter;
+	       struct foo foo[42];
+	       size_t i;
 
-	    footree_init(&tree);
-	    for (i = 0; i < 42; i++)
-		 foo[i].val = rand();
-	    for (i = 0; i < 42; i++)
-		 footree_insert(&tree, &foo[i]);
-	    for (iter = footree_get_min(&tree); iter != NULL; iter = footree_get_next(iter))
-		 printf("iter %d\n", iter->val);
-	    for (i = 0; i < 42; i++)
-		 footree_delete(&tree, &foo[i]);
-	    footree_exit(&tree);
+	       footree_reset_tree(&tree);
+	       for (i = 0; i < 42; i++)
+		       foo[i].val = rand();
+	       for (i = 0; i < 42; i++)
+		       footree_insert(&tree, &foo[i]);
+	       for (iter = footree_get_min(&tree); iter != NULL; iter = footree_get_next(iter))
+		       printf("iter %d0, iter->val);
+	       for (i = 0; i < 42; i++)
+		       footree_delete(&tree, &foo[i]);
        }
 
 

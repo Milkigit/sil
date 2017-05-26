@@ -52,6 +52,15 @@ void rb3_connect_null(struct rb3_head *head, int dir, struct rb3_head *child, in
                 child->parent = _RB3_PARENT_PTR(head, dir);
 }
 
+_RB3_API _RB3_COLD
+void rb3_reset_tree(struct rb3_tree *tree)
+{
+        tree->base.child[RB3_LEFT] = 0;
+        /* ! see doc of rb3_is_base(). */
+        tree->base.child[RB3_RIGHT] = 3;
+        tree->base.parent = 0;
+}
+
 _RB3_API
 struct rb3_tree *rb3_get_containing_tree(struct rb3_head *head)
 {
@@ -301,15 +310,6 @@ void rb3_unlink_and_rebalance(struct rb3_head *head)
                 rb3_delete_internal(head);
         else
                 rb3_delete_noninternal(head);
-
-        /* We would really like to write
-            *head = (struct rb3_head) {0};
-          how it's supposed to be, but compilers spew warnings without end.
-          
-          So we go with the slower and bigger-in-codesize version */
-        head->child[RB3_LEFT] = 0;
-        head->child[RB3_RIGHT] = 0;
-        head->parent = 0;
 }
 
 /* node-find implementations using code from inline header functions */
@@ -367,22 +367,4 @@ _RB3_API _RB3_NEVERINLINE
 struct rb3_head *rb3_find_parent(struct rb3_tree *tree, rb3_cmp cmp, void *data, struct rb3_head **parent_out, int *dir_out)
 {
         return rb3_find_parent_in_subtree(rb3_get_root(tree), RB3_LEFT, cmp, data, parent_out, dir_out);
-}
-
-/* */
-
-_RB3_API _RB3_NEVERINLINE _RB3_COLD
-void rb3_init(struct rb3_tree *tree)
-{
-        tree->base.child[RB3_LEFT] = 0;
-        /* ! see doc of rb3_is_base(). */
-        tree->base.child[RB3_RIGHT] = 3;
-        tree->base.parent = 0;
-}
-
-_RB3_API _RB3_NEVERINLINE _RB3_COLD
-void rb3_exit(struct rb3_tree *tree)
-{
-        /* No resources allocated */
-        (void) tree;
 }

@@ -49,7 +49,7 @@ static void *bench_rb3_init(void)
 {
         struct bench_rb3_state *state;
         state = xcalloc(1, sizeof *state);
-        bench_rb3tree_init(&state->tree);
+        RB3_RESET_TREE(bench_rb3tree, &state->tree);
         return state;
 }
 
@@ -58,7 +58,6 @@ static void bench_rb3_exit(void *self)
         struct bench_rb3_state *state = self;
         xfree(state->nodes);
         xfree(state);
-        bench_rb3tree_exit(&state->tree);
 }
 
 static void bench_rb3_bench(void *self, struct benchpayload *data, struct action *action, size_t ndata, size_t naction, unsigned *result)

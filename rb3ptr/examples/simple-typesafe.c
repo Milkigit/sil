@@ -67,7 +67,7 @@ int main(void)
         struct foo *foo;
         size_t i;
 
-        RB3_INIT(footree, &tree);
+        RB3_RESET_TREE(footree, &tree);
         foo = xalloc(NUM_FOOS * sizeof (struct foo));
         for (i = 0; i < NUM_FOOS; i++)
                 foo[i].val = NUM_FOOS - (int) i;
@@ -78,7 +78,6 @@ int main(void)
         for (i = 0; i < NUM_FOOS; i++)
                 RB3_DELETE(footree, &tree, &foo[i]);
         xfree(foo);
-        RB3_EXIT(footree, &tree);
 
         return 0;
 }
