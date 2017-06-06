@@ -77,6 +77,12 @@ void unlink_and_rebalance(NODE_TYPE *node)
  */
 
 _RB3_API_STATIC_INLINE
+struct rb3_head *get_base(OUTER_TREE_TYPE *tree)
+{
+        return &INNER_TREE(tree)->base;
+}
+
+_RB3_API_STATIC_INLINE
 NODE_TYPE *get_root(OUTER_TREE_TYPE *tree)
 {
         return GET_NODE(rb3_get_root(INNER_TREE(tree)));

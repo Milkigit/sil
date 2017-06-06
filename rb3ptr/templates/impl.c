@@ -315,20 +315,29 @@ void rb3_unlink_and_rebalance(struct rb3_head *head)
 /* node-find implementations using code from inline header functions */
 
 _RB3_API _RB3_NEVERINLINE
-struct rb3_head *rb3_find_in_subtree(struct rb3_head *subtree, rb3_cmp cmp, void *data)
+struct rb3_head *rb3_find_parent_in_subtree(struct rb3_head *parent, int dir, rb3_cmp cmp, void *data, struct rb3_head **parent_out, int *dir_out)
 {
-        return rb3_INLINE_find_in_subtree(subtree, cmp, data);
+        return rb3_INLINE_find(parent, dir, cmp, data, parent_out, dir_out);
 }
 
 _RB3_API _RB3_NEVERINLINE
-struct rb3_head *rb3_find_parent_in_subtree(struct rb3_head *parent, int dir, rb3_cmp cmp, void *data, struct rb3_head **parent_out, int *dir_out)
+struct rb3_head *rb3_find_in_subtree(struct rb3_head *subtree, rb3_cmp cmp, void *data)
 {
-        return rb3_INLINE_find_parent_in_subtree(parent, dir, cmp, data, parent_out, dir_out);
+        struct rb3_head *parent;
+        int dir;
+
+        /*
+         * We do a little more work than strictly necessary here. That's to
+         * save some machine code for a different search function.
+         */
+        parent = rb3_get_parent(subtree);
+        dir = rb3_get_parent_dir(subtree);
+        return rb3_find_parent_in_subtree(parent, dir, cmp, data, _RB3_NULL, _RB3_NULL);
 }
 
 /* find, insert, delete with rb3_datacmp */
 
-_RB3_API _RB3_NEVERINLINE
+_RB3_API
 struct rb3_head *rb3_insert(struct rb3_tree *tree, struct rb3_head *head, rb3_cmp cmp, void *data)
 {
         struct rb3_head *found;
@@ -344,7 +353,7 @@ struct rb3_head *rb3_insert(struct rb3_tree *tree, struct rb3_head *head, rb3_cm
         return _RB3_NULL;
 }
 
-_RB3_API _RB3_NEVERINLINE
+_RB3_API
 struct rb3_head *rb3_delete(struct rb3_tree *tree, rb3_cmp cmp, void *data)
 {
         struct rb3_head *found;
@@ -357,14 +366,14 @@ struct rb3_head *rb3_delete(struct rb3_tree *tree, rb3_cmp cmp, void *data)
         return _RB3_NULL;
 }
 
-_RB3_API _RB3_NEVERINLINE
-struct rb3_head *rb3_find(struct rb3_tree *tree, rb3_cmp cmp, void *data)
-{
-        return rb3_find_in_subtree(rb3_get_root(tree), cmp, data);
-}
-
-_RB3_API _RB3_NEVERINLINE
+_RB3_API
 struct rb3_head *rb3_find_parent(struct rb3_tree *tree, rb3_cmp cmp, void *data, struct rb3_head **parent_out, int *dir_out)
 {
         return rb3_find_parent_in_subtree(rb3_get_root(tree), RB3_LEFT, cmp, data, parent_out, dir_out);
+}
+
+_RB3_API
+struct rb3_head *rb3_find(struct rb3_tree *tree, rb3_cmp cmp, void *data)
+{
+        return rb3_find_parent_in_subtree(rb3_get_root(tree), RB3_LEFT, cmp, data, _RB3_NULL, _RB3_NULL);
 }
