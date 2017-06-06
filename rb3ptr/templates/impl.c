@@ -377,3 +377,46 @@ struct rb3_head *rb3_find(struct rb3_tree *tree, rb3_cmp cmp, void *data)
 {
         return rb3_find_parent_in_subtree(rb3_get_root(tree), RB3_LEFT, cmp, data, _RB3_NULL, _RB3_NULL);
 }
+
+/* TODO: need to work on this API */
+
+_RB3_API _RB3_NEVERINLINE
+void rb3_find_bounds(struct rb3_head *parent, int dir, rb3_cmp cmp, void *data, struct rb3_head **lt_out, struct rb3_head **le_out, struct rb3_head **eq_out, struct rb3_head **ge_out, struct rb3_head **gt_out)
+{
+        struct rb3_head *found;
+        struct rb3_head *tmp;
+
+        if (!rb3_get_child(parent, dir)) {
+                /* (sub)tree empty */
+                *lt_out = _RB3_NULL;
+                *le_out = _RB3_NULL;
+                *eq_out = _RB3_NULL;
+                *ge_out = _RB3_NULL;
+                *gt_out = _RB3_NULL;
+                return;
+        }
+
+        found = rb3_find_parent_in_subtree(parent, dir, cmp, data, &parent, &dir);
+
+        if (found) {
+                *lt_out = rb3_get_prev(found);
+                *le_out = found;
+                *eq_out = found;
+                *ge_out = found;
+                *gt_out = rb3_get_next(found);
+        } else if (dir == RB3_LEFT) {
+                tmp = rb3_get_prev_ancestor(parent);
+                *lt_out = tmp;
+                *le_out = tmp;
+                *eq_out = _RB3_NULL;
+                *ge_out = parent;
+                *gt_out = parent;
+        } else {
+                tmp = rb3_get_next_ancestor(parent);
+                *lt_out = parent;
+                *le_out = parent;
+                *eq_out = _RB3_NULL;
+                *ge_out = tmp;
+                *gt_out = tmp;
+        }
+}
