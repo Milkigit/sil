@@ -4,7 +4,16 @@ to grow.
 When it gets a website someday, I will host it under the name sil.ly
 (actually no, I already checked and it's not available: DNS name too short)
 
-The following data structures currently exist (currently only trees):
+The following data structures currently exist:
+
+
+heap/
+-----
+
+Array-based priority queue implementation. Unlike most implementations,
+supports heap position update() callback and removal of arbitrary heap elements
+("cancelation"). CURRENTLY NOT TESTED. See heap/README.txt
+
 
 Trees
 =====
