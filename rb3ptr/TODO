@@ -1,3 +1,6 @@
 - maybe rename rb3_head to rb3_node or rb3_link
 - work out which of the navigation functions take NULL
-- rb3_is_node_linked()
+- Support fixing up links after reallocation of backing memory. How? For single
+  contiguous backing array, we could add an offset to all child or parent
+  pointers. For non-contiguous?  More difficult. We probably want a toolbox
+  approach.

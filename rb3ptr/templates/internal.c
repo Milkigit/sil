@@ -9,13 +9,6 @@
  */
 
 /**
- * Like rb3_find() but starts at the given subtree represented by a link head
- * (which may be NULL) instead of at the root of the tree.
- */
-_RB3_API
-struct rb3_head *rb3_find_in_subtree(struct rb3_head *subtree, rb3_cmp, void *data);
-
-/**
  * Find suitable insertion point for a new node in a subtree, directed by the
  * given search function. The subtree is given by its parent node `parent` and
  * child direction `dir`. The insertion point and its child direction are
