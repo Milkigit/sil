@@ -4,3 +4,9 @@
   contiguous backing array, we could add an offset to all child or parent
   pointers. For non-contiguous?  More difficult. We probably want a toolbox
   approach.
+- for Multimaps:
+   - recommend including memory address in comparison function? What about
+     reallocation?
+   - want something like rb3_find_first() / rb3_find_last() for predicates that
+     satisfy a range of items (but must still be monotonic with respect to tree
+     ordering).
