@@ -75,9 +75,9 @@ static size_t heap_bubble_down(void *array, size_t size, size_t elemsize, size_t
 void heap_put(void *array, size_t *size, size_t elemsize, void *elem, int (*compare)(void *a, void *b), void (*update)(void *array, size_t pos))
 {
         size_t pos;
-        *size = *size + 1;
 
-        pos = heap_bubble_up(array, elemsize, *size, elem, compare, update);
+        pos = (*size)++;
+        pos = heap_bubble_up(array, elemsize, pos, elem, compare, update);
         HEAP_ASSIGN(pos, elem);
 }
 
